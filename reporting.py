@@ -276,7 +276,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .desktop-table {{
       background: var(--card);
       border-radius: 14px;
-      overflow: hidden;
+      overflow: visible;
       box-shadow: 0 8px 24px rgba(15, 35, 70, 0.08);
     }}
     table.summary-table {{
@@ -302,6 +302,8 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       top: 0;
       vertical-align: middle;
       white-space: nowrap;
+      z-index: 5;
+      box-shadow: 0 2px 0 rgba(15, 35, 70, 0.18);
     }}
     .summary-table th:nth-child(1), .summary-table td:nth-child(1) {{ width: 4%; text-align: center; }}
     .summary-table th:nth-child(2), .summary-table td:nth-child(2) {{ width: 6%; text-align: center; }}
