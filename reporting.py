@@ -21,7 +21,7 @@ DISPLAY_COLUMN_RENAMES = {
     "阿斯拉分數": "強度分數",
     "阿斯拉評級": "觀察評等",
     "關注原因": "入選理由",
-    "收盤價": "收盤價(日期)",
+    "收盤價": "收盤價",
 }
 
 
@@ -60,8 +60,10 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
         )
         output = output.rename(columns={"當天成交量": "當天成交量(張)"})
     if "收盤價" in output.columns and "股價最後日期" in output.columns:
-        dates = pd.to_datetime(output["股價最後日期"], errors="coerce").dt.strftime("%m/%d")
-        output["收盤價"] = output["收盤價"].astype(str) + " (" + dates.fillna(output["股價最後日期"].astype(str)) + ")"
+        dates = pd.to_datetime(output["股價最後日期"], errors="coerce")
+        latest_date = dates.max()
+        if pd.notna(latest_date):
+            output.attrs["price_date_label"] = latest_date.strftime("%m/%d")
         output = output.drop(columns=["股價最後日期"])
     output = output.rename(columns=DISPLAY_COLUMN_RENAMES)
     return output
@@ -129,7 +131,7 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         reason = _value(row, "入選理由")
         business = _value(row, "公司業務")
         risk = _value(row, "風險說明")
-        price = _value(row, "收盤價(日期)")
+        price = _value(row, "收盤價")
         volume = _value(row, "當天成交量(張)")
         yoy = _format_percent(row, "月營收年增率")
         mom = _format_percent(row, "月營收月增率")
@@ -146,7 +148,7 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
       </div>
       <div class="metrics">
         <div><span>分數</span><strong>{score}</strong></div>
-        <div><span>收盤</span><strong>{price}</strong></div>
+        <div><span>收盤價</span><strong>{price}</strong></div>
         <div><span>成交量</span><strong>{volume} 張</strong></div>
       </div>
       <div class="metrics">
@@ -175,7 +177,7 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "概念股",
         "強度分數",
         "觀察評等",
-        "收盤價(日期)",
+        "收盤價",
         "當天成交量(張)",
         "月營收年增率",
         "月營收月增率",
@@ -183,12 +185,14 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
     ]
     available = [column for column in columns if column in display_report.columns]
     summary = display_report[available].copy()
+    price_date = display_report.attrs.get("price_date_label")
+    price_header = f"收盤價<br>{price_date}" if price_date else "收盤價"
     header_labels = {
         "股票代號": "股票<br>代號",
         "股票名稱": "股票<br>名稱",
         "強度分數": "強度<br>分數",
         "觀察評等": "觀察<br>評等",
-        "收盤價(日期)": "收盤價<br>(日期)",
+        "收盤價": price_header,
         "當天成交量(張)": "當天成交量<br>(張)",
         "月營收年增率": "營收年增<br>(%)",
         "月營收月增率": "營收月增<br>(%)",
