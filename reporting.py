@@ -132,14 +132,14 @@ def build_index_html(latest_report: str, latest_csv: str, stamp: str) -> str:
   <meta charset="utf-8">
   <meta http-equiv="refresh" content="0; url={latest_report}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>阿斯拉台股主升段雷達</title>
+  <title>阿斯拉台股月營收轉強雷達</title>
   <style>
     body {{ font-family: "Microsoft JhengHei", Arial, sans-serif; margin: 32px; line-height: 1.6; }}
     a {{ color: #0f4c81; }}
   </style>
 </head>
 <body>
-  <h1>阿斯拉台股主升段雷達</h1>
+  <h1>阿斯拉台股月營收轉強雷達</h1>
   <p>正在開啟最新盤後報告：{stamp}</p>
   <p><a href="{latest_report}">如果沒有自動開啟，請點這裡查看最新報告</a></p>
   <p><a href="{latest_csv}">下載最新 CSV</a></p>
@@ -351,6 +351,30 @@ def build_filter_section() -> str:
 """
 
 
+def build_data_basis_section() -> str:
+    items = [
+        ("月營收年增率", "每月更新"),
+        ("月營收月增率", "每月更新"),
+        ("收盤價", "交易日更新"),
+        ("成交量", "交易日更新"),
+        ("強度分數", "依最新資料重新排序"),
+        ("風險標籤", "依營收、量能與分數條件產生"),
+    ]
+    rows = "".join(
+        f'<div class="basis-item"><span>{escape(label)}</span><strong>{escape(value)}</strong></div>'
+        for label, value in items
+    )
+    return f"""
+    <section class="panel basis-panel">
+      <div class="section-title">
+        <h2>資料依據與更新頻率</h2>
+        <span>說明各欄位更新節奏</span>
+      </div>
+      <div class="basis-grid">{rows}</div>
+    </section>
+"""
+
+
 def build_holdings_section(display_report: pd.DataFrame) -> str:
     rows: list[str] = []
     if "股票代號" not in display_report.columns:
@@ -421,6 +445,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     desktop_table = build_desktop_summary_table(display_report)
     mobile_cards = build_mobile_cards(display_report)
     overview_section = build_overview_section(display_report)
+    data_basis_section = build_data_basis_section()
     filter_section = build_filter_section()
     holdings_section = build_holdings_section(display_report)
     html = f"""<!doctype html>
@@ -428,7 +453,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>阿斯拉台股主升段雷達</title>
+  <title>阿斯拉台股月營收轉強雷達</title>
   <style>
     :root {{
       color-scheme: light;
@@ -459,6 +484,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     }}
     h1 {{ margin: 0 0 8px; font-size: clamp(24px, 5vw, 36px); }}
     .note {{ color: #dbeafe; margin: 0; }}
+    .disclaimer {{ margin-top: 10px; }}
     .score-note {{
       color: #e0f2fe;
       font-size: 13px;
@@ -520,6 +546,29 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       color: var(--ink);
       display: block;
       font-size: 16px;
+      margin-top: 4px;
+    }}
+    .basis-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }}
+    .basis-item {{
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }}
+    .basis-item span {{
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .basis-item strong {{
+      color: var(--accent);
+      display: block;
+      font-size: 15px;
       margin-top: 4px;
     }}
     .filter-grid {{
@@ -730,6 +779,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       .panel {{ border-radius: 14px; padding: 14px; }}
       .section-title {{ align-items: flex-start; flex-direction: column; gap: 2px; }}
       .overview-grid,
+      .basis-grid,
       .filter-grid,
       .holdings-grid {{ grid-template-columns: 1fr; }}
       .desktop-table {{ display: none; }}
@@ -742,14 +792,16 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
 <body>
   <main class="page">
     <section class="hero">
-      <h1>阿斯拉台股主升段雷達</h1>
-      <p class="note">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
+      <h1>阿斯拉台股月營收轉強雷達</h1>
+      <p class="note">本雷達以最新月營收年增率、月增率作為基本面初篩，再結合當日收盤價、成交量、題材分類與風險標籤進行排序。月營收通常不會每日變動，股價與成交量則依交易日更新，因此每日排名可能小幅變動，月營收公告期則可能大幅變動。</p>
+      <p class="note disclaimer">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
       <p class="score-note">強度分數為 0-100 分，用來排序候選股強弱；觀察評等依分數分級，方便快速判斷觀察優先順序。</p>
       <div class="actions">
         <a href="latest.csv">下載 CSV</a>
         <button type="button" onclick="alert('本雷達依據營收成長、成交量、股價位置、題材概念與技術強度進行初步篩選，僅供研究與風險控管參考，不構成投資建議。')">資料說明</button>
       </div>
     </section>
+{data_basis_section}
 {overview_section}
 {holdings_section}
 {filter_section}
