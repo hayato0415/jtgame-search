@@ -18,10 +18,10 @@ BOOLEAN_DISPLAY_COLUMNS = [
 ]
 
 DISPLAY_COLUMN_RENAMES = {
-    "阿斯拉分數": "綜合強度分數",
-    "阿斯拉評級": "投資觀察評等",
+    "阿斯拉分數": "強度分數",
+    "阿斯拉評級": "觀察評等",
     "關注原因": "入選理由",
-    "收盤價": "收盤價(當天的日期)",
+    "收盤價": "收盤價(日期)",
 }
 
 
@@ -123,13 +123,13 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         rank = _value(row, "排名")
         code = _value(row, "股票代號")
         name = _value(row, "股票名稱")
-        rating = _value(row, "投資觀察評等")
-        score = _format_number(row, "綜合強度分數", decimals=1)
+        rating = _value(row, "觀察評等")
+        score = _format_number(row, "強度分數", decimals=1)
         concept = _value(row, "概念股")
         reason = _value(row, "入選理由")
         business = _value(row, "公司業務")
         risk = _value(row, "風險說明")
-        price = _value(row, "收盤價(當天的日期)")
+        price = _value(row, "收盤價(日期)")
         volume = _value(row, "當天成交量(張)")
         yoy = _format_percent(row, "月營收年增率")
         mom = _format_percent(row, "月營收月增率")
@@ -173,9 +173,9 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "股票代號",
         "股票名稱",
         "概念股",
-        "綜合強度分數",
-        "投資觀察評等",
-        "收盤價(當天的日期)",
+        "強度分數",
+        "觀察評等",
+        "收盤價(日期)",
         "當天成交量(張)",
         "月營收年增率",
         "月營收月增率",
@@ -183,7 +183,20 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
     ]
     available = [column for column in columns if column in display_report.columns]
     summary = display_report[available].copy()
-    return summary.to_html(index=False, classes="summary-table", border=0)
+    header_labels = {
+        "股票代號": "股票<br>代號",
+        "股票名稱": "股票<br>名稱",
+        "強度分數": "強度<br>分數",
+        "觀察評等": "觀察<br>評等",
+        "收盤價(日期)": "收盤價<br>(日期)",
+        "當天成交量(張)": "當天成交量<br>(張)",
+        "月營收年增率": "營收年增<br>(%)",
+        "月營收月增率": "營收月增<br>(%)",
+    }
+    html = summary.to_html(index=False, classes="summary-table", border=0)
+    for original, label in header_labels.items():
+        html = html.replace(f"<th>{original}</th>", f"<th>{label}</th>")
+    return html
 
 
 def publish_static_site(csv_path: Path, html_path: Path, stamp: str, site_dir: Path = SITE_DIR) -> None:
@@ -277,6 +290,9 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .summary-table th {{
       background: #152238;
       color: white;
+      font-size: 13px;
+      letter-spacing: .03em;
+      line-height: 1.25;
       position: sticky;
       text-align: center;
       top: 0;
@@ -285,15 +301,15 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     }}
     .summary-table th:nth-child(1), .summary-table td:nth-child(1) {{ width: 4%; text-align: center; }}
     .summary-table th:nth-child(2), .summary-table td:nth-child(2) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(3), .summary-table td:nth-child(3) {{ width: 7%; text-align: center; }}
+    .summary-table th:nth-child(3), .summary-table td:nth-child(3) {{ width: 8%; text-align: center; }}
     .summary-table th:nth-child(4), .summary-table td:nth-child(4) {{ width: 15%; }}
     .summary-table th:nth-child(5), .summary-table td:nth-child(5) {{ width: 6%; text-align: right; }}
     .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 9%; text-align: right; }}
+    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 8%; text-align: right; }}
     .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 9%; text-align: right; }}
     .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 8%; text-align: right; }}
     .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 21%; }}
+    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 22%; }}
     .summary-table td:nth-child(4),
     .summary-table td:nth-child(11) {{
       line-height: 1.45;
@@ -376,7 +392,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     <section class="hero">
       <h1>阿斯拉台股主升段雷達</h1>
       <p class="note">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
-      <p class="score-note">綜合強度分數為 0-100 分，用來排序候選股強弱；投資觀察評等依分數分級，方便快速判斷觀察優先順序。</p>
+      <p class="score-note">強度分數為 0-100 分，用來排序候選股強弱；觀察評等依分數分級，方便快速判斷觀察優先順序。</p>
       <div class="actions">
         <a href="latest.csv">下載 CSV</a>
         <button type="button" onclick="alert('本雷達依據營收成長、成交量、股價位置、題材概念與技術強度進行初步篩選，僅供研究與風險控管參考，不構成投資建議。')">資料說明</button>
