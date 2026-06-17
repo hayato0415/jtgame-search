@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from html import escape
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -24,6 +25,8 @@ DISPLAY_COLUMN_RENAMES = {
     "收盤價": "收盤價",
 }
 
+HOLDING_CODES = ["2337", "2313", "3673", "4960", "3231"]
+
 
 def _to_yes_no(value: object) -> object:
     if pd.isna(value):
@@ -36,6 +39,55 @@ def _to_yes_no(value: object) -> object:
     if text.lower() == "false":
         return "否"
     return value
+
+
+def _parse_number(value: object) -> float | None:
+    if pd.isna(value):
+        return None
+    text = str(value).replace("%", "").replace(",", "").strip()
+    if text in {"", "-"}:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _build_risk_tags(row: pd.Series) -> str:
+    tags: list[str] = []
+    yoy = _parse_number(row.get("月營收年增率"))
+    mom = _parse_number(row.get("月營收月增率"))
+    volume = _parse_number(row.get("當天成交量(張)"))
+    score = _parse_number(row.get("強度分數"))
+    rating = str(row.get("觀察評等", "")).strip()
+
+    if mom is not None and mom < 0:
+        tags.append("月增轉弱")
+    if yoy is not None and yoy > 300 and mom is not None and mom < 10:
+        tags.append("低基期需確認")
+    if volume is not None and volume > 50000:
+        tags.append("爆量股")
+    if rating == "B" and score is not None and score < 60:
+        tags.append("觀察順位較後")
+    return "、".join(tags) if tags else "一般觀察"
+
+
+def _filter_attrs(row: pd.Series) -> str:
+    code = _value(row, "股票代號")
+    name = _value(row, "股票名稱")
+    rating = _value(row, "觀察評等")
+    concept = _value(row, "概念股")
+    mom = _parse_number(row.get("月營收月增率"))
+    mom_value = "" if mom is None else f"{mom:.4f}"
+    search = f"{code} {name}".lower()
+    return (
+        f'data-code="{escape(code)}" '
+        f'data-name="{escape(name)}" '
+        f'data-search="{escape(search)}" '
+        f'data-rating="{escape(rating)}" '
+        f'data-concept="{escape(concept.lower())}" '
+        f'data-mom="{escape(mom_value)}"'
+    )
 
 
 def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
@@ -66,6 +118,10 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
             output.attrs["price_date_label"] = latest_date.strftime("%m/%d")
         output = output.drop(columns=["股價最後日期"])
     output = output.rename(columns=DISPLAY_COLUMN_RENAMES)
+    if "是否適合慢慢買" in output.columns:
+        output = output.drop(columns=["是否適合慢慢買"])
+    output["觀察節奏"] = "研究觀察"
+    output["風險標籤"] = output.apply(_build_risk_tags, axis=1)
     return output
 
 
@@ -119,6 +175,10 @@ def _format_number(row: pd.Series, column: str, decimals: int = 1) -> str:
     return f"{value:,.{decimals}f}"
 
 
+def _risk_tag_html(tags: str) -> str:
+    return "".join(f'<span class="risk-pill">{escape(tag.strip())}</span>' for tag in tags.split("、") if tag.strip())
+
+
 def build_mobile_cards(display_report: pd.DataFrame) -> str:
     cards: list[str] = []
     for _, row in display_report.iterrows():
@@ -135,33 +195,36 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         volume = _value(row, "當天成交量(張)")
         yoy = _format_percent(row, "月營收年增率")
         mom = _format_percent(row, "月營收月增率")
-        slow_buy = _value(row, "是否適合慢慢買")
+        rhythm = _value(row, "觀察節奏")
+        risk_tags = _value(row, "風險標籤")
+        attrs = _filter_attrs(row)
         cards.append(
             f"""
-    <article class="stock-card">
+    <article class="stock-card radar-item" {attrs}>
       <div class="card-top">
         <div>
-          <div class="rank">#{rank}</div>
-          <h2>{code} {name}</h2>
+          <div class="rank">#{escape(rank)}</div>
+          <h2>{escape(code)} {escape(name)}</h2>
         </div>
-        <div class="badge">{rating}</div>
+        <div class="badge">{escape(rating)}</div>
       </div>
       <div class="metrics">
-        <div><span>分數</span><strong>{score}</strong></div>
-        <div><span>收盤價</span><strong>{price}</strong></div>
-        <div><span>成交量</span><strong>{volume} 張</strong></div>
+        <div><span>分數</span><strong>{escape(score)}</strong></div>
+        <div><span>收盤價</span><strong>{escape(price)}</strong></div>
+        <div><span>成交量</span><strong>{escape(volume)} 張</strong></div>
       </div>
       <div class="metrics">
-        <div><span>年增</span><strong>{yoy}</strong></div>
-        <div><span>月增</span><strong>{mom}</strong></div>
-        <div><span>慢慢買</span><strong>{slow_buy}</strong></div>
+        <div><span>年增</span><strong>{escape(yoy)}</strong></div>
+        <div><span>月增</span><strong>{escape(mom)}</strong></div>
+        <div><span>觀察節奏</span><strong>{escape(rhythm)}</strong></div>
       </div>
-      <p class="concept"><span>概念股：</span>{concept}</p>
-      <p><strong>關注：</strong>{reason}</p>
+      <div class="risk-tags">{_risk_tag_html(risk_tags)}</div>
+      <p class="concept"><span>概念股：</span>{escape(concept)}</p>
+      <p><strong>入選理由：</strong>{escape(reason)}</p>
       <details>
         <summary>公司業務與風險</summary>
-        <p>{business}</p>
-        <p><strong>風險：</strong>{risk}</p>
+        <p>{escape(business)}</p>
+        <p><strong>風險：</strong>{escape(risk)}</p>
       </details>
     </article>
 """
@@ -181,6 +244,8 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "當天成交量(張)",
         "月營收年增率",
         "月營收月增率",
+        "風險標籤",
+        "觀察節奏",
         "入選理由",
     ]
     available = [column for column in columns if column in display_report.columns]
@@ -196,11 +261,134 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "當天成交量(張)": "當天成交量<br>(張)",
         "月營收年增率": "營收年增<br>(%)",
         "月營收月增率": "營收月增<br>(%)",
+        "風險標籤": "風險<br>標籤",
+        "觀察節奏": "觀察<br>節奏",
     }
-    html = summary.to_html(index=False, classes="summary-table", border=0)
-    for original, label in header_labels.items():
-        html = html.replace(f"<th>{original}</th>", f"<th>{label}</th>")
-    return html
+    headers = "".join(f"<th>{header_labels.get(column, escape(column))}</th>" for column in available)
+    rows: list[str] = []
+    for _, row in summary.iterrows():
+        attrs = _filter_attrs(row)
+        cells: list[str] = []
+        for column in available:
+            value = _value(row, column)
+            if column == "風險標籤":
+                cells.append(f"<td>{_risk_tag_html(value)}</td>")
+            else:
+                cells.append(f"<td>{escape(value)}</td>")
+        rows.append(f'<tr class="radar-item" {attrs}>{"".join(cells)}</tr>')
+    return f"""<table class="summary-table">
+  <thead>
+    <tr>{headers}</tr>
+  </thead>
+  <tbody>
+    {"".join(rows)}
+  </tbody>
+</table>"""
+
+
+def build_overview_section(display_report: pd.DataFrame) -> str:
+    total = len(display_report)
+    rating = display_report["觀察評等"].astype(str) if "觀察評等" in display_report.columns else pd.Series(dtype=str)
+    a_count = int((rating == "A").sum())
+    a_minus_count = int((rating == "A-").sum())
+    b_count = int((rating == "B").sum())
+    concepts: list[str] = []
+    if "概念股" in display_report.columns:
+        for value in display_report["概念股"].dropna():
+            concepts.extend([item.strip() for item in str(value).split(";") if item.strip()])
+    top_concepts = pd.Series(concepts).value_counts().head(5).index.tolist() if concepts else []
+    concept_text = "、".join(top_concepts) if top_concepts else "暫無明顯集中題材"
+    cards = [
+        ("今日入選檔數", f"{total} 檔"),
+        ("A級以上檔數", f"{a_count} 檔"),
+        ("A-級檔數", f"{a_minus_count} 檔"),
+        ("B級檔數", f"{b_count} 檔"),
+    ]
+    stats = "".join(
+        f'<div class="overview-card"><span>{escape(label)}</span><strong>{escape(value)}</strong></div>'
+        for label, value in cards
+    )
+    return f"""
+    <section class="panel overview-panel">
+      <div class="section-title">
+        <h2>今日雷達總覽</h2>
+        <span>依目前前 30 名報告統計</span>
+      </div>
+      <div class="overview-grid">{stats}</div>
+      <div class="theme-strip"><span>今日主要強勢題材</span><strong>{escape(concept_text)}</strong></div>
+    </section>
+"""
+
+
+def build_filter_section() -> str:
+    return """
+    <section class="panel filter-panel">
+      <div class="section-title">
+        <h2>搜尋與篩選</h2>
+        <span id="filter-count">顯示全部</span>
+      </div>
+      <div class="filter-grid">
+        <label>股票搜尋
+          <input id="searchInput" type="search" placeholder="輸入代號或名稱，例如 2337、旺宏">
+        </label>
+        <label>觀察評等
+          <select id="ratingFilter">
+            <option value="">全部</option>
+            <option value="A">A</option>
+            <option value="A-">A-</option>
+            <option value="B">B</option>
+          </select>
+        </label>
+        <label>概念股關鍵字
+          <input id="conceptInput" type="search" placeholder="例如 PCB、AI伺服器、記憶體">
+        </label>
+        <label class="check-row">
+          <input id="positiveMomOnly" type="checkbox">
+          <span>只看營收月增為正</span>
+        </label>
+      </div>
+    </section>
+"""
+
+
+def build_holdings_section(display_report: pd.DataFrame) -> str:
+    rows: list[str] = []
+    if "股票代號" not in display_report.columns:
+        hits = pd.DataFrame()
+    else:
+        code_series = display_report["股票代號"].astype(str).str.strip()
+        hits = display_report[code_series.isin(HOLDING_CODES)]
+
+    hit_by_code = {str(row["股票代號"]).strip(): row for _, row in hits.iterrows()}
+    for code in HOLDING_CODES:
+        row = hit_by_code.get(code)
+        if row is None:
+            rows.append(
+                f"""
+        <div class="holding-card muted-hit">
+          <strong>{escape(code)}</strong>
+          <span>今日未入選雷達</span>
+        </div>
+"""
+            )
+        else:
+            rows.append(
+                f"""
+        <div class="holding-card hit">
+          <strong>{escape(_value(row, "股票代號"))} {escape(_value(row, "股票名稱"))}</strong>
+          <span>排名 #{escape(_value(row, "排名"))}｜分數 {escape(_value(row, "強度分數"))}｜評等 {escape(_value(row, "觀察評等"))}</span>
+        </div>
+"""
+            )
+    return f"""
+    <section class="panel holdings-panel">
+      <div class="section-title">
+        <h2>我的持股命中</h2>
+        <span>追蹤 2337、2313、3673、4960、3231</span>
+      </div>
+      <div class="holdings-grid">{"".join(rows)}</div>
+    </section>
+"""
 
 
 def publish_static_site(csv_path: Path, html_path: Path, stamp: str, site_dir: Path = SITE_DIR) -> None:
@@ -232,6 +420,9 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
 
     desktop_table = build_desktop_summary_table(display_report)
     mobile_cards = build_mobile_cards(display_report)
+    overview_section = build_overview_section(display_report)
+    filter_section = build_filter_section()
+    holdings_section = build_holdings_section(display_report)
     html = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -273,6 +464,154 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       font-size: 13px;
       margin: 10px 0 0;
     }}
+    .panel {{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(15, 35, 70, 0.08);
+      margin-bottom: 16px;
+      padding: 16px;
+    }}
+    .section-title {{
+      align-items: baseline;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }}
+    .section-title h2 {{
+      color: var(--ink);
+      font-size: 20px;
+      margin: 0;
+    }}
+    .section-title span {{
+      color: var(--muted);
+      font-size: 13px;
+    }}
+    .overview-grid {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }}
+    .overview-card {{
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 14px;
+    }}
+    .overview-card span,
+    .theme-strip span {{
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+    }}
+    .overview-card strong {{
+      color: var(--accent);
+      display: block;
+      font-size: 24px;
+      margin-top: 4px;
+    }}
+    .theme-strip {{
+      background: linear-gradient(135deg, #e0f2fe, #f8fafc);
+      border-radius: 14px;
+      margin-top: 10px;
+      padding: 14px;
+    }}
+    .theme-strip strong {{
+      color: var(--ink);
+      display: block;
+      font-size: 16px;
+      margin-top: 4px;
+    }}
+    .filter-grid {{
+      display: grid;
+      grid-template-columns: 1.2fr .7fr 1fr .8fr;
+      gap: 10px;
+      align-items: end;
+    }}
+    .filter-grid label {{
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .filter-grid input,
+    .filter-grid select {{
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 15px;
+      margin-top: 6px;
+      padding: 10px 12px;
+      width: 100%;
+    }}
+    .check-row {{
+      align-items: center;
+      background: #f8fafc;
+      border-radius: 12px;
+      display: flex !important;
+      gap: 8px;
+      padding: 10px 12px;
+    }}
+    .check-row input {{
+      margin: 0;
+      width: auto;
+    }}
+    .holdings-grid {{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }}
+    .holding-card {{
+      border-radius: 14px;
+      padding: 12px;
+    }}
+    .holding-card strong,
+    .holding-card span {{
+      display: block;
+    }}
+    .holding-card span {{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }}
+    .holding-card.hit {{
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+    }}
+    .holding-card.muted-hit {{
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }}
+    .risk-tags {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }}
+    .risk-pill {{
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 999px;
+      color: #3730a3;
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 4px 8px;
+      white-space: nowrap;
+    }}
+    .no-results {{
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      color: #9a3412;
+      display: none;
+      font-weight: 800;
+      margin-bottom: 14px;
+      padding: 14px;
+      text-align: center;
+    }}
     .desktop-table {{
       background: var(--card);
       border-radius: 14px;
@@ -306,18 +645,20 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       box-shadow: 0 2px 0 rgba(15, 35, 70, 0.18);
     }}
     .summary-table th:nth-child(1), .summary-table td:nth-child(1) {{ width: 4%; text-align: center; }}
-    .summary-table th:nth-child(2), .summary-table td:nth-child(2) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(3), .summary-table td:nth-child(3) {{ width: 8%; text-align: center; }}
-    .summary-table th:nth-child(4), .summary-table td:nth-child(4) {{ width: 15%; }}
-    .summary-table th:nth-child(5), .summary-table td:nth-child(5) {{ width: 6%; text-align: right; }}
-    .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 9%; text-align: right; }}
-    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 22%; }}
+    .summary-table th:nth-child(2), .summary-table td:nth-child(2) {{ width: 5%; text-align: center; }}
+    .summary-table th:nth-child(3), .summary-table td:nth-child(3) {{ width: 7%; text-align: center; }}
+    .summary-table th:nth-child(4), .summary-table td:nth-child(4) {{ width: 13%; }}
+    .summary-table th:nth-child(5), .summary-table td:nth-child(5) {{ width: 5%; text-align: right; }}
+    .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 5%; text-align: center; }}
+    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 7%; text-align: right; }}
+    .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 8%; text-align: right; }}
+    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 7%; text-align: right; }}
+    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 7%; text-align: right; }}
+    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 8%; text-align: center; }}
+    .summary-table th:nth-child(12), .summary-table td:nth-child(12) {{ width: 6%; text-align: center; }}
+    .summary-table th:nth-child(13), .summary-table td:nth-child(13) {{ width: 18%; }}
     .summary-table td:nth-child(4),
-    .summary-table td:nth-child(11) {{
+    .summary-table td:nth-child(13) {{
       line-height: 1.45;
     }}
     tr:nth-child(even) {{ background: #f8fafc; }}
@@ -386,6 +727,11 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     @media (max-width: 768px) {{
       .page {{ padding: 12px; }}
       .hero {{ border-radius: 0 0 18px 18px; margin: -12px -12px 14px; padding: 18px 14px; }}
+      .panel {{ border-radius: 14px; padding: 14px; }}
+      .section-title {{ align-items: flex-start; flex-direction: column; gap: 2px; }}
+      .overview-grid,
+      .filter-grid,
+      .holdings-grid {{ grid-template-columns: 1fr; }}
       .desktop-table {{ display: none; }}
       .mobile-cards {{ display: block; }}
       .metrics {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
@@ -404,6 +750,10 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
         <button type="button" onclick="alert('本雷達依據營收成長、成交量、股價位置、題材概念與技術強度進行初步篩選，僅供研究與風險控管參考，不構成投資建議。')">資料說明</button>
       </div>
     </section>
+{overview_section}
+{holdings_section}
+{filter_section}
+    <div id="noResults" class="no-results">目前篩選條件下沒有符合的股票</div>
     <section class="mobile-cards">
       {mobile_cards}
     </section>
@@ -411,6 +761,57 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       {desktop_table}
     </section>
   </main>
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const conceptInput = document.getElementById('conceptInput');
+    const positiveMomOnly = document.getElementById('positiveMomOnly');
+    const filterCount = document.getElementById('filter-count');
+    const noResults = document.getElementById('noResults');
+
+    function applyFilters() {{
+      const search = (searchInput?.value || '').trim().toLowerCase();
+      const rating = ratingFilter?.value || '';
+      const concept = (conceptInput?.value || '').trim().toLowerCase();
+      const positiveOnly = Boolean(positiveMomOnly?.checked);
+      const rows = Array.from(document.querySelectorAll('tr.radar-item'));
+      const cards = Array.from(document.querySelectorAll('article.radar-item'));
+      let visibleRows = 0;
+
+      function shouldShow(item) {{
+        const itemSearch = item.dataset.search || '';
+        const itemRating = item.dataset.rating || '';
+        const itemConcept = item.dataset.concept || '';
+        const itemMom = Number(item.dataset.mom || 'NaN');
+        if (search && !itemSearch.includes(search)) return false;
+        if (rating && itemRating !== rating) return false;
+        if (concept && !itemConcept.includes(concept)) return false;
+        if (positiveOnly && !(itemMom > 0)) return false;
+        return true;
+      }}
+
+      rows.forEach((row) => {{
+        const show = shouldShow(row);
+        row.style.display = show ? '' : 'none';
+        if (show) visibleRows += 1;
+      }});
+      cards.forEach((card) => {{
+        card.style.display = shouldShow(card) ? '' : 'none';
+      }});
+      if (filterCount) {{
+        filterCount.textContent = `顯示 ${{visibleRows}} 檔`;
+      }}
+      if (noResults) {{
+        noResults.style.display = visibleRows === 0 ? 'block' : 'none';
+      }}
+    }}
+
+    [searchInput, ratingFilter, conceptInput, positiveMomOnly].forEach((control) => {{
+      control?.addEventListener('input', applyFilters);
+      control?.addEventListener('change', applyFilters);
+    }});
+    applyFilters();
+  </script>
 </body>
 </html>
 """
