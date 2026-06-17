@@ -121,6 +121,34 @@
       font-size: 15px;
       margin-top: 4px;
     }
+    .panel-note {
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+    .score-weight-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .score-weight {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+    .score-weight span {
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .score-weight strong {
+      color: var(--accent);
+      display: block;
+      font-size: 22px;
+      margin-top: 4px;
+    }
     .filter-grid {
       display: grid;
       grid-template-columns: 1.2fr .7fr 1fr .8fr;
@@ -330,6 +358,7 @@
       .section-title { align-items: flex-start; flex-direction: column; gap: 2px; }
       .overview-grid,
       .basis-grid,
+      .score-weight-grid,
       .filter-grid,
       .holdings-grid { grid-template-columns: 1fr; }
       .desktop-table { display: none; }
@@ -358,6 +387,15 @@
         <span>說明各欄位更新節奏</span>
       </div>
       <div class="basis-grid"><div class="basis-item"><span>月營收年增率</span><strong>每月更新</strong></div><div class="basis-item"><span>月營收月增率</span><strong>每月更新</strong></div><div class="basis-item"><span>收盤價</span><strong>交易日更新</strong></div><div class="basis-item"><span>成交量</span><strong>交易日更新</strong></div><div class="basis-item"><span>強度分數</span><strong>依最新資料重新排序</strong></div><div class="basis-item"><span>風險標籤</span><strong>依營收、量能與分數條件產生</strong></div></div>
+    </section>
+
+    <section class="panel score-explanation-panel">
+      <div class="section-title">
+        <h2>強度分數說明</h2>
+        <span>僅供研究排序，不構成投資建議</span>
+      </div>
+      <p class="panel-note">強度分數為 0–100 分，僅作為候選股觀察排序使用。目前不顯示每檔股票的細項拆分，避免把研究排序誤解為精準投資建議。</p>
+      <div class="score-weight-grid"><div class="score-weight"><span>營收動能</span><strong>40%</strong></div><div class="score-weight"><span>量能活躍</span><strong>20%</strong></div><div class="score-weight"><span>題材關聯</span><strong>15%</strong></div><div class="score-weight"><span>股價位置</span><strong>15%</strong></div><div class="score-weight"><span>風險扣分</span><strong>10%</strong></div></div>
     </section>
 
     <section class="panel overview-panel">

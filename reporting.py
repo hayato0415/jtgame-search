@@ -375,6 +375,30 @@ def build_data_basis_section() -> str:
 """
 
 
+def build_score_explanation_section() -> str:
+    weights = [
+        ("營收動能", "40%"),
+        ("量能活躍", "20%"),
+        ("題材關聯", "15%"),
+        ("股價位置", "15%"),
+        ("風險扣分", "10%"),
+    ]
+    rows = "".join(
+        f'<div class="score-weight"><span>{escape(label)}</span><strong>{escape(weight)}</strong></div>'
+        for label, weight in weights
+    )
+    return f"""
+    <section class="panel score-explanation-panel">
+      <div class="section-title">
+        <h2>強度分數說明</h2>
+        <span>僅供研究排序，不構成投資建議</span>
+      </div>
+      <p class="panel-note">強度分數為 0–100 分，僅作為候選股觀察排序使用。目前不顯示每檔股票的細項拆分，避免把研究排序誤解為精準投資建議。</p>
+      <div class="score-weight-grid">{rows}</div>
+    </section>
+"""
+
+
 def build_holdings_section(display_report: pd.DataFrame) -> str:
     rows: list[str] = []
     if "股票代號" not in display_report.columns:
@@ -446,6 +470,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     mobile_cards = build_mobile_cards(display_report)
     overview_section = build_overview_section(display_report)
     data_basis_section = build_data_basis_section()
+    score_explanation_section = build_score_explanation_section()
     filter_section = build_filter_section()
     holdings_section = build_holdings_section(display_report)
     html = f"""<!doctype html>
@@ -569,6 +594,34 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       color: var(--accent);
       display: block;
       font-size: 15px;
+      margin-top: 4px;
+    }}
+    .panel-note {{
+      color: var(--muted);
+      margin: 0 0 12px;
+    }}
+    .score-weight-grid {{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }}
+    .score-weight {{
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }}
+    .score-weight span {{
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+    }}
+    .score-weight strong {{
+      color: var(--accent);
+      display: block;
+      font-size: 22px;
       margin-top: 4px;
     }}
     .filter-grid {{
@@ -780,6 +833,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       .section-title {{ align-items: flex-start; flex-direction: column; gap: 2px; }}
       .overview-grid,
       .basis-grid,
+      .score-weight-grid,
       .filter-grid,
       .holdings-grid {{ grid-template-columns: 1fr; }}
       .desktop-table {{ display: none; }}
@@ -802,6 +856,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       </div>
     </section>
 {data_basis_section}
+{score_explanation_section}
 {overview_section}
 {holdings_section}
 {filter_section}
