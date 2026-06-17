@@ -1,6 +1,11 @@
 name: Update Daily Stock Report
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
   schedule:
     # 08:10 UTC = 16:10 Asia/Taipei. GitHub cron uses UTC.
     - cron: "10 8 * * 1-5"
