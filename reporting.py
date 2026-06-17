@@ -52,6 +52,10 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
             pd.to_numeric(output["當天成交量"], errors="coerce").div(1000).round(0).astype("Int64")
         )
         output = output.rename(columns={"當天成交量": "當天成交量(張)"})
+    if "收盤價" in output.columns and "股價最後日期" in output.columns:
+        dates = pd.to_datetime(output["股價最後日期"], errors="coerce").dt.strftime("%m/%d")
+        output["收盤價"] = output["收盤價"].astype(str) + " (" + dates.fillna(output["股價最後日期"].astype(str)) + ")"
+        output = output.drop(columns=["股價最後日期"])
     return output
 
 
@@ -121,7 +125,6 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         volume = _value(row, "當天成交量(張)")
         yoy = _format_percent(row, "月營收年增率")
         mom = _format_percent(row, "月營收月增率")
-        date = _value(row, "股價最後日期")
         slow_buy = _value(row, "是否適合慢慢買")
         cards.append(
             f"""
@@ -149,7 +152,6 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         <summary>公司業務與風險</summary>
         <p>{business}</p>
         <p><strong>風險：</strong>{risk}</p>
-        <p class="date">股價最後日期：{date}</p>
       </details>
     </article>
 """
@@ -170,7 +172,6 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "月營收年增率",
         "月營收月增率",
         "關注原因",
-        "股價最後日期",
     ]
     available = [column for column in columns if column in display_report.columns]
     summary = display_report[available].copy()
@@ -272,15 +273,14 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .summary-table th:nth-child(1), .summary-table td:nth-child(1) {{ width: 4%; text-align: center; }}
     .summary-table th:nth-child(2), .summary-table td:nth-child(2) {{ width: 6%; text-align: center; }}
     .summary-table th:nth-child(3), .summary-table td:nth-child(3) {{ width: 7%; text-align: center; }}
-    .summary-table th:nth-child(4), .summary-table td:nth-child(4) {{ width: 13%; }}
+    .summary-table th:nth-child(4), .summary-table td:nth-child(4) {{ width: 15%; }}
     .summary-table th:nth-child(5), .summary-table td:nth-child(5) {{ width: 6%; text-align: right; }}
     .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 7%; text-align: right; }}
+    .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 9%; text-align: right; }}
     .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 9%; text-align: right; }}
     .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 8%; text-align: right; }}
     .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 18%; }}
-    .summary-table th:nth-child(12), .summary-table td:nth-child(12) {{ width: 8%; text-align: center; }}
+    .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 21%; }}
     .summary-table td:nth-child(4),
     .summary-table td:nth-child(11) {{
       line-height: 1.45;
