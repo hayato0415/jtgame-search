@@ -72,6 +72,64 @@ def build_index_html(latest_report: str, latest_csv: str, stamp: str) -> str:
 """
 
 
+def _value(row: pd.Series, column: str, default: str = "-") -> str:
+    if column not in row or pd.isna(row[column]):
+        return default
+    return str(row[column])
+
+
+def build_mobile_cards(display_report: pd.DataFrame) -> str:
+    cards: list[str] = []
+    for _, row in display_report.iterrows():
+        rank = _value(row, "排名")
+        code = _value(row, "股票代號")
+        name = _value(row, "股票名稱")
+        rating = _value(row, "阿斯拉評級")
+        score = _value(row, "阿斯拉分數")
+        concept = _value(row, "概念股")
+        reason = _value(row, "關注原因")
+        business = _value(row, "公司業務")
+        risk = _value(row, "風險說明")
+        price = _value(row, "收盤價")
+        volume = _value(row, "當天成交量(張)")
+        yoy = _value(row, "月營收年增率")
+        mom = _value(row, "月營收月增率")
+        date = _value(row, "股價最後日期")
+        slow_buy = _value(row, "是否適合慢慢買")
+        cards.append(
+            f"""
+    <article class="stock-card">
+      <div class="card-top">
+        <div>
+          <div class="rank">#{rank}</div>
+          <h2>{code} {name}</h2>
+        </div>
+        <div class="badge">{rating}</div>
+      </div>
+      <div class="metrics">
+        <div><span>分數</span><strong>{score}</strong></div>
+        <div><span>收盤</span><strong>{price}</strong></div>
+        <div><span>成交量</span><strong>{volume} 張</strong></div>
+      </div>
+      <div class="metrics">
+        <div><span>年增</span><strong>{yoy}</strong></div>
+        <div><span>月增</span><strong>{mom}</strong></div>
+        <div><span>慢慢買</span><strong>{slow_buy}</strong></div>
+      </div>
+      <p class="concept">{concept}</p>
+      <p><strong>關注：</strong>{reason}</p>
+      <details>
+        <summary>公司業務與風險</summary>
+        <p>{business}</p>
+        <p><strong>風險：</strong>{risk}</p>
+        <p class="date">股價最後日期：{date}</p>
+      </details>
+    </article>
+"""
+        )
+    return "\n".join(cards)
+
+
 def publish_static_site(csv_path: Path, html_path: Path, stamp: str, site_dir: Path = SITE_DIR) -> None:
     reports_dir = site_dir / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -109,24 +167,136 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
         },
         na_rep="-",
     )
+    mobile_cards = build_mobile_cards(display_report)
     html = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>阿斯拉台股主升段雷達</title>
   <style>
-    body {{ font-family: "Microsoft JhengHei", Arial, sans-serif; margin: 24px; }}
-    table {{ border-collapse: collapse; width: 100%; font-size: 14px; }}
+    :root {{
+      color-scheme: light;
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --ink: #152238;
+      --muted: #64748b;
+      --line: #dbe3ef;
+      --accent: #0f4c81;
+      --good: #0f766e;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      margin: 0;
+      line-height: 1.55;
+    }}
+    .page {{ padding: 24px; }}
+    .hero {{
+      background: linear-gradient(135deg, #152238, #0f4c81);
+      color: white;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 30px rgba(15, 35, 70, 0.18);
+    }}
+    h1 {{ margin: 0 0 8px; font-size: clamp(24px, 5vw, 36px); }}
+    .note {{ color: #dbeafe; margin: 0; }}
+    .desktop-table {{
+      background: var(--card);
+      border-radius: 14px;
+      overflow: auto;
+      box-shadow: 0 8px 24px rgba(15, 35, 70, 0.08);
+    }}
+    table {{ border-collapse: collapse; width: 100%; min-width: 1600px; font-size: 14px; }}
     th, td {{ border: 1px solid #ddd; padding: 8px; vertical-align: top; }}
     th {{ background: #152238; color: white; position: sticky; top: 0; }}
     tr:nth-child(even) {{ background: #f8fafc; }}
-    .note {{ color: #555; margin-bottom: 16px; }}
+    .mobile-cards {{ display: none; }}
+    .stock-card {{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 22px rgba(15, 35, 70, 0.08);
+    }}
+    .card-top {{ display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }}
+    .rank {{ color: var(--muted); font-size: 13px; font-weight: 700; }}
+    .stock-card h2 {{ margin: 2px 0 0; font-size: 21px; }}
+    .badge {{
+      background: #e0f2fe;
+      color: #075985;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }}
+    .metrics {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }}
+    .metrics div {{
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 0;
+    }}
+    .metrics span {{ display: block; color: var(--muted); font-size: 12px; }}
+    .metrics strong {{ display: block; color: var(--ink); font-size: 16px; margin-top: 2px; overflow-wrap: anywhere; }}
+    .concept {{
+      color: var(--good);
+      font-weight: 800;
+      margin: 14px 0 8px;
+    }}
+    details {{
+      border-top: 1px solid var(--line);
+      margin-top: 12px;
+      padding-top: 10px;
+    }}
+    summary {{ color: var(--accent); font-weight: 800; cursor: pointer; }}
+    .date {{ color: var(--muted); font-size: 13px; }}
+    .actions {{ margin-top: 12px; }}
+    .actions a {{
+      color: white;
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px;
+      padding: 6px 12px;
+      text-decoration: none;
+      margin-right: 8px;
+    }}
+    @media (max-width: 768px) {{
+      .page {{ padding: 12px; }}
+      .hero {{ border-radius: 0 0 18px 18px; margin: -12px -12px 14px; padding: 18px 14px; }}
+      .desktop-table {{ display: none; }}
+      .mobile-cards {{ display: block; }}
+      .metrics {{ grid-template-columns: repeat(3, minmax(0, 1fr)); }}
+      .metrics strong {{ font-size: 15px; }}
+    }}
   </style>
 </head>
 <body>
-  <h1>阿斯拉台股主升段雷達</h1>
-  <p class="note">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
-  {styled.to_html()}
+  <main class="page">
+    <section class="hero">
+      <h1>阿斯拉台股主升段雷達</h1>
+      <p class="note">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
+      <div class="actions">
+        <a href="latest.csv">下載 CSV</a>
+        <a href="https://github.com/hayato0415/jtgame-search">GitHub</a>
+      </div>
+    </section>
+    <section class="mobile-cards">
+      {mobile_cards}
+    </section>
+    <section class="desktop-table">
+      {styled.to_html()}
+    </section>
+  </main>
 </body>
 </html>
 """
