@@ -94,6 +94,14 @@ def _filter_attrs(row: pd.Series) -> str:
 def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
     """Format display-only values without changing scoring internals."""
     output = report.copy()
+    input_aliases = {
+        "雷達強度": "強度分數",
+        "雷達等級": "觀察評等",
+        "追蹤狀態": "觀察節奏",
+    }
+    for source, target in input_aliases.items():
+        if source in output.columns and target not in output.columns:
+            output = output.rename(columns={source: target})
     for column in BOOLEAN_DISPLAY_COLUMNS:
         if column in output.columns:
             output[column] = output[column].map(_to_yes_no)
@@ -102,7 +110,7 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
             output[column] = pd.to_numeric(output[column], errors="coerce").round(2)
     for column in ["月營收年增率", "月營收月增率"]:
         if column in output.columns:
-            values = pd.to_numeric(output[column], errors="coerce")
+            values = output[column].map(_parse_number)
             output[column] = values.map(lambda value: "-" if pd.isna(value) else f"{value:+.2f}%")
     if "阿斯拉分數" in output.columns:
         values = pd.to_numeric(output["阿斯拉分數"], errors="coerce")
@@ -304,8 +312,8 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         <div><span>成交量</span><strong>{escape(volume)} 張</strong></div>
       </div>
       <div class="metrics">
-        <div><span>年增</span><strong>{escape(yoy)}</strong></div>
-        <div><span>月增</span><strong>{escape(mom)}</strong></div>
+        <div><span>營收年增</span><strong>{escape(yoy)}</strong></div>
+        <div><span>營收月增</span><strong>{escape(mom)}</strong></div>
       </div>
       <p class="status-line"><strong>追蹤狀態：</strong>{escape(tracking_status)}</p>
       <p class="risk-label">風險標籤：</p>
