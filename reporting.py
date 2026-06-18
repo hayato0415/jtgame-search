@@ -312,6 +312,8 @@ def publish_interactive_data(display_report: pd.DataFrame, site_dir: Path = SITE
     profiles: dict[str, dict[str, str]] = {}
     for _, row in display_report.iterrows():
         code = _value(row, "股票代號")
+        revenue_thousand = _parse_number(row.get("單月營收_千元"))
+        revenue_million = None if revenue_thousand is None else round(revenue_thousand / 1000, 2)
         record = {
             "rank": int(_parse_number(row.get("排名")) or 0),
             "code": code,
@@ -330,6 +332,7 @@ def publish_interactive_data(display_report: pd.DataFrame, site_dir: Path = SITE
             "volume": _value(row, "當天成交量(張)"),
             "volume_value": _parse_number(row.get("當天成交量(張)")),
             "current_revenue": _value(row, "月營收金額"),
+            "current_revenue_million": revenue_million,
             "previous_year_revenue": _value(row, "去年同月營收"),
             "revenue_month": _value(row, "revenue_month"),
             "market_date": _value(row, "market_date"),

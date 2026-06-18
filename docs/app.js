@@ -249,11 +249,13 @@ function stockChips(codes, emptyText = "無") {
 
 function externalLinks(code) {
   const safeCode = encodeURIComponent(normalizeCode(code));
+  const normalized = normalizeCode(code);
   const links = [
-    ["個股概覽", `https://www.cmoney.tw/finance/${safeCode}/f00025`],
-    ["技術分析", `https://www.cmoney.tw/finance/${safeCode}/technicalanalysis`],
-    ["籌碼K線", `https://www.cmoney.tw/finance/${safeCode}/stockmainkline`],
-    ["個股新聞", `https://www.cmoney.tw/finance/${safeCode}/f00025`],
+    ["CMoney 概覽", `https://www.cmoney.tw/finance/${safeCode}/f00025`],
+    ["CMoney 技術分析", `https://www.cmoney.tw/finance/${safeCode}/technicalanalysis`],
+    ["CMoney 籌碼K線", `https://www.cmoney.tw/finance/${safeCode}/stockmainkline`],
+    ["Yahoo 股市", `https://tw.stock.yahoo.com/quote/${safeCode}.TW`],
+    ["PChome 股市", `https://pchome.megatime.com.tw/stock/sto0/ock1/sid${normalized}.html`],
   ];
   return `<div class="button-row">${links.map(([label, href]) => `<a class="solid-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`).join("")}</div>`;
 }
@@ -327,6 +329,30 @@ function stockTable(stocks, mode = "main", compact = false) {
       <table>
         <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達評分</th><th>收盤價</th><th>成交量</th><th>營收年增</th><th>營收月增</th><th>概念股</th><th>入選理由</th><th>風險標籤</th></tr></thead>
         <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function stockRadarDetail(stock) {
+  const rows = [
+    ["雷達排名", stock.rank || "-"],
+    ["雷達評分", radarScore(stock, "market")],
+    ["收盤價", stock.close || "-"],
+    ["成交量", stock.volume || "-"],
+    ["當月營收(百萬)", stock.current_revenue_million || stock.current_revenue || "-"],
+    ["月增率", stock.revenue_mom || "-"],
+    ["年增率", stock.revenue_yoy || "-"],
+    ["概念股", stock.concept || "-"],
+    ["入選理由", stock.reason || "-"],
+    ["風險標籤", stock.risk_tags || "一般觀察"],
+  ];
+  return `
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          ${rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("")}
+        </tbody>
       </table>
     </div>
   `;
@@ -785,7 +811,10 @@ function renderStock() {
     const relatedThemes = themeEntries().filter((theme) => (theme.related_stocks || []).map(normalizeCode).includes(code));
     const tech = state.technical[code];
     $("#stockResult").innerHTML = `
-      ${stockCard(stock, "market")}
+      <section class="panel">
+        <div class="section-title"><h2>${escapeHtml(code)} ${escapeHtml(name)}</h2><span>命中今日雷達</span></div>
+        ${stockRadarDetail(stock)}
+      </section>
       <section class="panel"><div class="section-title"><h2>阿斯拉方針</h2></div>${chip(asuradaStance(stock), "warn")}</section>
       <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
       <section class="panel"><div class="section-title"><h2>相關重大新聞</h2></div>${relatedNews.length ? relatedNews.map(eventCard).join("") : `<div class="empty">目前沒有該股相關重大新聞</div>`}</section>
