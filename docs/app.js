@@ -13,6 +13,10 @@ const mainThemes = ["AI", "半導體", "記憶體", "PCB", "CPO", "光通訊", "
 const defensiveThemes = ["營建", "資產", "都更", "金融", "壽險", "銀行"];
 const constructionThemes = ["營建", "資產", "都更"];
 const financeThemes = ["金融", "壽險", "銀行"];
+const newsFilterAliases = {
+  "利率匯率": ["利率匯率", "Fed", "美債", "利率", "匯率", "美元", "台幣", "金融壽險"],
+  "原物料": ["原物料", "油價", "銅價", "黃金", "能源"],
+};
 
 function $(selector) {
   return document.querySelector(selector);
@@ -113,6 +117,17 @@ function conceptIncludes(stock, keywords) {
 
 function eventCodes() {
   return new Set(state.news.flatMap((event) => event.related_stocks || []).map(normalizeCode));
+}
+
+function isRealSourceUrl(url) {
+  try {
+    const parsed = new URL(String(url || ""));
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+    if (!parsed.hostname || parsed.hostname.includes("example.com")) return false;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function radarModeInfo(stock, mode = "main") {
@@ -251,7 +266,7 @@ function eventCard(event) {
       <div class="chip-row">${stockChips(radarHits, "未命中今日雷達")}</div>
       <p><span class="label">持股命中</span></p>
       <div class="chip-row">${stockChips(holdingHits, "未命中我的持股")}</div>
-      ${event.url ? `<a class="solid-link" href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer">查看來源</a>` : ""}
+      ${isRealSourceUrl(event.url) ? `<a class="solid-link" href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer">查看來源</a>` : ""}
     </article>
   `;
 }
@@ -300,8 +315,8 @@ function renderHome() {
       </div>
     </section>
     <section class="panel">
-      <div class="section-title"><h2>今日重大事件前 3 則</h2><a class="stock-link" href="news.html">看全部</a></div>
-      <div class="grid">${state.news.length ? state.news.slice(0, 3).map(eventCard).join("") : `<div class="empty">今日尚無重大事件資料</div>`}</div>
+      <div class="section-title"><h2>今日重大事件 5 則</h2><a class="stock-link" href="news.html">看全部</a></div>
+      <div class="grid">${state.news.length ? state.news.filter((event) => isRealSourceUrl(event.url)).slice(0, 5).map(eventCard).join("") : `<div class="empty">今日尚無重大事件資料</div>`}</div>
     </section>
     <section class="panel">
       <div class="section-title"><h2>我的持股命中摘要</h2><a class="stock-link" href="portfolio.html">編輯清單</a></div>
@@ -373,9 +388,15 @@ function renderNews() {
   const render = (filter = "全部") => {
     const holdings = new Set(readStoredCodes(HOLDINGS_KEY));
     const list = state.news.filter((event) => {
+      if (!isRealSourceUrl(event.url)) return false;
       if (filter === "全部") return true;
       if (filter === "持股命中") return (event.related_stocks || []).some((code) => holdings.has(normalizeCode(code)));
-      return event.region === filter || event.category === filter || (event.related_keywords || []).includes(filter);
+      const aliases = newsFilterAliases[filter] || [filter];
+      return (
+        event.region === filter ||
+        aliases.includes(event.category) ||
+        aliases.some((keyword) => (event.related_keywords || []).includes(keyword))
+      );
     });
     $("#newsList").innerHTML = list.length ? list.map(eventCard).join("") : `<div class="empty">目前沒有符合條件的重大事件資料</div>`;
   };

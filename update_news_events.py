@@ -1,0 +1,268 @@
+from __future__ import annotations
+
+import argparse
+import json
+import re
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urljoin, urlparse
+
+import requests
+from bs4 import BeautifulSoup
+
+
+BASE_DIR = Path(__file__).resolve().parent
+SITE_DATA_DIR = BASE_DIR / "docs" / "data"
+STOCKS_PATH = SITE_DATA_DIR / "stocks-latest.json"
+NEWS_OUTPUT_PATH = SITE_DATA_DIR / "news-events.json"
+
+MAX_NEWS = 50
+
+
+@dataclass(frozen=True)
+class NewsSource:
+    name: str
+    url: str
+    region: str
+
+
+SOURCES = [
+    NewsSource("CMoney 美股新聞快訊", "https://www.cmoney.tw/notes/?tag=76325", "國際"),
+    NewsSource("CMoney 台股即時消息", "https://www.cmoney.tw/notes/?navId=twstock_news", "台股"),
+    NewsSource("鉅亨網美股新聞", "https://news.cnyes.com/news/cat/wd_stock", "國際"),
+    NewsSource("鉅亨網台股新聞", "https://news.cnyes.com/news/cat/tw_stock_news", "台股"),
+    NewsSource("MoneyDJ 產業分析新聞", "https://www.moneydj.com/kmdj/common/listnewarticles.aspx?a=X0300000&svc=NW", "台股"),
+    NewsSource("MoneyDJ 即時新聞總表", "https://www.moneydj.com/KMDJ/News/NewsRealList.aspx?a=MB010000", "台股"),
+]
+
+
+THEME_KEYWORDS: dict[str, list[str]] = {
+    "記憶體": ["記憶體", "DRAM", "NAND", "HBM", "SSD", "美光", "Micron", "海力士", "SK hynix", "三星"],
+    "AI伺服器": ["AI伺服器", "AI 伺服器", "輝達", "NVIDIA", "GB200", "GB300", "伺服器", "ASIC"],
+    "PCB": ["PCB", "載板", "高階板", "CCL", "銅箔基板", "台光電", "金像電"],
+    "CPO": ["CPO", "光通訊", "矽光子", "光模組", "CoWoS"],
+    "玻璃基板": ["玻璃基板", "TGV", "Glass substrate"],
+    "低軌衛星": ["低軌衛星", "衛星", "SpaceX", "Starlink"],
+    "重電": ["重電", "電網", "變壓器", "電力設備", "綠電"],
+    "被動元件": ["被動元件", "MLCC", "電容", "電阻", "電感"],
+    "半導體設備": ["半導體設備", "設備", "先進封裝", "EUV", "CoWoS", "台積電 ADR", "TSMC ADR"],
+    "軍工": ["軍工", "國防", "無人機", "航太", "飛彈"],
+    "營建資產": ["營建", "資產", "都更", "房市", "建案", "土地"],
+    "金融壽險": ["金融", "壽險", "銀行", "Fed", "美債", "利率", "匯率", "美元", "台幣"],
+    "原物料": ["油價", "銅價", "黃金", "原物料", "能源"],
+}
+
+
+MANUAL_RELATED_STOCKS: dict[str, list[str]] = {
+    "記憶體": ["2337", "2344", "2408", "8299", "3260", "2451", "4967"],
+    "AI伺服器": ["2382", "3231", "6669", "2356", "2376", "3022", "2368"],
+    "PCB": ["2383", "2368", "3037", "8046", "4958"],
+    "CPO": ["3450", "3163", "3081", "4979", "3535", "4934"],
+    "玻璃基板": ["1802", "1810", "3044"],
+    "低軌衛星": ["2313", "6285", "3491", "3596"],
+    "重電": ["1504", "1513", "1514", "1605", "1618"],
+    "被動元件": ["2327", "2492", "3042", "6173"],
+    "半導體設備": ["3131", "3167", "3583", "6187", "7556", "3041"],
+    "軍工": ["2634", "8033", "8222", "4572"],
+    "營建資產": ["2536", "2539", "5534", "5522", "2537", "2543", "1316", "2548"],
+    "金融壽險": ["2885", "2889", "2820", "2881", "2882", "2886"],
+}
+
+
+IMPORTANT_KEYWORDS = [
+    "美光",
+    "Micron",
+    "輝達",
+    "NVIDIA",
+    "AMD",
+    "Broadcom",
+    "博通",
+    "SK 海力士",
+    "SK hynix",
+    "三星",
+    "台積電 ADR",
+    "TSMC ADR",
+    "SpaceX",
+    "Fed",
+    "美債",
+    "匯率",
+    "油價",
+    "銅價",
+    "漲停",
+    "法說",
+    "月營收",
+    "升評",
+    "重大公告",
+]
+
+
+BAD_HOSTS = {"example.com", "www.example.com", "localhost", "127.0.0.1"}
+
+
+def load_stocks() -> list[dict[str, object]]:
+    if not STOCKS_PATH.exists():
+        return []
+    return json.loads(STOCKS_PATH.read_text(encoding="utf-8"))
+
+
+def is_real_url(url: str) -> bool:
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"}:
+        return False
+    if not parsed.netloc or parsed.netloc.lower() in BAD_HOSTS:
+        return False
+    if "example.com" in parsed.netloc.lower():
+        return False
+    return True
+
+
+def normalize_space(text: str) -> str:
+    return re.sub(r"\s+", " ", text or "").strip()
+
+
+def fetch_html(source: NewsSource) -> str:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 AsuradaRadar/1.0",
+        "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.7",
+    }
+    response = requests.get(source.url, headers=headers, timeout=25)
+    response.raise_for_status()
+    if not response.encoding or response.encoding.lower() == "iso-8859-1":
+        response.encoding = response.apparent_encoding or "utf-8"
+    return response.text
+
+
+def extract_links(source: NewsSource, html: str) -> list[dict[str, str]]:
+    soup = BeautifulSoup(html, "html.parser")
+    candidates: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for anchor in soup.find_all("a", href=True):
+        title = normalize_space(anchor.get_text(" ", strip=True))
+        href = urljoin(source.url, anchor["href"])
+        if not title or len(title) < 8 or not is_real_url(href):
+            continue
+        if href in seen:
+            continue
+        seen.add(href)
+        candidates.append({"title": title, "url": href})
+    return candidates
+
+
+def infer_category(title: str) -> str | None:
+    upper_title = title.upper()
+    for category, keywords in THEME_KEYWORDS.items():
+        if any(keyword.upper() in upper_title for keyword in keywords):
+            return category
+    return None
+
+
+def infer_impact(title: str) -> str:
+    positive = ["強", "漲", "利多", "升評", "成長", "增", "旺", "新高", "看好", "擴產", "需求"]
+    negative = ["跌", "利空", "下修", "衰退", "減", "虧", "砍", "疲弱", "風險"]
+    if any(word in title for word in negative):
+        return "偏空"
+    if any(word in title for word in positive):
+        return "偏多"
+    return "中性"
+
+
+def infer_strength(title: str) -> str:
+    if any(word.upper() in title.upper() for word in IMPORTANT_KEYWORDS):
+        return "高"
+    if any(word in title for word in ["法說", "月營收", "漲停", "升評", "重大公告"]):
+        return "高"
+    return "中"
+
+
+def related_stocks_for(category: str, title: str, stocks: list[dict[str, object]]) -> list[str]:
+    related = set(MANUAL_RELATED_STOCKS.get(category, []))
+    haystack = title.upper()
+    for stock in stocks:
+        code = str(stock.get("code", "")).strip()
+        name = str(stock.get("name", "")).strip()
+        concept = str(stock.get("concept", "")).upper()
+        if not code:
+            continue
+        if name and name.upper() in haystack:
+            related.add(code)
+        elif category and category.upper() in concept:
+            related.add(code)
+    return sorted(related)
+
+
+def make_summary(title: str, category: str, source_name: str) -> str:
+    return f"{source_name} 消息指出：{title}。此事件被歸類為 {category} 題材，需觀察是否帶動相關族群資金輪動。"
+
+
+def make_analysis(title: str, category: str, related_stocks: list[str]) -> str:
+    stocks_text = "、".join(related_stocks[:8]) if related_stocks else "相關族群"
+    return f"阿斯拉連動分析：{category} 題材若延續發酵，可觀察 {stocks_text} 是否同步出現量價轉強、營收確認或法人重新評價。"
+
+
+def build_events(limit: int = MAX_NEWS) -> list[dict[str, object]]:
+    stocks = load_stocks()
+    events: list[dict[str, object]] = []
+    seen_urls: set[str] = set()
+    fetched_at = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+
+    for source in SOURCES:
+        try:
+            html = fetch_html(source)
+            links = extract_links(source, html)
+        except Exception as exc:
+            print(f"[warn] {source.name}: {exc}")
+            continue
+
+        for item in links:
+            title = item["title"]
+            url = item["url"]
+            if url in seen_urls or not is_real_url(url):
+                continue
+            category = infer_category(title)
+            if not category:
+                continue
+            related_stocks = related_stocks_for(category, title, stocks)
+            if not related_stocks:
+                continue
+            seen_urls.add(url)
+            events.append(
+                {
+                    "date": fetched_at,
+                    "title": title,
+                    "region": source.region,
+                    "category": category,
+                    "impact": infer_impact(title),
+                    "event_strength": infer_strength(title),
+                    "related_keywords": THEME_KEYWORDS.get(category, []),
+                    "related_stocks": related_stocks,
+                    "summary": make_summary(title, category, source.name),
+                    "asurada_analysis": make_analysis(title, category, related_stocks),
+                    "source_name": source.name,
+                    "url": url,
+                }
+            )
+            if len(events) >= limit:
+                return events
+    return events[:limit]
+
+
+def write_events(events: list[dict[str, object]], output: Path = NEWS_OUTPUT_PATH) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(events, ensure_ascii=False, indent=2), encoding="utf-8")
+    legacy_path = BASE_DIR / "docs" / "news-events.json"
+    legacy_path.write_text(json.dumps(events, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="更新阿斯拉重大新聞雷達資料")
+    parser.add_argument("--limit", type=int, default=MAX_NEWS, help="新聞池最多保留幾則，預設 50")
+    parser.add_argument("--output", type=Path, default=NEWS_OUTPUT_PATH)
+    args = parser.parse_args()
+    events = build_events(limit=args.limit)
+    write_events(events, args.output)
+    print(json.dumps({"events": len(events), "output": str(args.output)}, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

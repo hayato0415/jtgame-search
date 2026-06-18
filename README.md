@@ -230,3 +230,38 @@ data/manual_factors.csv
 - 備援股價：TWSE STOCK_DAY
 
 第一版只掃描上市股票，會先用月營收預篩，再對前幾名抓股價量能，避免一次對全市場大量打 API。
+
+## 新聞雷達更新
+
+新聞雷達會從以下來源抓取新聞清單，並只保留有真實來源連結的新聞：
+
+- CMoney 美股新聞快訊
+- CMoney 台股即時消息
+- 鉅亨網美股新聞
+- 鉅亨網台股新聞
+- MoneyDJ 產業分析新聞
+- MoneyDJ 即時新聞總表
+
+手動只更新新聞：
+
+```powershell
+.\.venv\Scripts\python.exe update_news_events.py --limit 50
+```
+
+每天完整更新股票雷達與新聞：
+
+```powershell
+.\.venv\Scripts\python.exe run_daily_scan.py --refresh --price-limit 60 --top-n 30
+```
+
+輸出檔案：
+
+```text
+docs/data/news-events.json
+```
+
+規則：
+
+- 新聞池最多 50 則。
+- 不儲存新聞全文，只保留標題、時間、來源名稱、來源連結、簡短摘要、阿斯拉連動分析與相關股票代號。
+- 不顯示 `example.com`、空連結、測試連結或假連結。

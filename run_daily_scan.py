@@ -6,6 +6,7 @@ import json
 from data_sources import DataProvider
 from reporting import write_reports
 from scoring_model import build_candidates, prefilter_by_revenue, top_report
+from update_news_events import build_events, write_events
 
 
 def run_scan(refresh: bool = False, price_limit: int = 180, top_n: int = 30) -> dict[str, object]:
@@ -18,10 +19,17 @@ def run_scan(refresh: bool = False, price_limit: int = 180, top_n: int = 30) -> 
     candidates = build_candidates(stocks, revenue, manual, price_signals)
     report = top_report(candidates, limit=top_n)
     csv_path, html_path = write_reports(report)
+    try:
+        events = build_events()
+        write_events(events)
+        news_count: int | str = len(events)
+    except Exception as exc:
+        news_count = f"新聞更新失敗：{exc}"
     return {
         "股票清單檔": str(provider.data_dir / "tw_stock_list.csv"),
         "候選股數": len(candidates),
         "輸出前N名": len(report),
+        "新聞事件數": news_count,
         "CSV": str(csv_path),
         "HTML": str(html_path),
     }
@@ -39,4 +47,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
