@@ -37,17 +37,31 @@ SOURCES = [
 ]
 
 
+AI_SERVER_KEYWORDS = [
+    "AI伺服器", "AI 伺服器", "NVIDIA", "輝達", "GB200", "GB300", "B200",
+    "Blackwell", "Rubin", "H100", "H200", "ASIC", "TPU", "AWS", "Google",
+    "Meta", "Microsoft", "CSP", "AI機櫃", "液冷", "散熱", "高功耗",
+    "高速傳輸", "800G", "1.6T", "AI資料中心",
+]
+
+PCB_KEYWORDS = [
+    "PCB", "印刷電路板", "伺服器板", "高階多層板", "HDI", "HLC", "ABF",
+    "IC載板", "CCL", "銅箔基板", "玻纖布", "Low Dk", "HVLP", "T-Glass",
+    "M9", "Q布", "鑽針", "MSAP", "高頻高速材料", "交換器板",
+    "800G交換器", "1.6T交換器",
+]
+
 THEME_KEYWORDS: dict[str, list[str]] = {
     "記憶體": ["記憶體", "DRAM", "NAND", "HBM", "SSD", "美光", "Micron", "海力士", "SK hynix", "三星"],
-    "AI伺服器": ["AI伺服器", "AI 伺服器", "輝達", "NVIDIA", "GB200", "GB300", "伺服器", "ASIC"],
-    "PCB": ["PCB", "載板", "高階板", "CCL", "銅箔基板", "台光電", "金像電"],
+    "AI伺服器": AI_SERVER_KEYWORDS,
+    "PCB": PCB_KEYWORDS,
     "CPO": ["CPO", "光通訊", "矽光子", "光模組", "CoWoS"],
     "玻璃基板": ["玻璃基板", "TGV", "Glass substrate"],
     "低軌衛星": ["低軌衛星", "衛星", "SpaceX", "Starlink"],
     "重電": ["重電", "電網", "變壓器", "電力設備", "綠電"],
     "被動元件": ["被動元件", "MLCC", "電容", "電阻", "電感"],
     "半導體設備": ["半導體設備", "設備", "先進封裝", "EUV", "CoWoS", "台積電 ADR", "TSMC ADR"],
-    "軍工": ["軍工", "國防", "無人機", "航太", "飛彈"],
+    "軍工電子": ["軍工", "軍工電子", "國防", "無人機", "航太", "飛彈"],
     "營建資產": ["營建", "資產", "都更", "房市", "建案", "土地"],
     "金融壽險": ["金融", "壽險", "銀行", "Fed", "美債", "利率", "匯率", "美元", "台幣"],
     "原物料": ["油價", "銅價", "黃金", "原物料", "能源"],
@@ -58,13 +72,14 @@ MANUAL_RELATED_STOCKS: dict[str, list[str]] = {
     "記憶體": ["2337", "2344", "2408", "8299", "3260", "2451", "4967"],
     "AI伺服器": ["2382", "3231", "6669", "2356", "2376", "3022", "2368"],
     "PCB": ["2383", "2368", "3037", "8046", "4958"],
+    "AI伺服器 + PCB": ["2382", "3231", "6669", "2356", "2376", "3022", "2383", "2368", "3037", "8046", "4958"],
     "CPO": ["3450", "3163", "3081", "4979", "3535", "4934"],
     "玻璃基板": ["1802", "1810", "3044"],
     "低軌衛星": ["2313", "6285", "3491", "3596"],
     "重電": ["1504", "1513", "1514", "1605", "1618"],
     "被動元件": ["2327", "2492", "3042", "6173"],
     "半導體設備": ["3131", "3167", "3583", "6187", "7556", "3041"],
-    "軍工": ["2634", "8033", "8222", "4572"],
+    "軍工電子": ["2634", "8033", "8222", "4572"],
     "營建資產": ["2536", "2539", "5534", "5522", "2537", "2543", "1316", "2548"],
     "金融壽險": ["2885", "2889", "2820", "2881", "2882", "2886"],
 }
@@ -151,6 +166,10 @@ def extract_links(source: NewsSource, html: str) -> list[dict[str, str]]:
 
 def infer_category(title: str) -> str | None:
     upper_title = title.upper()
+    ai_hit = any(keyword.upper() in upper_title for keyword in AI_SERVER_KEYWORDS)
+    pcb_hit = any(keyword.upper() in upper_title for keyword in PCB_KEYWORDS)
+    if ai_hit and pcb_hit:
+        return "AI伺服器 + PCB"
     for category, keywords in THEME_KEYWORDS.items():
         if any(keyword.upper() in upper_title for keyword in keywords):
             return category
@@ -177,6 +196,9 @@ def infer_strength(title: str) -> str:
 
 def related_stocks_for(category: str, title: str, stocks: list[dict[str, object]]) -> list[str]:
     related = set(MANUAL_RELATED_STOCKS.get(category, []))
+    if "+" in category:
+        for part in [item.strip() for item in category.split("+")]:
+            related.update(MANUAL_RELATED_STOCKS.get(part, []))
     haystack = title.upper()
     for stock in stocks:
         code = str(stock.get("code", "")).strip()
@@ -189,6 +211,16 @@ def related_stocks_for(category: str, title: str, stocks: list[dict[str, object]
         elif category and category.upper() in concept:
             related.add(code)
     return sorted(related)
+
+
+def related_keywords_for(category: str) -> list[str]:
+    if category in THEME_KEYWORDS:
+        return THEME_KEYWORDS[category]
+    keywords: list[str] = []
+    if "+" in category:
+        for part in [item.strip() for item in category.split("+")]:
+            keywords.extend(THEME_KEYWORDS.get(part, []))
+    return list(dict.fromkeys(keywords))
 
 
 def make_summary(title: str, category: str, source_name: str) -> str:
@@ -234,7 +266,7 @@ def build_events(limit: int = MAX_NEWS) -> list[dict[str, object]]:
                     "category": category,
                     "impact": infer_impact(title),
                     "event_strength": infer_strength(title),
-                    "related_keywords": THEME_KEYWORDS.get(category, []),
+                    "related_keywords": related_keywords_for(category),
                     "related_stocks": related_stocks,
                     "summary": make_summary(title, category, source.name),
                     "asurada_analysis": make_analysis(title, category, related_stocks),

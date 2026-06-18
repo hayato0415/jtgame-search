@@ -4,18 +4,29 @@ const WATCHLIST_KEY = "asurada_watchlist";
 const state = {
   stocks: [],
   news: [],
-  themes: [],
+  themes: {},
   technical: {},
   profiles: {},
+  master: {},
 };
 
-const mainThemes = ["AI", "半導體", "記憶體", "PCB", "CPO", "光通訊", "散熱", "電源", "低軌衛星", "玻璃基板", "被動元件", "機器人", "重電", "軍工"];
-const defensiveThemes = ["營建", "資產", "都更", "金融", "壽險", "銀行"];
+const TECH_THEMES = [
+  "AI伺服器", "PCB", "CPO", "光通訊", "記憶體", "半導體", "半導體設備", "玻璃基板",
+  "低軌衛星", "重電", "散熱", "電源", "被動元件", "IC設計", "封測", "材料",
+  "機器人", "智慧眼鏡", "無人機", "軍工電子",
+];
+
+const NON_TECH_THEMES = [
+  "營建", "資產", "都更", "金融", "壽險", "銀行", "生醫", "觀光", "食品", "航運", "鋼鐵", "塑化", "傳產",
+];
+
 const constructionThemes = ["營建", "資產", "都更"];
 const financeThemes = ["金融", "壽險", "銀行"];
 const newsFilterAliases = {
   "利率匯率": ["利率匯率", "Fed", "美債", "利率", "匯率", "美元", "台幣", "金融壽險"],
   "原物料": ["原物料", "油價", "銅價", "黃金", "能源"],
+  "AI": ["AI", "AI伺服器", "AI伺服器 + PCB"],
+  "PCB": ["PCB", "AI伺服器 + PCB"],
 };
 
 function $(selector) {
@@ -87,32 +98,61 @@ async function loadJson(path, fallback) {
 }
 
 async function loadAllData() {
-  const [stocks, news, themes, technical, profiles] = await Promise.all([
+  const [stocks, news, themes, technical, profiles, master] = await Promise.all([
     loadJson("data/stocks-latest.json", []),
     loadJson("data/news-events.json", []),
-    loadJson("data/themes-map.json", []),
+    loadJson("data/themes-map.json", {}),
     loadJson("data/technical-latest.json", {}),
     loadJson("data/stock-profiles.json", {}),
+    loadJson("data/stock-master.json", {}),
   ]);
   state.stocks = Array.isArray(stocks) ? stocks : [];
   state.news = Array.isArray(news) ? news : [];
-  state.themes = Array.isArray(themes) ? themes : [];
+  state.themes = Array.isArray(themes)
+    ? Object.fromEntries(themes.map((theme) => [theme.name || theme.theme_name, theme]))
+    : (themes && typeof themes === "object" ? themes : {});
   state.technical = technical && typeof technical === "object" ? technical : {};
   state.profiles = profiles && typeof profiles === "object" ? profiles : {};
+  state.master = master && typeof master === "object" ? master : {};
+  for (const stock of state.stocks) {
+    if (stock.code && stock.name && !state.master[stock.code]) state.master[stock.code] = stock.name;
+  }
 }
 
 function stockByCode(code) {
   return state.stocks.find((stock) => normalizeCode(stock.code) === normalizeCode(code));
 }
 
-function stockName(code) {
-  const stock = stockByCode(code);
-  return stock ? `${stock.code} ${stock.name}` : normalizeCode(code);
+function masterName(code) {
+  return state.master[normalizeCode(code)] || "";
+}
+
+function knownStock(code) {
+  return Boolean(masterName(code) || stockByCode(code));
+}
+
+function displayStockName(code) {
+  const normalized = normalizeCode(code);
+  const stock = stockByCode(normalized);
+  return stock?.name || masterName(normalized) || "名稱待補";
+}
+
+function stockLabel(code) {
+  const normalized = normalizeCode(code);
+  return `${normalized} ${displayStockName(normalized)}`;
 }
 
 function conceptIncludes(stock, keywords) {
-  const concept = String(stock?.concept || "").toUpperCase();
-  return keywords.some((keyword) => concept.includes(String(keyword).toUpperCase()));
+  const text = `${stock?.concept || ""} ${stock?.business || ""} ${stock?.reason || ""}`.toUpperCase();
+  return keywords.some((keyword) => text.includes(String(keyword).toUpperCase()));
+}
+
+function isTechStock(stock) {
+  return conceptIncludes(stock, TECH_THEMES);
+}
+
+function isNonTechStock(stock) {
+  return conceptIncludes(stock, NON_TECH_THEMES) && !isTechStock(stock);
 }
 
 function eventCodes() {
@@ -137,7 +177,7 @@ function radarModeInfo(stock, mode = "main") {
   const isConstruction = conceptIncludes(stock, constructionThemes);
   const isFinance = conceptIncludes(stock, financeThemes);
   const isDefensive = isConstruction || isFinance;
-  const isMainTheme = conceptIncludes(stock, mainThemes);
+  const isMainTheme = isTechStock(stock);
   const penalty = Math.max(isConstruction ? 10 : 0, isFinance ? 15 : 0);
   const cancelPenalty = volume > 3000 || eventCodes().has(normalizeCode(stock.code)) || dailyChange > 3;
   const downgraded = mode === "main" && isDefensive && penalty > 0 && !cancelPenalty;
@@ -179,31 +219,55 @@ function chip(text, tone = "") {
 function stockChips(codes, emptyText = "無") {
   const normalized = (codes || []).map(normalizeCode).filter(Boolean);
   if (!normalized.length) return chip(emptyText);
-  return normalized.map((code) => `<a class="chip stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(stockName(code))}</a>`).join("");
+  return normalized.map((code) => {
+    const label = stockLabel(code);
+    if (!masterName(code) && !stockByCode(code)) {
+      return chip(label);
+    }
+    return `<a class="chip stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(label)}</a>`;
+  }).join("");
 }
 
-function stockCard(stock, mode = "main") {
+function externalLinks(code) {
+  const safeCode = encodeURIComponent(normalizeCode(code));
+  const links = [
+    ["個股概覽", `https://www.cmoney.tw/finance/${safeCode}/f00025`],
+    ["技術分析", `https://www.cmoney.tw/finance/${safeCode}/technicalanalysis`],
+    ["籌碼K線", `https://www.cmoney.tw/finance/${safeCode}/stockmainkline`],
+    ["個股新聞", `https://www.cmoney.tw/finance/${safeCode}/f00025`],
+  ];
+  return `<div class="button-row">${links.map(([label, href]) => `<a class="solid-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`).join("")}</div>`;
+}
+
+function radarScore(stock, mode = "main") {
+  const info = radarModeInfo(stock, mode);
+  const score = Number.isFinite(info.displayScore) ? `${info.displayScore.toFixed(0)}分` : "-";
+  return `${stock.rating || "-"} / ${score}`;
+}
+
+function stockCard(stock, mode = "main", compact = false) {
   const info = radarModeInfo(stock, mode);
   const modeName = mode === "market" ? "全市場" : mode === "defensive" ? "資產防守" : "主升段";
   return `
     <article class="card stock-card">
       <div class="section-title">
         <h3><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">#${escapeHtml(stock.rank)} ${escapeHtml(stock.code)} ${escapeHtml(stock.name)}</a></h3>
-        ${chip(stock.rating || "-", "good")}
+        ${chip(radarScore(stock, mode), "good")}
       </div>
-      <div class="grid cols-4">
-        <div class="metric"><span>雷達強度</span><strong>${Number.isFinite(info.displayScore) ? info.displayScore.toFixed(1) : "-"}</strong></div>
+      <div class="grid ${compact ? "cols-3" : "cols-4"}">
+        <div class="metric"><span>雷達評分</span><strong>${escapeHtml(radarScore(stock, mode))}</strong></div>
         <div class="metric"><span>收盤價</span><strong>${escapeHtml(stock.close)}</strong></div>
         <div class="metric"><span>成交量</span><strong>${escapeHtml(stock.volume)} 張</strong></div>
-        <div class="metric"><span>雷達模式</span><strong>${escapeHtml(modeName)}</strong></div>
+        ${compact ? "" : `<div class="metric"><span>雷達模式</span><strong>${escapeHtml(modeName)}</strong></div>`}
       </div>
       ${info.downgraded ? `<p class="penalty-note">主升段模式降權：族群非當前高動能主流，需等待政策、利率或量價確認。</p>` : ""}
+      ${compact ? "" : `
       <div class="grid cols-4">
         <div class="metric"><span>當月營收</span><strong>${escapeHtml(stock.current_revenue)}</strong></div>
         <div class="metric"><span>營收月增</span><strong>${escapeHtml(stock.revenue_mom)}</strong></div>
         <div class="metric"><span>去年同月營收</span><strong>${escapeHtml(stock.previous_year_revenue)}</strong></div>
         <div class="metric"><span>營收年增</span><strong>${escapeHtml(stock.revenue_yoy)}</strong></div>
-      </div>
+      </div>`}
       <p><span class="label">概念股</span>${escapeHtml(stock.concept || "-")}</p>
       <p><span class="label">入選理由</span>${escapeHtml(stock.reason || "-")}</p>
       <div class="chip-row">${String(stock.risk_tags || "一般觀察").split("、").map((x) => chip(x)).join("")}</div>
@@ -211,7 +275,7 @@ function stockCard(stock, mode = "main") {
   `;
 }
 
-function stockTable(stocks, mode = "main") {
+function stockTable(stocks, mode = "main", compact = false) {
   if (!stocks.length) return `<div class="empty">沒有符合條件的股票</div>`;
   const rows = stocks.map((stock) => {
     const info = radarModeInfo(stock, mode);
@@ -221,10 +285,8 @@ function stockTable(stocks, mode = "main") {
         <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">${escapeHtml(stock.code)}</a></td>
         <td>${escapeHtml(stock.name)}</td>
         <td>${escapeHtml(stock.concept)}</td>
-        <td>${Number.isFinite(info.displayScore) ? info.displayScore.toFixed(1) : "-"}${info.downgraded ? "<br><span class=\"chip warn\">降權</span>" : ""}</td>
-        <td>${escapeHtml(stock.rating)}</td>
-        <td>${escapeHtml(stock.close)}</td>
-        <td>${escapeHtml(stock.volume)}</td>
+        <td>${escapeHtml(radarScore(stock, mode))}${info.downgraded ? "<br><span class=\"chip warn\">降權</span>" : ""}</td>
+        ${compact ? "" : `<td>${escapeHtml(stock.close)}</td><td>${escapeHtml(stock.volume)}</td>`}
         <td>${escapeHtml(stock.current_revenue)}</td>
         <td>${escapeHtml(stock.revenue_mom)}</td>
         <td>${escapeHtml(stock.revenue_yoy)}</td>
@@ -235,7 +297,7 @@ function stockTable(stocks, mode = "main") {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>排名</th><th>代號</th><th>名稱</th><th>概念股</th><th>雷達強度</th><th>等級</th><th>收盤價</th><th>成交量</th><th>當月營收</th><th>營收月增</th><th>營收年增</th><th>入選理由</th></tr></thead>
+        <thead><tr><th>排名</th><th>代號</th><th>名稱</th><th>概念股</th><th>雷達評分</th>${compact ? "" : "<th>收盤價</th><th>成交量</th>"}<th>當月營收</th><th>營收月增</th><th>營收年增</th><th>入選理由</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -296,21 +358,37 @@ function renderError(target, message) {
   if (el) el.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
 }
 
+function nonTechEventStocks() {
+  const holdings = new Set([...readStoredCodes(HOLDINGS_KEY), ...readStoredCodes(WATCHLIST_KEY)]);
+  return state.stocks.filter((stock) => {
+    if (!isNonTechStock(stock)) return false;
+    const code = normalizeCode(stock.code);
+    const hasEvent = eventCodes().has(code);
+    const isHighEvent = state.news.some((event) => event.event_strength === "高" && (event.related_stocks || []).map(normalizeCode).includes(code));
+    const isHeavyVolume = toNumber(stock.volume) > 50000;
+    const isLimitOrStrong = toNumber(stock.daily_change) >= 3 || String(stock.risk_tags || "").includes("爆量股");
+    const isMine = holdings.has(code);
+    return hasEvent || isHighEvent || isHeavyVolume || isLimitOrStrong || isMine;
+  });
+}
+
 function renderHome() {
   renderHeader("index");
   const main = $("#app");
   const holdings = readStoredCodes(HOLDINGS_KEY);
   const hitHoldings = holdings.filter((code) => stockByCode(code));
-  const concepts = state.stocks.flatMap((stock) => String(stock.concept || "").split(";").map((x) => x.trim()).filter(Boolean));
+  const techStocks = sortedStocks("main").filter(isTechStock).slice(0, 30);
+  const topStocks = techStocks.slice(0, 10);
+  const concepts = techStocks.flatMap((stock) => String(stock.concept || "").split(";").map((x) => x.trim()).filter(Boolean));
   const topConcepts = [...new Set(concepts)].slice(0, 8);
-  const topStocks = sortedStocks("main").slice(0, 10);
+  const nonTech = nonTechEventStocks();
   main.innerHTML = `
     <section class="panel">
       <div class="section-title"><h2>今日雷達總覽</h2><span>${escapeHtml(state.stocks[0]?.data_version || "")}</span></div>
       <div class="grid cols-4">
-        <div class="metric"><span>今日入選</span><strong>${state.stocks.length} 檔</strong></div>
-        <div class="metric"><span>A級</span><strong>${state.stocks.filter((s) => s.rating === "A").length} 檔</strong></div>
-        <div class="metric"><span>A-級</span><strong>${state.stocks.filter((s) => s.rating === "A-").length} 檔</strong></div>
+        <div class="metric"><span>電子主升段</span><strong>${techStocks.length} 檔</strong></div>
+        <div class="metric"><span>A級</span><strong>${techStocks.filter((s) => s.rating === "A").length} 檔</strong></div>
+        <div class="metric"><span>A-級</span><strong>${techStocks.filter((s) => s.rating === "A-").length} 檔</strong></div>
         <div class="metric"><span>持股命中</span><strong>${hitHoldings.length} 檔</strong></div>
       </div>
     </section>
@@ -327,8 +405,12 @@ function renderHome() {
       <div class="chip-row">${topConcepts.map((x) => chip(x)).join("") || chip("暫無資料")}</div>
     </section>
     <section class="panel">
-      <div class="section-title"><h2>前 10 名雷達股</h2><a class="stock-link" href="radar.html">全股雷達</a></div>
-      ${stockTable(topStocks, "main")}
+      <div class="section-title"><h2>前 10 名電子主升段雷達股</h2><a class="stock-link" href="radar.html">全股雷達</a></div>
+      ${stockTable(topStocks, "main", true)}
+    </section>
+    <section class="panel">
+      <div class="section-title"><h2>非電子事件雷達</h2><span>有事件、爆量、強勢或我的清單命中才顯示</span></div>
+      ${nonTech.length ? stockTable(nonTech, "market", true) : `<div class="empty">目前沒有符合條件的非電子事件股</div>`}
     </section>
   `;
 }
@@ -363,7 +445,7 @@ function renderRadar() {
     });
     $("#radarCount").textContent = `顯示 ${list.length} 檔`;
     $("#modeNote").textContent = mode === "main"
-      ? "主升段模式會優先顯示高動能主流題材，防守族群不刪除但可能降權。"
+      ? "主升段模式會優先顯示電子與科技主流題材，防守族群不刪除但可能降權。"
       : mode === "market"
         ? "全市場模式不降權，照原始雷達強度排序。"
         : "資產防守模式只顯示營建、資產、都更、金融、壽險、銀行相關股票。";
@@ -392,11 +474,7 @@ function renderNews() {
       if (filter === "全部") return true;
       if (filter === "持股命中") return (event.related_stocks || []).some((code) => holdings.has(normalizeCode(code)));
       const aliases = newsFilterAliases[filter] || [filter];
-      return (
-        event.region === filter ||
-        aliases.includes(event.category) ||
-        aliases.some((keyword) => (event.related_keywords || []).includes(keyword))
-      );
+      return event.region === filter || aliases.includes(event.category) || aliases.some((keyword) => (event.related_keywords || []).includes(keyword));
     });
     $("#newsList").innerHTML = list.length ? list.map(eventCard).join("") : `<div class="empty">目前沒有符合條件的重大事件資料</div>`;
   };
@@ -404,12 +482,24 @@ function renderNews() {
   render();
 }
 
+function themeEntries() {
+  return Object.entries(state.themes).map(([key, theme]) => ({
+    theme_name: theme.theme_name || theme.name || key,
+    aliases: theme.aliases || [],
+    keywords: theme.keywords || [],
+    related_stocks: theme.related_stocks || [],
+    source_links: theme.source_links || [],
+    description: theme.description || "",
+  }));
+}
+
 function renderThemes() {
   renderHeader("themes");
   const main = $("#app");
+  const themes = themeEntries();
   main.innerHTML = `
-    <section class="panel"><div class="section-title"><h2>題材概念股</h2><span>題材、新聞、雷達與持股交叉檢視</span></div></section>
-    <section class="grid cols-2">${state.themes.length ? state.themes.map(themeCard).join("") : `<div class="empty">themes-map.json 尚無資料</div>`}</section>
+    <section class="panel"><div class="section-title"><h2>題材概念股</h2><span>以自製 themes-map.json 為主</span></div></section>
+    <section class="grid cols-2">${themes.length ? themes.map(themeCard).join("") : `<div class="empty">themes-map.json 尚無資料</div>`}</section>
   `;
 }
 
@@ -418,11 +508,12 @@ function themeCard(theme) {
   const related = (theme.related_stocks || []).map(normalizeCode).filter(Boolean);
   const radarHits = related.filter((code) => stockByCode(code));
   const holdingHits = related.filter((code) => holdings.has(code));
-  const relatedNews = state.news.filter((event) => event.category === theme.name || (event.related_keywords || []).includes(theme.name));
+  const relatedNews = state.news.filter((event) => event.category === theme.theme_name || (event.related_keywords || []).some((keyword) => theme.keywords.includes(keyword)));
   return `
     <article class="card theme-card">
-      <h3>${escapeHtml(theme.name)}</h3>
-      <p class="muted">${escapeHtml(theme.description || "")}</p>
+      <h3>${escapeHtml(theme.theme_name)}</h3>
+      <p class="muted">${escapeHtml(theme.description || `${theme.theme_name} 相關題材`)}</p>
+      <p><span class="label">別名</span>${escapeHtml((theme.aliases || []).join("、") || "-")}</p>
       <p><span class="label">相關新聞事件</span>${relatedNews.length ? relatedNews.map((e) => escapeHtml(e.title)).join("；") : "暫無"}</p>
       <p><span class="label">相關台股</span></p><div class="chip-row">${stockChips(related, "無相關台股")}</div>
       <p><span class="label">雷達命中股票</span></p><div class="chip-row">${stockChips(radarHits, "未命中今日雷達")}</div>
@@ -456,22 +547,34 @@ function renderStock() {
   const render = () => {
     const code = normalizeCode($("#stockSearch").value);
     const stock = stockByCode(code);
+    const name = displayStockName(code);
     if (!code) {
       $("#stockResult").innerHTML = `<div class="empty">請輸入股票代號</div>`;
       return;
     }
+    if (!knownStock(code)) {
+      $("#stockResult").innerHTML = `<div class="empty">找不到此股票代號，請確認是否輸入錯誤。</div>`;
+      return;
+    }
     if (!stock) {
-      $("#stockResult").innerHTML = `<div class="empty">${escapeHtml(code)} 今日未入選雷達，暫無雷達資料。</div>`;
+      $("#stockResult").innerHTML = `
+        <section class="panel">
+          <div class="section-title"><h2>${escapeHtml(code)} ${escapeHtml(name)}</h2><span>今日未入選雷達</span></div>
+          <p class="muted">尚無內部雷達資料。</p>
+        </section>
+        <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
+      `;
       return;
     }
     const relatedNews = state.news.filter((event) => (event.related_stocks || []).map(normalizeCode).includes(code));
-    const relatedThemes = state.themes.filter((theme) => (theme.related_stocks || []).map(normalizeCode).includes(code));
+    const relatedThemes = themeEntries().filter((theme) => (theme.related_stocks || []).map(normalizeCode).includes(code));
     const tech = state.technical[code];
     $("#stockResult").innerHTML = `
       ${stockCard(stock, "market")}
       <section class="panel"><div class="section-title"><h2>阿斯拉方針</h2></div>${chip(asuradaStance(stock), "warn")}</section>
+      <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
       <section class="panel"><div class="section-title"><h2>相關重大新聞</h2></div>${relatedNews.length ? relatedNews.map(eventCard).join("") : `<div class="empty">目前沒有該股相關重大新聞</div>`}</section>
-      <section class="panel"><div class="section-title"><h2>相關題材</h2></div><div class="chip-row">${relatedThemes.length ? relatedThemes.map((x) => chip(x.name)).join("") : chip("暫無題材對應")}</div></section>
+      <section class="panel"><div class="section-title"><h2>相關題材</h2></div><div class="chip-row">${relatedThemes.length ? relatedThemes.map((x) => chip(x.theme_name)).join("") : chip("暫無題材對應")}</div></section>
       <section class="panel"><div class="section-title"><h2>技術面欄位</h2></div>${tech ? `<pre>${escapeHtml(JSON.stringify(tech, null, 2))}</pre>` : `<div class="empty">技術面資料尚未建立</div>`}</section>
     `;
   };
@@ -562,12 +665,12 @@ function renderCodeHits(selector, codes) {
     const newsHits = state.news.filter((event) => (event.related_stocks || []).map(normalizeCode).includes(code));
     return `
       <article class="card">
-        <h3>${escapeHtml(stockName(code))}</h3>
+        <h3>${escapeHtml(stockLabel(code))}</h3>
         <div class="chip-row">
           ${stock ? chip("命中今日雷達", "good") : chip("今日未入選雷達")}
           ${newsHits.length ? chip(`命中重大新聞 ${newsHits.length} 則`, "warn") : chip("未命中重大新聞")}
         </div>
-        ${stock ? `<p class="muted">雷達強度 ${escapeHtml(stock.score)}｜等級 ${escapeHtml(stock.rating)}｜收盤價 ${escapeHtml(stock.close)}｜成交量 ${escapeHtml(stock.volume)} 張</p>` : ""}
+        ${stock ? `<p class="muted">雷達評分 ${escapeHtml(radarScore(stock))}｜收盤價 ${escapeHtml(stock.close)}｜成交量 ${escapeHtml(stock.volume)} 張</p>` : ""}
       </article>
     `;
   }).join("");
@@ -578,6 +681,7 @@ async function boot(page) {
   await loadAllData();
   const missing = [];
   if (!state.stocks.length) missing.push("data/stocks-latest.json");
+  if (!state.master || !Object.keys(state.master).length) missing.push("data/stock-master.json");
   if (!Array.isArray(state.news)) missing.push("data/news-events.json");
   if (missing.length) {
     renderError("#app", `資料載入失敗或尚未建立：${missing.join("、")}`);
