@@ -260,6 +260,6 @@ def top_report(frame: pd.DataFrame, limit: int = 30) -> pd.DataFrame:
     ranked.insert(0, "排名", range(1, len(ranked) + 1))
     columns = [column for column in REPORT_COLUMNS if column in filtered.columns]
     columns.insert(0, "排名")
-    extra = ["阿斯拉分數", "收盤價", "當天成交量", "股價最後日期", "市場", "年月"]
+    extra = ["阿斯拉分數", "收盤價", "當天成交量", "股價最後日期", "市場", "年月", "單月營收_千元"]
     columns.extend([column for column in extra if column in filtered.columns])
     return ranked[columns]

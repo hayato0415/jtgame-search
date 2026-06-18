@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from config import OUTPUT_DIR, SITE_DIR
+from config import OUTPUT_DIR, REVENUE_PATH, SITE_DIR
 
 
 BOOLEAN_DISPLAY_COLUMNS = [
@@ -108,6 +108,11 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
     for column in ["收盤價"]:
         if column in output.columns:
             output[column] = pd.to_numeric(output[column], errors="coerce").round(2)
+    output = _enrich_revenue_amount(output)
+    if "單月營收_千元" in output.columns:
+        output["月營收金額"] = output["單月營收_千元"].map(_format_revenue_amount)
+    else:
+        output["月營收金額"] = "-"
     for column in ["月營收年增率", "月營收月增率"]:
         if column in output.columns:
             values = output[column].map(_parse_number)
@@ -233,6 +238,26 @@ def _format_number(row: pd.Series, column: str, decimals: int = 1) -> str:
     return f"{value:,.{decimals}f}"
 
 
+def _format_revenue_amount(value: object) -> str:
+    amount_thousand = _parse_number(value)
+    if amount_thousand is None:
+        return "-"
+    amount_ntd = amount_thousand * 1000
+    if abs(amount_ntd) >= 100_000_000:
+        return f"{amount_ntd / 100_000_000:,.2f}億元"
+    if abs(amount_ntd) >= 10_000:
+        return f"{amount_ntd / 10_000:,.0f}萬元"
+    return f"{amount_ntd:,.0f}元"
+
+
+def _format_revenue_with_percent(row: pd.Series, percent_column: str) -> str:
+    amount = _value(row, "月營收金額")
+    percent = _format_percent(row, percent_column)
+    if amount == "-":
+        return percent
+    return f"{amount} / {percent}"
+
+
 def _risk_tag_html(tags: str) -> str:
     return "".join(f'<span class="risk-pill">{escape(tag.strip())}</span>' for tag in tags.split("、") if tag.strip())
 
@@ -277,6 +302,23 @@ def _rank_change_label(current_rank: object, previous_rank: object) -> str:
     return "持平"
 
 
+def _enrich_revenue_amount(output: pd.DataFrame) -> pd.DataFrame:
+    if "單月營收_千元" in output.columns or "股票代號" not in output.columns or not REVENUE_PATH.exists():
+        return output
+    try:
+        revenue = pd.read_csv(REVENUE_PATH, dtype={"股票代號": str})
+    except Exception:
+        return output
+    if "單月營收_千元" not in revenue.columns:
+        return output
+    keys = ["股票代號"]
+    if "年月" in output.columns and "年月" in revenue.columns:
+        keys.append("年月")
+    lookup = revenue[keys + ["單月營收_千元"]].drop_duplicates(keys, keep="last")
+    output = output.merge(lookup, on=keys, how="left")
+    return output
+
+
 def _revenue_month_header_label(display_report: pd.DataFrame) -> str:
     month_value = ""
     for column in ["revenue_month", "年月"]:
@@ -305,8 +347,8 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         risk = _value(row, "風險說明")
         price = _value(row, "收盤價")
         volume = _value(row, "當天成交量(張)")
-        yoy = _format_percent(row, "月營收年增率")
-        mom = _format_percent(row, "月營收月增率")
+        yoy = _format_revenue_with_percent(row, "月營收年增率")
+        mom = _format_revenue_with_percent(row, "月營收月增率")
         tracking_status = _value(row, "追蹤狀態")
         risk_tags = _value(row, "風險標籤")
         attrs = _filter_attrs(row)
@@ -379,8 +421,8 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
         "雷達等級": "雷達<br>等級",
         "收盤價": price_header,
         "當天成交量(張)": "當天成交量<br>(張)",
-        "月營收年增率": f"{escape(revenue_month_header)}<br>年增(%)",
-        "月營收月增率": f"{escape(revenue_month_header)}<br>月增(%)",
+        "月營收年增率": f"{escape(revenue_month_header)}<br>金額/年增",
+        "月營收月增率": f"{escape(revenue_month_header)}<br>金額/月增",
         "風險標籤": "風險<br>標籤",
         "追蹤狀態": "追蹤<br>狀態",
         "前次排名": "較前次<br>排名",
@@ -395,6 +437,8 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
             value = _value(row, column)
             if column == "風險標籤":
                 cells.append(f"<td>{_risk_tag_html(value)}</td>")
+            elif column in {"月營收年增率", "月營收月增率"}:
+                cells.append(f"<td>{escape(_format_revenue_with_percent(row, column))}</td>")
             else:
                 cells.append(f"<td>{escape(value)}</td>")
         rows.append(f'<tr class="radar-item" {attrs}>{"".join(cells)}</tr>')
@@ -971,11 +1015,11 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 5%; text-align: center; }}
     .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 6%; text-align: right; }}
     .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 7%; text-align: right; }}
-    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 8%; text-align: right; }}
-    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 8%; text-align: right; }}
+    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 10%; text-align: right; }}
+    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 10%; text-align: right; }}
     .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 8%; text-align: center; }}
     .summary-table th:nth-child(12), .summary-table td:nth-child(12) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(13), .summary-table td:nth-child(13) {{ width: 22%; }}
+    .summary-table th:nth-child(13), .summary-table td:nth-child(13) {{ width: 18%; }}
     .summary-table td:nth-child(4),
     .summary-table td:nth-child(13) {{
       line-height: 1.45;
