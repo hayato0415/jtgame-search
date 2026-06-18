@@ -396,16 +396,16 @@ function externalSearchLinks(keyword) {
 }
 
 function conceptEntries() {
-  const source = Object.keys(state.concepts || {}).length ? state.concepts : state.themes;
-  return Object.entries(source).map(([key, concept]) => ({
-    name: concept.theme_name || concept.name || key,
-    theme_name: concept.theme_name || concept.name || key,
+  return Object.entries(state.concepts || {}).map(([key, concept]) => ({
+    name: concept.concept_name || concept.theme_name || concept.name || key,
+    theme_name: concept.concept_name || concept.theme_name || concept.name || key,
     group: concept.group || "全部概念",
     aliases: concept.aliases || [],
     keywords: concept.keywords || [],
     description: concept.description || "",
     related_stocks: concept.related_stocks || [],
     source_links: concept.source_links || [],
+    source_status: concept.source_status || "來源狀態未標示",
   }));
 }
 
@@ -609,38 +609,16 @@ function themeEntries() {
 function renderThemes() {
   renderHeader("themes");
   const main = $("#app");
-  const concepts = conceptEntries();
-  const options = concepts.flatMap((concept) => [concept.name, ...(concept.aliases || []), ...(concept.keywords || [])])
-    .filter(Boolean)
-    .filter((value, index, array) => array.indexOf(value) === index)
-    .map((value) => `<option value="${escapeHtml(value)}"></option>`)
-    .join("");
-  const selectOptions = concepts.map((concept) => `<option value="${escapeHtml(concept.name)}">${escapeHtml(concept.name)}</option>`).join("");
   main.innerHTML = `
     <section class="panel">
-      <div class="section-title"><h2>題材概念股檢視頁</h2><span>只看題材底下有哪些股票</span></div>
-      <div class="filters">
-        <label>題材下拉框<select id="themeSelect">${selectOptions}</select></label>
-        <label>題材搜尋<input id="themeSearch" list="themeSuggestions" placeholder="輸入 AI、玻璃、光..."></label>
+      <div class="section-title"><h2>題材概念股已整併至概念股資料庫</h2><span>避免兩個頁面資料不一致</span></div>
+      <p>概念股清單、外部參考來源、今日雷達命中與持股命中，統一放在「概念股資料庫」。</p>
+      <div class="button-row">
+        <a class="solid-link" href="concepts.html">前往概念股資料庫</a>
+        <a class="solid-link ghost" href="radar.html">回到全股雷達</a>
       </div>
-      <datalist id="themeSuggestions">${options}</datalist>
     </section>
-    <section id="themeList" class="grid cols-2"></section>
   `;
-  const render = () => {
-    const query = $("#themeSearch").value.trim();
-    const selected = $("#themeSelect").value;
-    const list = query
-      ? concepts.filter((concept) => conceptMatches(concept, query, "全部概念"))
-      : concepts.filter((concept) => concept.name === selected);
-    $("#themeList").innerHTML = list.length ? list.map(themeCard).join("") : `<div class="empty">找不到符合條件的題材</div>`;
-  };
-  $("#themeSearch").addEventListener("input", render);
-  $("#themeSelect").addEventListener("change", () => {
-    $("#themeSearch").value = "";
-    render();
-  });
-  render();
 }
 
 function themeCard(theme) {
@@ -675,22 +653,24 @@ function conceptStockTable(concept) {
   const related = (concept.related_stocks || []).map(normalizeCode).filter(Boolean);
   if (!related.length) {
     return `
-      <div class="empty">內部概念股清單待補，請先查看外部參考來源。</div>
-      ${sourceLinksHtml(concept.source_links || [])}
-      ${externalSearchLinks(concept.name || concept.theme_name || "")}
+      <div class="empty">內部概念股清單待補，請查看外部參考來源</div>
     `;
   }
   return `
     <div class="table-wrap">
       <table class="concept-stock-table">
-        <thead><tr><th>股票代號</th><th>股票名稱</th><th>今日雷達命中</th><th>我的持股命中</th></tr></thead>
+        <thead><tr><th>股票名稱</th><th>收盤價</th><th>漲跌</th><th>漲跌幅</th><th>成交量</th><th>今日雷達命中</th><th>持股命中</th></tr></thead>
         <tbody>
           ${related.map((code) => {
-            const radarHit = Boolean(stockByCode(code));
+            const stock = stockByCode(code);
+            const radarHit = Boolean(stock);
             const holdingHit = holdings.has(code);
             return `<tr>
-              <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(code)}</a></td>
-              <td>${escapeHtml(displayStockName(code))}</td>
+              <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(stockLabel(code))}</a></td>
+              <td>${escapeHtml(stock?.close || "-")}</td>
+              <td>${escapeHtml(stock?.price_change || stock?.change || "-")}</td>
+              <td>${escapeHtml(stock?.daily_change || stock?.change_percent || "-")}</td>
+              <td>${escapeHtml(stock?.volume || "-")}</td>
               <td>${radarHit ? "是" : "否"}</td>
               <td>${holdingHit ? "是" : "否"}</td>
             </tr>`;
@@ -747,6 +727,7 @@ function conceptCard(concept) {
     <article class="card theme-card">
       <div class="section-title"><h3>${escapeHtml(concept.name)}</h3>${chip(concept.group || "未分類")}</div>
       <p class="muted">${escapeHtml(concept.description || `${concept.name} 相關概念`)}</p>
+      <p><span class="label">來源狀態</span>${escapeHtml(concept.source_status || "來源狀態未標示")}</p>
       <p><span class="label">別名</span>${escapeHtml((concept.aliases || []).join("、") || "-")}</p>
       <p><span class="label">關鍵字</span>${escapeHtml((concept.keywords || []).join("、") || "-")}</p>
       <p><span class="label">相關個股</span></p>
