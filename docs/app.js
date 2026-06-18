@@ -126,12 +126,25 @@ function stockByCode(code) {
   return state.stocks.find((stock) => normalizeCode(stock.code) === normalizeCode(code));
 }
 
+function masterRecord(code) {
+  const record = state.master[normalizeCode(code)];
+  if (!record) return null;
+  if (typeof record === "string") {
+    return { name: record, market: "", industry: "" };
+  }
+  return {
+    name: record.name || record.stock_name || record["股票名稱"] || "",
+    market: record.market || record["市場"] || "",
+    industry: record.industry || record.industry_code || record["產業別"] || "",
+  };
+}
+
 function masterName(code) {
-  return state.master[normalizeCode(code)] || "";
+  return masterRecord(code)?.name || "";
 }
 
 function knownStock(code) {
-  return Boolean(masterName(code) || stockByCode(code));
+  return Boolean(masterName(code));
 }
 
 function displayStockName(code) {
@@ -346,6 +359,26 @@ function stockRadarDetail(stock) {
     ["概念股", stock.concept || "-"],
     ["入選理由", stock.reason || "-"],
     ["風險標籤", stock.risk_tags || "一般觀察"],
+  ];
+  return `
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          ${rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function stockMasterDetail(code, stock) {
+  const record = masterRecord(code);
+  const rows = [
+    ["股票代號", normalizeCode(code)],
+    ["股票名稱", record?.name || "名稱待補"],
+    ["市場別", record?.market || "-"],
+    ["產業別", record?.industry || "-"],
+    ["今日雷達狀態", stock ? "命中今日雷達" : "今日未入選雷達"],
   ];
   return `
     <div class="table-wrap">
@@ -801,6 +834,7 @@ function renderStock() {
       $("#stockResult").innerHTML = `
         <section class="panel">
           <div class="section-title"><h2>${escapeHtml(code)} ${escapeHtml(name)}</h2><span>今日未入選雷達</span></div>
+          ${stockMasterDetail(code, stock)}
           <p class="muted">尚無內部雷達資料。</p>
         </section>
         <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
@@ -813,6 +847,7 @@ function renderStock() {
     $("#stockResult").innerHTML = `
       <section class="panel">
         <div class="section-title"><h2>${escapeHtml(code)} ${escapeHtml(name)}</h2><span>命中今日雷達</span></div>
+        ${stockMasterDetail(code, stock)}
         ${stockRadarDetail(stock)}
       </section>
       <section class="panel"><div class="section-title"><h2>阿斯拉方針</h2></div>${chip(asuradaStance(stock), "warn")}</section>
