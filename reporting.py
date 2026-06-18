@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from html import escape
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -75,7 +76,7 @@ def _build_risk_tags(row: pd.Series) -> str:
 def _filter_attrs(row: pd.Series) -> str:
     code = _value(row, "股票代號")
     name = _value(row, "股票名稱")
-    rating = _value(row, "觀察評等")
+    rating = _value(row, "雷達等級")
     concept = _value(row, "概念股")
     mom = _parse_number(row.get("月營收月增率"))
     mom_value = "" if mom is None else f"{mom:.4f}"
@@ -113,22 +114,64 @@ def format_report_for_output(report: pd.DataFrame) -> pd.DataFrame:
         output = output.rename(columns={"當天成交量": "當天成交量(張)"})
     if "年月" in output.columns:
         output["月資料"] = output["年月"].map(_month_data_label)
+        output["revenue_month"] = output["年月"].map(
+            lambda value: "" if pd.isna(value) or str(value).strip() in {"", "-"} else str(value).strip()
+        )
     else:
         output["月資料"] = "最新月營收"
+        output["revenue_month"] = ""
     if "收盤價" in output.columns and "股價最後日期" in output.columns:
         dates = pd.to_datetime(output["股價最後日期"], errors="coerce")
-        output["日資料"] = dates.dt.strftime("%Y-%m-%d").map(_day_data_label)
+        market_dates = dates.dt.strftime("%Y-%m-%d")
+        output["market_date"] = market_dates.fillna("")
+        output["日資料"] = market_dates.map(_day_data_label)
         latest_date = dates.max()
         if pd.notna(latest_date):
             output.attrs["price_date_label"] = latest_date.strftime("%m/%d")
+            output.attrs["market_date"] = latest_date.strftime("%Y-%m-%d")
         output = output.drop(columns=["股價最後日期"])
     else:
-        output["日資料"] = "資料日期未標示"
+        if "日資料" in output.columns:
+            output["market_date"] = output["日資料"].map(_extract_iso_date)
+            parsed_dates = pd.to_datetime(output["market_date"], errors="coerce")
+            latest_date = parsed_dates.max()
+            if pd.notna(latest_date):
+                output.attrs["price_date_label"] = latest_date.strftime("%m/%d")
+                output.attrs["market_date"] = latest_date.strftime("%Y-%m-%d")
+        else:
+            output["日資料"] = "資料日期未標示"
+            output["market_date"] = ""
+    output["資料版本"] = [
+        _data_version_label(revenue_month, market_date)
+        for revenue_month, market_date in zip(output["revenue_month"], output["market_date"])
+    ]
+    revenue_versions = [value for value in output["revenue_month"].astype(str).tolist() if value]
+    if revenue_versions or output.attrs.get("market_date"):
+        output.attrs["data_version_label"] = _data_version_label(
+            max(revenue_versions) if revenue_versions else "最新月營收",
+            output.attrs.get("market_date", "資料日期未標示"),
+        )
     output = output.rename(columns=DISPLAY_COLUMN_RENAMES)
     if "是否適合慢慢買" in output.columns:
         output = output.drop(columns=["是否適合慢慢買"])
     output["觀察節奏"] = "研究觀察"
     output["風險標籤"] = output.apply(_build_risk_tags, axis=1)
+    previous_rank_column = next(
+        (column for column in ["前次排名", "昨日排名"] if column in output.columns),
+        None,
+    )
+    if previous_rank_column and "排名" in output.columns:
+        output["較前次排名"] = [
+            _rank_change_label(current_rank, previous_rank)
+            for current_rank, previous_rank in zip(output["排名"], output[previous_rank_column])
+        ]
+    output = output.rename(
+        columns={
+            "強度分數": "雷達強度",
+            "觀察評等": "雷達等級",
+            "觀察節奏": "追蹤狀態",
+        }
+    )
     return output
 
 
@@ -198,14 +241,42 @@ def _day_data_label(value: object) -> str:
     return f"{str(value).strip()} 收盤價/成交量"
 
 
+def _data_version_label(revenue_month: object, market_date: object) -> str:
+    revenue = "最新月營收" if pd.isna(revenue_month) or str(revenue_month).strip() in {"", "-"} else str(revenue_month).strip()
+    market = "資料日期未標示" if pd.isna(market_date) or str(market_date).strip() in {"", "-"} else str(market_date).strip()
+    return f"營收 {revenue}｜行情 {market}"
+
+
+def _extract_iso_date(value: object) -> str:
+    if pd.isna(value):
+        return ""
+    match = re.search(r"\d{4}-\d{2}-\d{2}", str(value))
+    return match.group(0) if match else ""
+
+
+def _rank_change_label(current_rank: object, previous_rank: object) -> str:
+    current = _parse_number(current_rank)
+    previous = _parse_number(previous_rank)
+    if current is None:
+        return ""
+    if previous is None:
+        return "新進"
+    diff = int(previous - current)
+    if diff > 0:
+        return f"上升 {diff} 名"
+    if diff < 0:
+        return f"下降 {abs(diff)} 名"
+    return "持平"
+
+
 def build_mobile_cards(display_report: pd.DataFrame) -> str:
     cards: list[str] = []
     for _, row in display_report.iterrows():
         rank = _value(row, "排名")
         code = _value(row, "股票代號")
         name = _value(row, "股票名稱")
-        rating = _value(row, "觀察評等")
-        score = _format_number(row, "強度分數", decimals=1)
+        rating = _value(row, "雷達等級")
+        score = _format_number(row, "雷達強度", decimals=1)
         concept = _value(row, "概念股")
         reason = _value(row, "入選理由")
         business = _value(row, "公司業務")
@@ -214,10 +285,8 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         volume = _value(row, "當天成交量(張)")
         yoy = _format_percent(row, "月營收年增率")
         mom = _format_percent(row, "月營收月增率")
-        rhythm = _value(row, "觀察節奏")
+        tracking_status = _value(row, "追蹤狀態")
         risk_tags = _value(row, "風險標籤")
-        month_data = _value(row, "月資料")
-        day_data = _value(row, "日資料")
         attrs = _filter_attrs(row)
         cards.append(
             f"""
@@ -230,20 +299,17 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
         <div class="badge">{escape(rating)}</div>
       </div>
       <div class="metrics">
-        <div><span>分數</span><strong>{escape(score)}</strong></div>
+        <div><span>雷達強度</span><strong>{escape(score)}</strong></div>
         <div><span>收盤價</span><strong>{escape(price)}</strong></div>
         <div><span>成交量</span><strong>{escape(volume)} 張</strong></div>
       </div>
       <div class="metrics">
         <div><span>年增</span><strong>{escape(yoy)}</strong></div>
         <div><span>月增</span><strong>{escape(mom)}</strong></div>
-        <div><span>觀察節奏</span><strong>{escape(rhythm)}</strong></div>
       </div>
+      <p class="status-line"><strong>追蹤狀態：</strong>{escape(tracking_status)}</p>
+      <p class="risk-label">風險標籤：</p>
       <div class="risk-tags">{_risk_tag_html(risk_tags)}</div>
-      <div class="date-tags">
-        <span>月資料：{escape(month_data)}</span>
-        <span>日資料：{escape(day_data)}</span>
-      </div>
       <p class="concept"><span>概念股：</span>{escape(concept)}</p>
       <p><strong>入選理由：</strong>{escape(reason)}</p>
       <details>
@@ -258,23 +324,28 @@ def build_mobile_cards(display_report: pd.DataFrame) -> str:
 
 
 def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
+    previous_rank_column = next(
+        (column for column in ["較前次排名", "前次排名", "昨日排名"] if column in display_report.columns),
+        None,
+    )
     columns = [
         "排名",
         "股票代號",
         "股票名稱",
         "概念股",
-        "強度分數",
-        "觀察評等",
+        "雷達強度",
+        "雷達等級",
         "收盤價",
         "當天成交量(張)",
-        "月資料",
-        "日資料",
+        "資料版本",
         "月營收年增率",
         "月營收月增率",
         "風險標籤",
-        "觀察節奏",
+        "追蹤狀態",
         "入選理由",
     ]
+    if previous_rank_column:
+        columns.insert(1, previous_rank_column)
     available = [column for column in columns if column in display_report.columns]
     summary = display_report[available].copy()
     price_date = display_report.attrs.get("price_date_label")
@@ -282,16 +353,17 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
     header_labels = {
         "股票代號": "股票<br>代號",
         "股票名稱": "股票<br>名稱",
-        "強度分數": "強度<br>分數",
-        "觀察評等": "觀察<br>評等",
+        "雷達強度": "雷達<br>強度",
+        "雷達等級": "雷達<br>等級",
         "收盤價": price_header,
         "當天成交量(張)": "當天成交量<br>(張)",
-        "月資料": "月<br>資料",
-        "日資料": "日<br>資料",
+        "資料版本": "資料<br>版本",
         "月營收年增率": "營收年增<br>(%)",
         "月營收月增率": "營收月增<br>(%)",
         "風險標籤": "風險<br>標籤",
-        "觀察節奏": "觀察<br>節奏",
+        "追蹤狀態": "追蹤<br>狀態",
+        "前次排名": "較前次<br>排名",
+        "昨日排名": "較前次<br>排名",
     }
     headers = "".join(f"<th>{header_labels.get(column, escape(column))}</th>" for column in available)
     rows: list[str] = []
@@ -317,7 +389,7 @@ def build_desktop_summary_table(display_report: pd.DataFrame) -> str:
 
 def build_overview_section(display_report: pd.DataFrame) -> str:
     total = len(display_report)
-    rating = display_report["觀察評等"].astype(str) if "觀察評等" in display_report.columns else pd.Series(dtype=str)
+    rating = display_report["雷達等級"].astype(str) if "雷達等級" in display_report.columns else pd.Series(dtype=str)
     a_count = int((rating == "A").sum())
     a_minus_count = int((rating == "A-").sum())
     b_count = int((rating == "B").sum())
@@ -360,7 +432,7 @@ def build_filter_section() -> str:
         <label>股票搜尋
           <input id="searchInput" type="search" placeholder="輸入代號或名稱，例如 2337、旺宏">
         </label>
-        <label>觀察評等
+        <label>雷達等級
           <select id="ratingFilter">
             <option value="">全部</option>
             <option value="A">A</option>
@@ -386,8 +458,8 @@ def build_data_basis_section() -> str:
         ("月營收月增率", "每月更新"),
         ("收盤價", "交易日更新"),
         ("成交量", "交易日更新"),
-        ("強度分數", "依最新資料重新排序"),
-        ("風險標籤", "依營收、量能與分數條件產生"),
+        ("雷達強度", "依最新資料重新排序"),
+        ("風險標籤", "依營收、量能與雷達強度條件產生"),
     ]
     rows = "".join(
         f'<div class="basis-item"><span>{escape(label)}</span><strong>{escape(value)}</strong></div>'
@@ -419,10 +491,10 @@ def build_score_explanation_section() -> str:
     return f"""
     <section class="panel score-explanation-panel">
       <div class="section-title">
-        <h2>強度分數說明</h2>
+        <h2>雷達強度說明</h2>
         <span>僅供研究排序，不構成投資建議</span>
       </div>
-      <p class="panel-note">強度分數為 0–100 分，僅作為候選股觀察排序使用。目前不顯示每檔股票的細項拆分，避免把研究排序誤解為精準投資建議。</p>
+      <p class="panel-note">雷達強度為 0–100 分，僅作為候選股觀察排序使用。目前不顯示每檔股票的細項拆分，避免把研究排序誤解為精準投資建議。</p>
       <div class="score-weight-grid">{rows}</div>
     </section>
 """
@@ -489,7 +561,7 @@ def build_holdings_section(display_report: pd.DataFrame) -> str:
                 f"""
         <div class="holding-card hit">
           <strong>{escape(_value(row, "股票代號"))} {escape(_value(row, "股票名稱"))}</strong>
-          <span>排名 #{escape(_value(row, "排名"))}｜分數 {escape(_value(row, "強度分數"))}｜評等 {escape(_value(row, "觀察評等"))}</span>
+          <span>排名 #{escape(_value(row, "排名"))}｜雷達強度 {escape(_value(row, "雷達強度"))}｜雷達等級 {escape(_value(row, "雷達等級"))}</span>
         </div>
 """
             )
@@ -539,6 +611,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     v3_placeholder_section = build_v3_placeholder_section(display_report)
     filter_section = build_filter_section()
     holdings_section = build_holdings_section(display_report)
+    data_version_label = display_report.attrs.get("data_version_label", "待資料建立")
     html = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -580,6 +653,17 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       color: #e0f2fe;
       font-size: 13px;
       margin: 10px 0 0;
+    }}
+    .data-version {{
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      color: #f8fafc;
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      margin-top: 12px;
+      padding: 6px 12px;
     }}
     .panel {{
       background: var(--card);
@@ -789,6 +873,17 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       gap: 6px;
       margin-top: 10px;
     }}
+    .status-line,
+    .risk-label {{
+      color: var(--muted);
+      font-size: 13px;
+      margin: 10px 0 0;
+    }}
+    .status-line strong,
+    .risk-label {{
+      color: var(--ink);
+      font-weight: 800;
+    }}
     .risk-pill {{
       background: #eef2ff;
       border: 1px solid #c7d2fe;
@@ -867,15 +962,14 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .summary-table th:nth-child(6), .summary-table td:nth-child(6) {{ width: 5%; text-align: center; }}
     .summary-table th:nth-child(7), .summary-table td:nth-child(7) {{ width: 6%; text-align: right; }}
     .summary-table th:nth-child(8), .summary-table td:nth-child(8) {{ width: 7%; text-align: right; }}
-    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 7%; text-align: center; }}
-    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 8%; text-align: center; }}
+    .summary-table th:nth-child(9), .summary-table td:nth-child(9) {{ width: 10%; text-align: center; }}
+    .summary-table th:nth-child(10), .summary-table td:nth-child(10) {{ width: 7%; text-align: right; }}
     .summary-table th:nth-child(11), .summary-table td:nth-child(11) {{ width: 7%; text-align: right; }}
-    .summary-table th:nth-child(12), .summary-table td:nth-child(12) {{ width: 7%; text-align: right; }}
-    .summary-table th:nth-child(13), .summary-table td:nth-child(13) {{ width: 7%; text-align: center; }}
-    .summary-table th:nth-child(14), .summary-table td:nth-child(14) {{ width: 6%; text-align: center; }}
-    .summary-table th:nth-child(15), .summary-table td:nth-child(15) {{ width: 13%; }}
+    .summary-table th:nth-child(12), .summary-table td:nth-child(12) {{ width: 8%; text-align: center; }}
+    .summary-table th:nth-child(13), .summary-table td:nth-child(13) {{ width: 6%; text-align: center; }}
+    .summary-table th:nth-child(14), .summary-table td:nth-child(14) {{ width: 14%; }}
     .summary-table td:nth-child(4),
-    .summary-table td:nth-child(15) {{
+    .summary-table td:nth-child(14) {{
       line-height: 1.45;
     }}
     tr:nth-child(even) {{ background: #f8fafc; }}
@@ -964,11 +1058,12 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       <h1>阿斯拉台股月營收轉強雷達</h1>
       <p class="note">本雷達以最新月營收年增率、月增率作為基本面初篩，再結合當日收盤價、成交量、題材分類與風險標籤進行排序。月營收通常不會每日變動，股價與成交量則依交易日更新，因此每日排名可能小幅變動，月營收公告期則可能大幅變動。</p>
       <p class="note disclaimer">本報告僅供研究與風險控管，不構成投資建議，也不包含自動下單功能。</p>
-      <p class="score-note">強度分數為 0-100 分，用來排序候選股強弱；觀察評等依分數分級，方便快速判斷觀察優先順序。</p>
+      <p class="score-note">雷達強度為 0-100 分，用來排序候選股強弱；雷達等級依分數分級，方便快速判斷觀察優先順序。</p>
       <div class="actions">
         <a href="latest.csv">下載 CSV</a>
         <button type="button" onclick="alert('本雷達依據營收成長、成交量、股價位置、題材概念與技術強度進行初步篩選，僅供研究與風險控管參考，不構成投資建議。')">資料說明</button>
       </div>
+      <div class="data-version">資料版本：{escape(data_version_label)}</div>
     </section>
 {data_basis_section}
 {score_explanation_section}
