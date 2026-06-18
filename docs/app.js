@@ -287,9 +287,32 @@ function matchesRating(stock, rating) {
   return stockRating === rating;
 }
 
+function revenueMonthText(stock) {
+  const candidates = [stock?.revenue_month, stock?.data_version];
+  for (const value of candidates) {
+    const match = String(value || "").match(/(\d{4})-(\d{1,2})/);
+    if (match) return `${Number(match[2])}月`;
+  }
+  return "當月份";
+}
+
+function revenueLabels(stock) {
+  const month = revenueMonthText(stock);
+  return {
+    current: "當月營收(百萬)",
+    mom: `月增率(${month})`,
+    yoy: `年增率(${month})`,
+  };
+}
+
+function revenueAmount(stock) {
+  return stock?.current_revenue_million ?? stock?.current_revenue ?? "-";
+}
+
 function stockCard(stock, mode = "main", compact = false) {
   const info = radarModeInfo(stock, mode);
   const modeName = mode === "market" ? "全市場" : mode === "defensive" ? "資產防守" : "主升段";
+  const labels = revenueLabels(stock);
   return `
     <article class="card stock-card">
       <div class="section-title">
@@ -305,10 +328,10 @@ function stockCard(stock, mode = "main", compact = false) {
       ${info.downgraded ? `<p class="penalty-note">主升段模式降權：族群非當前高動能主流，需等待政策、利率或量價確認。</p>` : ""}
       ${compact ? "" : `
       <div class="grid cols-4">
-        <div class="metric"><span>當月營收</span><strong>${escapeHtml(stock.current_revenue)}</strong></div>
-        <div class="metric"><span>營收月增</span><strong>${escapeHtml(stock.revenue_mom)}</strong></div>
+        <div class="metric"><span>${escapeHtml(labels.current)}</span><strong>${escapeHtml(revenueAmount(stock))}</strong></div>
+        <div class="metric"><span>${escapeHtml(labels.mom)}</span><strong>${escapeHtml(stock.revenue_mom)}</strong></div>
         <div class="metric"><span>去年同月營收</span><strong>${escapeHtml(stock.previous_year_revenue)}</strong></div>
-        <div class="metric"><span>營收年增</span><strong>${escapeHtml(stock.revenue_yoy)}</strong></div>
+        <div class="metric"><span>${escapeHtml(labels.yoy)}</span><strong>${escapeHtml(stock.revenue_yoy)}</strong></div>
       </div>`}
       <p><span class="label">概念股</span>${escapeHtml(stock.concept || "-")}</p>
       <p><span class="label">入選理由</span>${escapeHtml(stock.reason || "-")}</p>
@@ -319,6 +342,7 @@ function stockCard(stock, mode = "main", compact = false) {
 
 function stockTable(stocks, mode = "main", compact = false) {
   if (!stocks.length) return `<div class="empty">沒有符合條件的股票</div>`;
+  const labels = revenueLabels(stocks[0]);
   const rows = stocks.map((stock) => {
     const info = radarModeInfo(stock, mode);
     return `
@@ -329,8 +353,9 @@ function stockTable(stocks, mode = "main", compact = false) {
         <td>${escapeHtml(radarScore(stock, mode))}${info.downgraded ? "<br><span class=\"chip warn\">降權</span>" : ""}</td>
         <td>${escapeHtml(stock.close)}</td>
         <td>${escapeHtml(stock.volume)}</td>
-        <td>${escapeHtml(stock.revenue_yoy)}</td>
+        <td>${escapeHtml(revenueAmount(stock))}</td>
         <td>${escapeHtml(stock.revenue_mom)}</td>
+        <td>${escapeHtml(stock.revenue_yoy)}</td>
         <td>${escapeHtml(stock.concept)}</td>
         <td>${escapeHtml(stock.reason)}</td>
         <td>${escapeHtml(stock.risk_tags || "一般觀察")}</td>
@@ -340,7 +365,7 @@ function stockTable(stocks, mode = "main", compact = false) {
   return `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達評分</th><th>收盤價</th><th>成交量</th><th>營收年增</th><th>營收月增</th><th>概念股</th><th>入選理由</th><th>風險標籤</th></tr></thead>
+        <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達評分</th><th>收盤價</th><th>成交量</th><th>${escapeHtml(labels.current)}</th><th>${escapeHtml(labels.mom)}</th><th>${escapeHtml(labels.yoy)}</th><th>概念股</th><th>入選理由</th><th>風險標籤</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -348,14 +373,15 @@ function stockTable(stocks, mode = "main", compact = false) {
 }
 
 function stockRadarDetail(stock) {
+  const labels = revenueLabels(stock);
   const rows = [
     ["雷達排名", stock.rank || "-"],
     ["雷達評分", radarScore(stock, "market")],
     ["收盤價", stock.close || "-"],
     ["成交量", stock.volume || "-"],
-    ["當月營收(百萬)", stock.current_revenue_million || stock.current_revenue || "-"],
-    ["月增率", stock.revenue_mom || "-"],
-    ["年增率", stock.revenue_yoy || "-"],
+    [labels.current, revenueAmount(stock)],
+    [labels.mom, stock.revenue_mom || "-"],
+    [labels.yoy, stock.revenue_yoy || "-"],
     ["概念股", stock.concept || "-"],
     ["入選理由", stock.reason || "-"],
     ["風險標籤", stock.risk_tags || "一般觀察"],
