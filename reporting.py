@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from html import escape
+import json
 import re
 import shutil
 from datetime import datetime
@@ -25,9 +26,6 @@ DISPLAY_COLUMN_RENAMES = {
     "關注原因": "入選理由",
     "收盤價": "收盤價",
 }
-
-HOLDING_CODES = ["2337", "2313", "3673", "4960", "3231"]
-
 
 def _to_yes_no(value: object) -> object:
     if pd.isna(value):
@@ -270,6 +268,29 @@ def _previous_year_revenue_amount(row: pd.Series) -> str:
 
 def _risk_tag_html(tags: str) -> str:
     return "".join(f'<span class="risk-pill">{escape(tag.strip())}</span>' for tag in tags.split("、") if tag.strip())
+
+
+def _build_radar_data_json(display_report: pd.DataFrame) -> str:
+    records: list[dict[str, str]] = []
+    for _, row in display_report.iterrows():
+        records.append(
+            {
+                "code": _value(row, "股票代號"),
+                "name": _value(row, "股票名稱"),
+                "rank": _value(row, "排名"),
+                "rating": _value(row, "雷達等級"),
+                "score": _value(row, "雷達強度"),
+                "price": _value(row, "收盤價"),
+                "volume": _value(row, "當天成交量(張)"),
+                "revenueYoy": _value(row, "月營收年增率"),
+                "revenueMom": _value(row, "月營收月增率"),
+                "currentRevenue": _value(row, "月營收金額"),
+                "previousYearRevenue": _value(row, "去年同月營收"),
+                "concept": _value(row, "概念股"),
+                "riskTags": _value(row, "風險標籤"),
+            }
+        )
+    return json.dumps(records, ensure_ascii=False)
 
 
 def _month_data_label(value: object) -> str:
@@ -617,41 +638,26 @@ def build_v3_placeholder_section(display_report: pd.DataFrame) -> str:
 
 
 def build_holdings_section(display_report: pd.DataFrame) -> str:
-    rows: list[str] = []
-    if "股票代號" not in display_report.columns:
-        hits = pd.DataFrame()
-    else:
-        code_series = display_report["股票代號"].astype(str).str.strip()
-        hits = display_report[code_series.isin(HOLDING_CODES)]
-
-    hit_by_code = {str(row["股票代號"]).strip(): row for _, row in hits.iterrows()}
-    for code in HOLDING_CODES:
-        row = hit_by_code.get(code)
-        if row is None:
-            rows.append(
-                f"""
-        <div class="holding-card muted-hit">
-          <strong>{escape(code)}</strong>
-          <span>今日未入選雷達</span>
-        </div>
-"""
-            )
-        else:
-            rows.append(
-                f"""
-        <div class="holding-card hit">
-          <strong>{escape(_value(row, "股票代號"))} {escape(_value(row, "股票名稱"))}</strong>
-          <span>排名 #{escape(_value(row, "排名"))}｜雷達強度 {escape(_value(row, "雷達強度"))}｜雷達等級 {escape(_value(row, "雷達等級"))}</span>
-        </div>
-"""
-            )
-    return f"""
+    return """
     <section class="panel holdings-panel">
       <div class="section-title">
-        <h2>我的持股命中</h2>
-        <span>追蹤 2337、2313、3673、4960、3231</span>
+        <h2>我的持股設定</h2>
+        <span>資料儲存在此瀏覽器 localStorage</span>
       </div>
-      <div class="holdings-grid">{"".join(rows)}</div>
+      <p class="panel-note">輸入股票代號，可用逗號分隔或每行一檔。範例：2337,2313,3673</p>
+      <textarea id="holdingsInput" class="holdings-input" rows="4" placeholder="2337,2313,3673"></textarea>
+      <div class="holding-actions">
+        <button type="button" id="saveHoldings">儲存持股</button>
+        <button type="button" id="clearHoldings">清除持股</button>
+        <button type="button" id="exportHoldings">匯出設定</button>
+        <button type="button" id="importHoldings">匯入設定</button>
+        <input id="importHoldingsFile" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="section-title holdings-result-title">
+        <h2>我的持股命中</h2>
+        <span id="holdingsSummary">尚未設定持股</span>
+      </div>
+      <div id="holdingsResults" class="holdings-grid holdings-results"></div>
     </section>
 """
 
@@ -691,6 +697,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     v3_placeholder_section = build_v3_placeholder_section(display_report)
     filter_section = build_filter_section()
     holdings_section = build_holdings_section(display_report)
+    radar_data_json = _build_radar_data_json(display_report).replace("</", "<\\/")
     html = f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -914,6 +921,43 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       grid-template-columns: repeat(5, 1fr);
       gap: 10px;
     }}
+    .holdings-input {{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 15px;
+      min-height: 96px;
+      padding: 12px;
+      resize: vertical;
+      width: 100%;
+    }}
+    .holding-actions {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }}
+    .holding-actions button {{
+      background: #152238;
+      border: 1px solid #152238;
+      border-radius: 999px;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 800;
+      padding: 8px 12px;
+    }}
+    .holding-actions button:nth-child(2) {{
+      background: #f8fafc;
+      color: var(--ink);
+      border-color: var(--line);
+    }}
+    .holdings-result-title {{
+      border-top: 1px solid var(--line);
+      margin-top: 12px;
+      padding-top: 12px;
+    }}
     .holding-card {{
       border-radius: 14px;
       padding: 12px;
@@ -934,6 +978,15 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     .holding-card.muted-hit {{
       background: #f8fafc;
       border: 1px solid var(--line);
+    }}
+    .holding-card .holding-detail {{
+      color: var(--ink);
+      font-size: 13px;
+      margin-top: 6px;
+    }}
+    .holding-card .holding-concept {{
+      color: var(--good);
+      font-weight: 800;
     }}
     .risk-tags {{
       display: flex;
@@ -1148,12 +1201,165 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     </section>
   </main>
   <script>
+    const radarData = {radar_data_json};
+    const holdingsStorageKey = 'asurada_holdings';
     const searchInput = document.getElementById('searchInput');
     const ratingFilter = document.getElementById('ratingFilter');
     const conceptInput = document.getElementById('conceptInput');
     const positiveMomOnly = document.getElementById('positiveMomOnly');
     const filterCount = document.getElementById('filter-count');
     const noResults = document.getElementById('noResults');
+    const holdingsInput = document.getElementById('holdingsInput');
+    const holdingsResults = document.getElementById('holdingsResults');
+    const holdingsSummary = document.getElementById('holdingsSummary');
+    const saveHoldings = document.getElementById('saveHoldings');
+    const clearHoldings = document.getElementById('clearHoldings');
+    const exportHoldings = document.getElementById('exportHoldings');
+    const importHoldings = document.getElementById('importHoldings');
+    const importHoldingsFile = document.getElementById('importHoldingsFile');
+
+    const radarByCode = new Map(radarData.map((stock) => [stock.code, stock]));
+
+    function escapeHtml(value) {{
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }}
+
+    function normalizeHoldingCode(value) {{
+      return String(value || '')
+        .trim()
+        .toUpperCase()
+        .replace(/\\.(TW|TWO)$/i, '');
+    }}
+
+    function parseHoldings(text) {{
+      const seen = new Set();
+      return String(text || '')
+        .split(/[\\s,\\uFF0C\\u3001]+/)
+        .map(normalizeHoldingCode)
+        .filter((code) => {{
+          if (!code || seen.has(code)) return false;
+          seen.add(code);
+          return true;
+        }});
+    }}
+
+    function getStoredHoldings() {{
+      const raw = localStorage.getItem(holdingsStorageKey);
+      if (!raw) return [];
+      try {{
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed.map(normalizeHoldingCode).filter(Boolean);
+        if (Array.isArray(parsed.codes)) return parsed.codes.map(normalizeHoldingCode).filter(Boolean);
+      }} catch (error) {{
+        return parseHoldings(raw);
+      }}
+      return [];
+    }}
+
+    function setStoredHoldings(codes) {{
+      localStorage.setItem(holdingsStorageKey, JSON.stringify({{ codes }}));
+    }}
+
+    function riskTagHtml(tags) {{
+      const parts = String(tags || '一般觀察').split('、').map((tag) => tag.trim()).filter(Boolean);
+      return parts.map((tag) => `<span class="risk-pill">${{escapeHtml(tag)}}</span>`).join('');
+    }}
+
+    function renderHoldings(codes) {{
+      if (!holdingsResults || !holdingsSummary) return;
+      if (!codes.length) {{
+        holdingsSummary.textContent = '尚未設定持股';
+        holdingsResults.innerHTML = '<div class="holding-card muted-hit"><strong>尚未設定持股</strong><span>請在上方輸入股票代號後儲存。</span></div>';
+        return;
+      }}
+
+      const hits = codes.filter((code) => radarByCode.has(code)).length;
+      holdingsSummary.textContent = `已設定 ${{codes.length}} 檔，今日命中 ${{hits}} 檔`;
+      holdingsResults.innerHTML = codes.map((code) => {{
+        const stock = radarByCode.get(code);
+        if (!stock) {{
+          return `
+            <div class="holding-card muted-hit">
+              <strong>${{escapeHtml(code)}}</strong>
+              <span>${{escapeHtml(code)}} 今日未入選雷達</span>
+            </div>
+          `;
+        }}
+        return `
+          <div class="holding-card hit">
+            <strong>${{escapeHtml(stock.code)}} ${{escapeHtml(stock.name)}}</strong>
+            <span>排名 #${{escapeHtml(stock.rank)}}｜雷達等級 ${{escapeHtml(stock.rating)}}｜雷達強度 ${{escapeHtml(stock.score)}}</span>
+            <div class="holding-detail">收盤價：${{escapeHtml(stock.price)}}｜成交量：${{escapeHtml(stock.volume)}} 張</div>
+            <div class="holding-detail">營收年增：${{escapeHtml(stock.revenueYoy)}}｜營收月增：${{escapeHtml(stock.revenueMom)}}</div>
+            <div class="holding-detail holding-concept">概念股：${{escapeHtml(stock.concept)}}</div>
+            <div class="risk-tags">${{riskTagHtml(stock.riskTags)}}</div>
+          </div>
+        `;
+      }}).join('');
+    }}
+
+    function loadHoldings() {{
+      const codes = getStoredHoldings();
+      if (holdingsInput) holdingsInput.value = codes.join('\\n');
+      renderHoldings(codes);
+    }}
+
+    saveHoldings?.addEventListener('click', () => {{
+      const codes = parseHoldings(holdingsInput?.value || '');
+      setStoredHoldings(codes);
+      if (holdingsInput) holdingsInput.value = codes.join('\\n');
+      renderHoldings(codes);
+    }});
+
+    clearHoldings?.addEventListener('click', () => {{
+      localStorage.removeItem(holdingsStorageKey);
+      if (holdingsInput) holdingsInput.value = '';
+      renderHoldings([]);
+    }});
+
+    exportHoldings?.addEventListener('click', () => {{
+      const codes = parseHoldings(holdingsInput?.value || '').length
+        ? parseHoldings(holdingsInput?.value || '')
+        : getStoredHoldings();
+      const blob = new Blob([JSON.stringify({{ codes }}, null, 2)], {{ type: 'application/json' }});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'asurada_holdings.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    }});
+
+    importHoldings?.addEventListener('click', () => {{
+      importHoldingsFile?.click();
+    }});
+
+    importHoldingsFile?.addEventListener('change', () => {{
+      const file = importHoldingsFile.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {{
+        try {{
+          const parsed = JSON.parse(String(reader.result || '{{}}'));
+          const codes = Array.isArray(parsed) ? parsed : parsed.codes;
+          if (!Array.isArray(codes)) throw new Error('Invalid holdings file');
+          const normalized = parseHoldings(codes.join('\\n'));
+          setStoredHoldings(normalized);
+          if (holdingsInput) holdingsInput.value = normalized.join('\\n');
+          renderHoldings(normalized);
+        }} catch (error) {{
+          alert('匯入失敗，請確認 JSON 格式是否正確。');
+        }} finally {{
+          importHoldingsFile.value = '';
+        }}
+      }};
+      reader.readAsText(file, 'utf-8');
+    }});
 
     function applyFilters() {{
       const search = (searchInput?.value || '').trim().toLowerCase();
@@ -1196,6 +1402,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
       control?.addEventListener('input', applyFilters);
       control?.addEventListener('change', applyFilters);
     }});
+    loadHoldings();
     applyFilters();
   </script>
 </body>
