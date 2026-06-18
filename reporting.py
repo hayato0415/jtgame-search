@@ -305,6 +305,55 @@ def _build_radar_data_json(display_report: pd.DataFrame) -> str:
     return json.dumps(records, ensure_ascii=False)
 
 
+def publish_interactive_data(display_report: pd.DataFrame, site_dir: Path = SITE_DIR) -> None:
+    data_dir = site_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    records: list[dict[str, object]] = []
+    profiles: dict[str, dict[str, str]] = {}
+    for _, row in display_report.iterrows():
+        code = _value(row, "股票代號")
+        record = {
+            "rank": int(_parse_number(row.get("排名")) or 0),
+            "code": code,
+            "name": _value(row, "股票名稱"),
+            "concept": _value(row, "概念股"),
+            "business": _value(row, "公司業務"),
+            "reason": _value(row, "入選理由"),
+            "revenue_yoy": _value(row, "月營收年增率"),
+            "revenue_yoy_value": _parse_number(row.get("月營收年增率")),
+            "revenue_mom": _value(row, "月營收月增率"),
+            "revenue_mom_value": _parse_number(row.get("月營收月增率")),
+            "rating": _value(row, "雷達等級"),
+            "score": _value(row, "雷達強度"),
+            "score_value": _parse_number(row.get("雷達強度")),
+            "close": _value(row, "收盤價"),
+            "volume": _value(row, "當天成交量(張)"),
+            "volume_value": _parse_number(row.get("當天成交量(張)")),
+            "current_revenue": _value(row, "月營收金額"),
+            "previous_year_revenue": _value(row, "去年同月營收"),
+            "revenue_month": _value(row, "revenue_month"),
+            "market_date": _value(row, "market_date"),
+            "data_version": _value(row, "資料版本"),
+            "risk_tags": _value(row, "風險標籤"),
+            "tracking_status": _value(row, "追蹤狀態"),
+            "market": _value(row, "市場"),
+            "daily_change": _value(row, "今日漲跌幅"),
+        }
+        records.append(record)
+        profiles[code] = {
+            "code": code,
+            "name": record["name"],
+            "business": record["business"],
+            "concept": record["concept"],
+            "market": record["market"],
+        }
+    (data_dir / "stocks-latest.json").write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+    (data_dir / "stock-profiles.json").write_text(json.dumps(profiles, ensure_ascii=False, indent=2), encoding="utf-8")
+    technical_path = data_dir / "technical-latest.json"
+    if not technical_path.exists():
+        technical_path.write_text("{}", encoding="utf-8")
+
+
 def _month_data_label(value: object) -> str:
     if pd.isna(value) or str(value).strip() in {"", "-"}:
         return "最新月營收"
@@ -719,14 +768,19 @@ def publish_static_site(csv_path: Path, html_path: Path, stamp: str, site_dir: P
     site_csv = reports_dir / csv_path.name
     latest_html = site_dir / "latest.html"
     latest_csv = site_dir / "latest.csv"
+    app_site_exists = (site_dir / "app.js").exists()
 
     shutil.copy2(html_path, site_html)
     shutil.copy2(csv_path, site_csv)
-    shutil.copy2(html_path, latest_html)
+    if not app_site_exists:
+        shutil.copy2(html_path, latest_html)
     shutil.copy2(csv_path, latest_csv)
 
-    index_html = build_index_html("latest.html", "latest.csv", stamp)
-    (site_dir / "index.html").write_text(index_html, encoding="utf-8")
+    index_path = site_dir / "index.html"
+    existing_index = index_path.read_text(encoding="utf-8") if index_path.exists() else ""
+    if "boot(\"index\")" not in existing_index:
+        index_html = build_index_html("latest.html", "latest.csv", stamp)
+        index_path.write_text(index_html, encoding="utf-8")
 
 
 def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[Path, Path]:
@@ -736,6 +790,7 @@ def write_reports(report: pd.DataFrame, output_dir: Path = OUTPUT_DIR) -> tuple[
     html_path = output_dir / f"asurada_candidates_{stamp}.html"
     display_report = format_report_for_output(report)
     display_report.to_csv(csv_path, index=False, encoding="utf-8-sig")
+    publish_interactive_data(display_report)
 
     desktop_table = build_desktop_summary_table(display_report)
     mobile_cards = build_mobile_cards(display_report)
