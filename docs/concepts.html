@@ -3,14 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>概念股資料庫</title>
+  <title>MoneyDJ 概念股資料庫</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <header id="siteHeader"></header>
-  <main id="app" class="page"><div class="panel">資料載入中...</div></main>
-  <p class="footer-note">概念股資料庫讀取 MoneyDJ CSV，僅供研究與風險控管參考。</p>
-  <script src="app.js"></script>
-  <script>boot("concepts");</script>
+  <header class="site-header">
+    <h1>MoneyDJ 概念股資料庫</h1>
+    <p>依 MoneyDJ 概念股表現台建立，保留原始分類順序與個股表格順序。</p>
+    <nav class="nav">
+      <a href="index.html">首頁</a>
+      <a href="radar.html">全股雷達</a>
+      <a href="news.html">重大新聞</a>
+      <a class="active" href="concepts.html">概念股資料庫</a>
+      <a href="stock.html">個股查詢</a>
+      <a href="portfolio.html">我的持股</a>
+    </nav>
+  </header>
+
+  <main id="app" class="page">
+    <section class="panel">
+      <div class="section-title">
+        <h2>資料載入中...</h2>
+        <span>讀取 MoneyDJ CSV</span>
+      </div>
+    </section>
+  </main>
+
+  <p class="footer-note">資料來源：MoneyDJ。本站僅整理公開頁面資料供研究參考，不構成投資建議。</p>
+  <script src="concepts.js"></script>
 </body>
 </html>
