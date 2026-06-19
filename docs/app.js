@@ -442,7 +442,7 @@ function stockRadarDetail(stock) {
   ];
   return `
     <div class="table-wrap">
-      <table>
+      <table class="detail-table">
         <tbody>
           ${rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("")}
         </tbody>
@@ -462,7 +462,7 @@ function stockMasterDetail(code, stock) {
   ];
   return `
     <div class="table-wrap">
-      <table>
+      <table class="detail-table">
         <tbody>
           ${rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join("")}
         </tbody>

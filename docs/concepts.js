@@ -202,12 +202,12 @@ function renderStockTable(stocks) {
         <tbody>
           ${stocks.map((stock) => `
             <tr>
-              <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.stock_id)}">${escapeHtml(stock.stock_id)}</a></td>
-              <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.stock_id)}">${escapeHtml(stock.stock_name)}</a></td>
-              <td>${escapeHtml(stock.close_price || "-")}</td>
-              <td>${escapeHtml(stock.price_change || "-")}</td>
-              <td>${escapeHtml(stock.change_pct || "-")}</td>
-              <td>${escapeHtml(stock.volume || "-")}</td>
+              <td data-label="股票代號"><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.stock_id)}">${escapeHtml(stock.stock_id)}</a></td>
+              <td data-label="股票名稱"><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.stock_id)}">${escapeHtml(stock.stock_name)}</a></td>
+              <td data-label="收盤價">${escapeHtml(stock.close_price || "-")}</td>
+              <td data-label="漲跌">${escapeHtml(stock.price_change || "-")}</td>
+              <td data-label="漲跌幅">${escapeHtml(stock.change_pct || "-")}</td>
+              <td data-label="成交量">${escapeHtml(stock.volume || "-")}</td>
             </tr>
           `).join("")}
         </tbody>
