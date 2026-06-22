@@ -236,23 +236,57 @@ tr:nth-child(even) { background: #f8fafc; }
   line-height: 1.7;
   margin: 4px 0;
 }
-.radar-evidence-table {
-  min-width: 1780px;
-  table-layout: fixed;
+.radar-table-wrap {
+  max-width: 100%;
+  width: 100%;
 }
-.radar-evidence-table th:nth-child(1) { width: 58px; }
-.radar-evidence-table th:nth-child(2) { width: 90px; }
-.radar-evidence-table th:nth-child(3) { width: 100px; }
-.radar-evidence-table th:nth-child(4) { width: 115px; }
-.radar-evidence-table th:nth-child(5) { width: 270px; }
-.radar-evidence-table th:nth-child(6) { width: 245px; }
-.radar-evidence-table th:nth-child(7) { width: 190px; }
-.radar-evidence-table th:nth-child(8) { width: 210px; }
-.radar-evidence-table th:nth-child(9) { width: 250px; }
-.radar-evidence-table th:nth-child(10) { width: 250px; }
-.radar-evidence-table td {
-  line-height: 1.55;
-  overflow-wrap: anywhere;
+.radar-table {
+  font-size: 13px;
+  min-width: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+.radar-table th,
+.radar-table td {
+  line-height: 1.35;
+  overflow: hidden;
+  padding: 5px 6px;
+}
+.radar-table th:nth-child(1) { width: 4%; }
+.radar-table th:nth-child(2) { width: 6%; }
+.radar-table th:nth-child(3) { width: 7%; }
+.radar-table th:nth-child(4) { width: 8%; }
+.radar-table th:nth-child(5) { width: 14%; }
+.radar-table th:nth-child(6) { width: 16%; }
+.radar-table th:nth-child(7) { width: 10%; }
+.radar-table th:nth-child(8) { width: 13%; }
+.radar-table th:nth-child(9) { width: 12%; }
+.radar-table th:nth-child(10) { width: 10%; }
+.radar-table .cell-nowrap {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.radar-table .cell-number {
+  text-align: center;
+}
+.radar-table .cell-clamp {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: normal;
+}
+.radar-table .cell-theme .cell-clamp {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.radar-table .cell-reason .cell-clamp {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+@media (min-width: 769px) {
+  .radar-table-wrap {
+    overflow-x: hidden;
+  }
 }
 .evidence-section {
   background: #e8f2ff;
@@ -529,42 +563,11 @@ tr:nth-child(even) { background: #f8fafc; }
     overflow-x: auto;
     width: 100%;
   }
-  .radar-evidence-table,
-  .radar-evidence-table thead,
-  .radar-evidence-table tbody,
-  .radar-evidence-table tr,
-  .radar-evidence-table th,
-  .radar-evidence-table td {
-    display: block;
-    min-width: 0;
-    width: 100%;
+  .radar-table-wrap {
+    overflow-x: auto;
   }
-  .radar-evidence-table {
-    border-collapse: separate;
-    border-spacing: 0 10px;
-  }
-  .radar-evidence-table thead {
-    display: none;
-  }
-  .radar-evidence-table tr {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(15, 35, 70, .06);
-    padding: 10px;
-  }
-  .radar-evidence-table td {
-    border: 0;
-    display: grid;
-    gap: 8px;
-    grid-template-columns: 92px minmax(0, 1fr);
-    padding: 7px 2px;
-  }
-  .radar-evidence-table td::before {
-    color: var(--muted);
-    content: attr(data-label);
-    font-size: 13px;
-    font-weight: 800;
+  .radar-table {
+    min-width: 1120px;
   }
   table {
     min-width: 900px;

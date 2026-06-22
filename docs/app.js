@@ -674,24 +674,30 @@ function radarEvidenceTable(stocks, mode = "mid") {
   const rows = stocks.map((stock) => {
     const score = evidenceNumber(stock.score_value);
     const scoreHint = score === null ? "原始分數未標示" : `原始分數：${score.toFixed(0)}，僅供排序參考，不作為單一判斷依據。`;
+    const matchedText = evidenceMatchedRules(stock, mode);
+    const revenueText = evidenceRevenue(stock);
+    const volumeText = evidenceVolume(stock);
+    const themeText = evidenceTheme(stock);
+    const warningText = warningReason(stock);
+    const gapText = dataGapNote(stock, mode);
     return `
       <tr title="${escapeHtml(scoreHint)}">
-        <td data-label="排名">${escapeHtml(stock.display_rank ?? stock.rank)}</td>
-        <td data-label="股票代號"><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">${escapeHtml(stock.code)}</a></td>
-        <td data-label="股票名稱">${escapeHtml(displayStockName(stock.code))}</td>
-        <td data-label="雷達分區"><span class="evidence-section">${getRadarPool(stock) === "nonElectronicPool" ? "非電子防守" : "電子 / AI科技"}</span></td>
-        <td data-label="條件命中">${escapeHtml(evidenceMatchedRules(stock, mode))}</td>
-        <td data-label="營收證據">${escapeHtml(evidenceRevenue(stock))}</td>
-        <td data-label="量能證據">${escapeHtml(evidenceVolume(stock))}</td>
-        <td data-label="題材證據">${escapeHtml(evidenceTheme(stock))}</td>
-        <td data-label="警示原因">${escapeHtml(warningReason(stock))}</td>
-        <td data-label="資料缺口">${escapeHtml(dataGapNote(stock, mode))}</td>
+        <td class="cell-nowrap cell-number" data-label="排名">${escapeHtml(stock.display_rank ?? stock.rank)}</td>
+        <td class="cell-nowrap" data-label="股票代號"><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">${escapeHtml(stock.code)}</a></td>
+        <td class="cell-nowrap" data-label="股票名稱">${escapeHtml(displayStockName(stock.code))}</td>
+        <td class="cell-nowrap" data-label="雷達分區"><span class="evidence-section">${getRadarPool(stock) === "nonElectronicPool" ? "非電子防守" : "電子 / AI科技"}</span></td>
+        <td class="cell-reason" data-label="條件命中" title="${escapeHtml(matchedText)}"><span class="cell-clamp">${escapeHtml(matchedText)}</span></td>
+        <td class="cell-reason" data-label="營收證據" title="${escapeHtml(revenueText)}"><span class="cell-clamp">${escapeHtml(revenueText)}</span></td>
+        <td class="cell-nowrap cell-number" data-label="量能證據" title="${escapeHtml(volumeText)}">${escapeHtml(volumeText)}</td>
+        <td class="cell-theme" data-label="題材證據" title="${escapeHtml(themeText)}"><span class="cell-clamp">${escapeHtml(themeText)}</span></td>
+        <td class="cell-reason" data-label="警示原因" title="${escapeHtml(warningText)}"><span class="cell-clamp">${escapeHtml(warningText)}</span></td>
+        <td class="cell-reason" data-label="資料缺口" title="${escapeHtml(gapText)}"><span class="cell-clamp">${escapeHtml(gapText)}</span></td>
       </tr>
     `;
   }).join("");
   return `
-    <div class="table-wrap radar-evidence-wrap">
-      <table class="radar-evidence-table">
+    <div class="table-wrap radar-evidence-wrap radar-table-wrap">
+      <table class="radar-evidence-table radar-table">
         <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達分區</th><th>條件命中</th><th>營收證據</th><th>量能證據</th><th>題材證據</th><th>警示原因</th><th>資料缺口</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
