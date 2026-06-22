@@ -10,7 +10,13 @@ const state = {
   technical: {},
   profiles: {},
   master: {},
+  monthlyRevenue: [],
+  quarterlyRevenue: [],
+  revenueLoaded: false,
+  revenueError: "",
 };
+
+let revenueLoadPromise = null;
 
 const TECH_THEMES = [
   "AI伺服器", "AI PC", "AI手機", "AI智慧型眼鏡", "智慧眼鏡", "PCB", "CPO", "光通訊", "矽光子", "記憶體", "半導體", "半導體設備", "玻璃基板",
@@ -151,6 +157,30 @@ function parseCsv(text) {
 
 async function loadCsv(path) {
   return parseCsv(await loadText(path));
+}
+
+async function loadRevenueHistory() {
+  if (state.revenueLoaded) return;
+  if (revenueLoadPromise) return revenueLoadPromise;
+  revenueLoadPromise = (async () => {
+    try {
+      const [monthly, quarterly] = await Promise.all([
+        loadCsv("data/monthly_revenue_from_112.csv"),
+        loadCsv("data/quarterly_revenue_from_112.csv"),
+      ]);
+      state.monthlyRevenue = monthly;
+      state.quarterlyRevenue = quarterly;
+      state.revenueError = "";
+    } catch (error) {
+      console.warn("Failed to load revenue history", error);
+      state.monthlyRevenue = [];
+      state.quarterlyRevenue = [];
+      state.revenueError = "營收資料載入失敗，請稍後再試。";
+    } finally {
+      state.revenueLoaded = true;
+    }
+  })();
+  return revenueLoadPromise;
 }
 
 async function loadAllData() {
@@ -388,6 +418,145 @@ function revenueAmount(stock) {
   return stock?.current_revenue_million ?? stock?.current_revenue ?? "-";
 }
 
+function evidenceNumber(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  const number = Number(String(value).replace(/,/g, "").replace(/%/g, ""));
+  return Number.isFinite(number) ? number : null;
+}
+
+function evidencePercent(value) {
+  const number = evidenceNumber(value);
+  return number === null ? null : `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
+}
+
+function isLowBaseWatch(stock) {
+  const yoy = evidenceNumber(stock?.revenue_yoy_value);
+  const mom = evidenceNumber(stock?.revenue_mom_value);
+  const notes = `${stock?.reason || ""} ${stock?.risk_tags || ""}`;
+  return (yoy !== null && mom !== null && yoy > 100 && mom <= 0)
+    || notes.includes("低基期")
+    || notes.includes("月增轉弱");
+}
+
+function evidenceRevenue(stock) {
+  const month = String(stock?.revenue_month || "").trim();
+  const revenue = evidenceNumber(stock?.current_revenue_million);
+  const mom = evidencePercent(stock?.revenue_mom_value);
+  const yoy = evidencePercent(stock?.revenue_yoy_value);
+  if (!/^\d{4}-\d{2}$/.test(month) || revenue === null || mom === null || yoy === null) return "營收資料不足";
+  return `${month} 月營收 ${revenue.toFixed(2)} 百萬，月增 ${mom}，年增 ${yoy}`;
+}
+
+function evidenceVolume(stock) {
+  const volume = evidenceNumber(stock?.volume_value);
+  if (volume === null) return "成交量資料不足";
+  const amount = Math.round(volume).toLocaleString("zh-TW");
+  return volume >= 3000 ? `成交量 ${amount} 張，符合量能門檻` : "成交量不足 3000 張";
+}
+
+function evidenceTheme(stock) {
+  const concept = String(stock?.concept || "").trim();
+  const abnormal = /^(?:(?:\d+|其他|無|未知|-)(?:[;、,\s]+|$))+$/i.test(concept);
+  if (!concept || abnormal) return "題材分類不足，需補資料";
+  return `${isTechStock(stock) ? "電子題材" : "非電子題材"}：${concept}`;
+}
+
+const TRANSPARENT_RADAR_NAMES = {
+  mid: "中線主升段",
+  short: "短線爆發",
+  long: "長線核心",
+  revenue: "營收轉強",
+  lowbase: "低基期觀察",
+};
+
+function radarRuleChecks(stock, radarMode) {
+  const yoy = evidenceNumber(stock?.revenue_yoy_value);
+  const mom = evidenceNumber(stock?.revenue_mom_value);
+  const volume = evidenceNumber(stock?.volume_value);
+  const revenue = evidenceNumber(stock?.current_revenue_million);
+  const score = evidenceNumber(stock?.score_value);
+  const listed = String(stock?.market || "").trim() === "上市";
+  const lowBase = isLowBaseWatch(stock);
+  if (radarMode === "short") return [
+    [listed, "上市"],
+    [volume !== null && volume >= 3000, "量能≥3000張"],
+    [(yoy !== null && yoy > 30) || (mom !== null && mom > 20), "年增>30%或月增>20%"],
+    [score !== null && score >= 50, "原始排序分數≥50"],
+  ];
+  if (radarMode === "long") return [
+    [listed, "上市"],
+    [yoy !== null && yoy > 20, "年增>20%"],
+    [revenue !== null && revenue >= 1000, "月營收≥1000百萬"],
+    [!lowBase, "非低基期觀察"],
+  ];
+  if (radarMode === "revenue") return [
+    [yoy !== null && yoy > 30, "年增>30%"],
+    [mom !== null && mom > 0, "月增>0%"],
+  ];
+  if (radarMode === "lowbase") return [
+    [lowBase, "高年增月增轉弱、低基期或月增轉弱標籤"],
+  ];
+  return [
+    [listed, "上市"],
+    [isTechStock(stock), "電子"],
+    [yoy !== null && yoy > 30, "年增>30%"],
+    [mom !== null && mom > 0, "月增>0%"],
+    [volume !== null && volume >= 1000, "量能>1000張"],
+    [!lowBase, "非低基期觀察"],
+  ];
+}
+
+function evidenceMatchedRules(stock, radarMode) {
+  const checks = radarRuleChecks(stock, radarMode);
+  const matched = checks.filter(([passed]) => passed).map(([, label]) => label);
+  const base = `命中 ${matched.length} / ${checks.length}${matched.length ? `：${matched.join("、")}` : ""}`;
+  if (radarMode === "short") return `${base}。短線資料仍缺完整漲跌幅與即時量價，目前僅為初步觀察。`;
+  if (radarMode === "long") return `${base}。長線資料仍缺 EPS、毛利率、估值，目前僅為初步觀察。`;
+  return base;
+}
+
+function warningReason(stock) {
+  const warnings = [];
+  const yoy = evidenceNumber(stock?.revenue_yoy_value);
+  const mom = evidenceNumber(stock?.revenue_mom_value);
+  const volume = evidenceNumber(stock?.volume_value);
+  const concept = String(stock?.concept || "");
+  const notes = `${stock?.reason || ""} ${stock?.risk_tags || ""}`;
+  if (yoy !== null && mom !== null && yoy > 100 && mom <= 0) warnings.push("年增很高但月增轉弱，可能是低基期或一次性因素");
+  else if (notes.includes("低基期")) warnings.push("原始資料標記低基期，需確認成長持續性");
+  if (notes.includes("月增轉弱") && !(yoy !== null && mom !== null && yoy > 100 && mom <= 0)) warnings.push("月增轉弱，需確認後續營收是否恢復");
+  if (/營建|資產|都更/.test(concept)) warnings.push("營建資產股可能受單月入帳影響，需確認連續性");
+  if (/金融|壽險|銀行/.test(concept)) warnings.push("金融股營收結構特殊，需搭配利率、匯率、投資收益確認");
+  if (/生技|新藥/.test(concept)) warnings.push("生技股需確認產品進度與獲利能力，營收跳升不一定等於主升段");
+  if (volume !== null && volume < 1000) warnings.push("成交量偏低，流動性不足");
+  return warnings.length ? warnings.join("；") : "暫無明確警示";
+}
+
+function dataGapNote(stock, radarMode) {
+  const notes = {
+    short: "尚未納入完整即時漲跌幅、漲停、量比與分時資料",
+    mid: "尚未納入技術突破、族群同步與法人籌碼",
+    long: "尚未納入 EPS、毛利率、估值與季度財報",
+    revenue: "此分區只看月營收，尚未確認技術與題材強度",
+    lowbase: "此分區為風險觀察，不代表主升段",
+  };
+  return notes[radarMode] || notes.mid;
+}
+
+function matchesTransparentRadar(stock, radarMode) {
+  const yoy = evidenceNumber(stock?.revenue_yoy_value);
+  const mom = evidenceNumber(stock?.revenue_mom_value);
+  const volume = evidenceNumber(stock?.volume_value);
+  const revenue = evidenceNumber(stock?.current_revenue_million);
+  const listed = String(stock?.market || "").trim() === "上市";
+  if (radarMode === "mid") return listed && isTechStock(stock);
+  if (radarMode === "short") return listed && volume !== null && volume >= 1000;
+  if (radarMode === "long") return listed && revenue !== null && revenue >= 1000;
+  if (radarMode === "revenue") return (yoy !== null && yoy > 30) || (mom !== null && mom > 0);
+  if (radarMode === "lowbase") return isLowBaseWatch(stock);
+  return true;
+}
+
 function stockCard(stock, mode = "main", compact = false) {
   const info = radarModeInfo(stock, mode);
   const modeName = mode === "market" ? "全市場" : mode === "defensive" ? "資產防守" : "主升段";
@@ -445,6 +614,36 @@ function stockTable(stocks, mode = "main", compact = false) {
     <div class="table-wrap">
       <table>
         <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達評分</th><th>收盤價</th><th>成交量</th><th>${escapeHtml(labels.current)}</th><th>${escapeHtml(labels.mom)}</th><th>${escapeHtml(labels.yoy)}</th><th>概念股</th><th>入選理由</th><th>風險標籤</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function radarEvidenceTable(stocks, mode = "mid") {
+  if (!stocks.length) return `<div class="empty">沒有符合條件的股票</div>`;
+  const rows = stocks.map((stock) => {
+    const score = evidenceNumber(stock.score_value);
+    const scoreHint = score === null ? "原始分數未標示" : `原始分數：${score.toFixed(0)}，僅供排序參考，不作為單一判斷依據。`;
+    return `
+      <tr title="${escapeHtml(scoreHint)}">
+        <td data-label="排名">${escapeHtml(stock.display_rank ?? stock.rank)}</td>
+        <td data-label="股票代號"><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">${escapeHtml(stock.code)}</a></td>
+        <td data-label="股票名稱">${escapeHtml(displayStockName(stock.code))}</td>
+        <td data-label="雷達分區"><span class="evidence-section">${escapeHtml(TRANSPARENT_RADAR_NAMES[mode] || TRANSPARENT_RADAR_NAMES.mid)}</span></td>
+        <td data-label="條件命中">${escapeHtml(evidenceMatchedRules(stock, mode))}</td>
+        <td data-label="營收證據">${escapeHtml(evidenceRevenue(stock))}</td>
+        <td data-label="量能證據">${escapeHtml(evidenceVolume(stock))}</td>
+        <td data-label="題材證據">${escapeHtml(evidenceTheme(stock))}</td>
+        <td data-label="警示原因">${escapeHtml(warningReason(stock))}</td>
+        <td data-label="資料缺口">${escapeHtml(dataGapNote(stock, mode))}</td>
+      </tr>
+    `;
+  }).join("");
+  return `
+    <div class="table-wrap radar-evidence-wrap">
+      <table class="radar-evidence-table">
+        <thead><tr><th>排名</th><th>股票代號</th><th>股票名稱</th><th>雷達分區</th><th>條件命中</th><th>營收證據</th><th>量能證據</th><th>題材證據</th><th>警示原因</th><th>資料缺口</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -673,42 +872,40 @@ function renderRadar() {
     <section class="panel">
       <div class="section-title"><h2>全股雷達清單</h2><span id="radarCount"></span></div>
       <div class="filters">
-        <label>雷達模式<select id="mode"><option value="tech">電子主升段</option><option value="nontech">非電子類別</option><option value="market">全市場雷達</option></select></label>
+        <label>雷達分區<select id="mode"><option value="revenue">營收轉強</option><option value="mid">中線主升段</option><option value="short">短線爆發</option><option value="long">長線核心</option><option value="lowbase">低基期觀察</option></select></label>
         <label>股票搜尋<input id="search" placeholder="代號、名稱或概念股，例如 2337、旺宏、CPO"></label>
-        <label>雷達等級<select id="rating"><option value="">全部</option><option>S</option><option>A</option><option>B</option><option>C</option></select></label>
         <label>簡單題材篩選<input id="concept" list="conceptOptions" placeholder="AI、PCB、記憶體..."></label>
       </div>
       <datalist id="conceptOptions">${conceptOptions}</datalist>
       <p id="modeNote" class="mode-note"></p>
+    </section>
+    <section class="panel transparency-note">
+      <div class="section-title"><h2>選股機制透明化</h2></div>
+      <p>本頁不以單一分數決定股票好壞，而是依上市股票、營收年增、月增、成交量、電子/非電子題材、低基期警示等條件分區。分數與評級僅保留為排序參考，實際判斷請看條件命中、營收證據、量能證據、警示原因與資料缺口。</p>
+      <p class="muted">目前尚未納入技術面、籌碼面、完整新聞強度與估值資料，後續分階段補強。</p>
     </section>
     <section id="radarList"></section>
   `;
   const render = () => {
     const mode = $("#mode").value;
     const search = $("#search").value.trim().toLowerCase();
-    const rating = $("#rating").value;
     const concept = $("#concept").value.trim().toLowerCase();
-    let list = sortedStocks(mode);
-    const hasUserFilter = Boolean(search || rating || concept);
+    let list = sortedStocks("market").filter((stock) => matchesTransparentRadar(stock, mode));
+    const hasUserFilter = Boolean(search || concept);
     list = list.filter((stock) => {
       const haystack = `${stock.code} ${displayStockName(stock.code)} ${stock.concept || ""} ${stock.reason || ""}`.toLowerCase();
       if (search && !haystack.includes(search)) return false;
-      if (!matchesRating(stock, rating)) return false;
       if (concept && !haystack.includes(concept)) return false;
       return true;
     });
     if (!hasUserFilter) list = list.slice(0, 30);
     list = list.map((stock, index) => ({ ...stock, display_rank: index + 1 }));
     $("#radarCount").textContent = `顯示 ${list.length} 檔`;
-    $("#modeNote").textContent = mode === "tech"
-      ? "電子主升段雷達只顯示電子與科技主流族群，非電子不佔用主升段排序。"
-      : mode === "nontech"
-        ? "非電子類別顯示營建、資產、金融、航運、原物料、觀光、生技等非電子族群。"
-        : "全市場雷達不分電子與非電子，照原始雷達排序顯示。";
-    $("#radarList").innerHTML = stockTable(list, mode);
+    $("#modeNote").textContent = dataGapNote(null, mode);
+    $("#radarList").innerHTML = radarEvidenceTable(list, mode);
   };
-  ["mode", "search", "rating", "concept"].forEach((id) => $(`#${id}`).addEventListener("input", render));
-  ["mode", "rating"].forEach((id) => $(`#${id}`).addEventListener("change", render));
+  ["mode", "search", "concept"].forEach((id) => $(`#${id}`).addEventListener("input", render));
+  ["mode"].forEach((id) => $(`#${id}`).addEventListener("change", render));
   render();
 }
 
@@ -984,6 +1181,143 @@ function asuradaStance(stock) {
   return "轉弱觀察";
 }
 
+function revenueAmountText(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return "—";
+  const number = toNumber(value);
+  return Number.isFinite(number)
+    ? number.toLocaleString("zh-TW", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : "—";
+}
+
+function revenuePercentText(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return "—";
+  const number = toNumber(value);
+  if (!Number.isFinite(number)) return "—";
+  return `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
+}
+
+function revenueMonthDisplay(value) {
+  const match = String(value || "").match(/^(\d{4})-(\d{2})$/);
+  return match ? `${match[1]}/${match[2]}` : "—";
+}
+
+function revenueVerificationLinks(code) {
+  const normalized = normalizeCode(code);
+  if (!normalized) return "";
+  const safeCode = encodeURIComponent(normalized);
+  const links = [
+    ["Yahoo 營收財報", `https://tw.stock.yahoo.com/quote/${safeCode}.TW/revenue`],
+    ["Goodinfo 月營收", `https://goodinfo.tw/tw/ShowSaleMonChart.asp?STOCK_ID=${safeCode}`],
+    ["Goodinfo 經營績效", `https://goodinfo.tw/tw/StockBzPerformance.asp?STOCK_ID=${safeCode}`],
+  ];
+  return `
+    <div class="revenue-verify">
+      <span class="label">外部查證</span>
+      <div class="button-row">
+        ${links.map(([label, href]) => `<a class="solid-link" href="${href}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function monthlyRevenueTable(rows) {
+  return `
+    <div class="table-wrap revenue-table-wrap">
+      <table class="revenue-table">
+        <thead><tr><th>月份</th><th>當月營收(百萬)</th><th>月增率</th><th>年增率</th><th>累計營收(百萬)</th><th>累計年增率</th></tr></thead>
+        <tbody>${rows.map((row) => `
+          <tr>
+            <td data-label="月份">${escapeHtml(revenueMonthDisplay(row.revenue_month))}</td>
+            <td data-label="當月營收(百萬)">${escapeHtml(revenueAmountText(row.revenue))}</td>
+            <td data-label="月增率">${escapeHtml(revenuePercentText(row.mom_pct))}</td>
+            <td data-label="年增率">${escapeHtml(revenuePercentText(row.yoy_pct))}</td>
+            <td data-label="累計營收(百萬)">${escapeHtml(revenueAmountText(row.cumulative_revenue))}</td>
+            <td data-label="累計年增率">${escapeHtml(revenuePercentText(row.cumulative_yoy_pct))}</td>
+          </tr>
+        `).join("")}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function quarterlyRevenueTable(rows) {
+  return `
+    <div class="table-wrap revenue-table-wrap">
+      <table class="revenue-table">
+        <thead><tr><th>季度</th><th>季營收(百萬)</th><th>季增率</th><th>年增率</th><th>累計營收(百萬)</th><th>累計年增率</th><th>狀態</th></tr></thead>
+        <tbody>${rows.map((row) => `
+          <tr>
+            <td data-label="季度">${escapeHtml(String(row.quarter || "—").replace("-", " "))}</td>
+            <td data-label="季營收(百萬)">${escapeHtml(revenueAmountText(row.quarter_revenue))}</td>
+            <td data-label="季增率">${escapeHtml(revenuePercentText(row.qoq_pct))}</td>
+            <td data-label="年增率">${escapeHtml(revenuePercentText(row.yoy_pct))}</td>
+            <td data-label="累計營收(百萬)">${escapeHtml(revenueAmountText(row.cumulative_revenue))}</td>
+            <td data-label="累計年增率">${escapeHtml(revenuePercentText(row.cumulative_yoy_pct))}</td>
+            <td data-label="狀態">${row.is_partial === "true" ? chip("尚未完整", "warn") : chip("完整")}</td>
+          </tr>
+        `).join("")}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function revenuePanel(code) {
+  if (!state.revenueLoaded) {
+    return `<section class="panel"><div class="section-title"><h2>營收表</h2></div><div class="empty">營收資料載入中...</div></section>`;
+  }
+  if (state.revenueError) {
+    return `<section class="panel"><div class="section-title"><h2>營收表</h2></div><div class="error">${escapeHtml(state.revenueError)}</div>${revenueVerificationLinks(code)}</section>`;
+  }
+  const normalized = normalizeCode(code);
+  const monthly = state.monthlyRevenue
+    .filter((row) => normalizeCode(row.stock_id) === normalized)
+    .sort((a, b) => String(b.revenue_month).localeCompare(String(a.revenue_month)));
+  const quarterly = state.quarterlyRevenue
+    .filter((row) => normalizeCode(row.stock_id) === normalized)
+    .sort((a, b) => String(b.quarter).localeCompare(String(a.quarter)));
+  if (!monthly.length) {
+    return `<section class="panel"><div class="section-title"><h2>營收表</h2></div><div class="empty">此股票目前沒有可用營收資料。</div>${revenueVerificationLinks(code)}</section>`;
+  }
+  const latest = monthly[0];
+  return `
+    <section class="panel revenue-panel" data-revenue-code="${escapeHtml(normalized)}">
+      <div class="section-title"><h2>營收表</h2><span>資料來源：${escapeHtml(latest.source || "公開資訊觀測站")}</span></div>
+      <div class="grid cols-3 revenue-summary">
+        <div class="metric"><span>最新月份</span><strong>${escapeHtml(revenueMonthDisplay(latest.revenue_month))}</strong></div>
+        <div class="metric"><span>當月營收</span><strong>${escapeHtml(revenueAmountText(latest.revenue))} 百萬</strong></div>
+        <div class="metric"><span>月增率</span><strong>${escapeHtml(revenuePercentText(latest.mom_pct))}</strong></div>
+        <div class="metric"><span>年增率</span><strong>${escapeHtml(revenuePercentText(latest.yoy_pct))}</strong></div>
+        <div class="metric"><span>累計營收</span><strong>${escapeHtml(revenueAmountText(latest.cumulative_revenue))} 百萬</strong></div>
+        <div class="metric"><span>累計年增率</span><strong>${escapeHtml(revenuePercentText(latest.cumulative_yoy_pct))}</strong></div>
+      </div>
+      <div class="revenue-tabs" role="tablist" aria-label="營收表切換">
+        <button type="button" class="revenue-tab active" data-revenue-mode="monthly" role="tab" aria-selected="true">月營收</button>
+        <button type="button" class="revenue-tab secondary" data-revenue-mode="quarterly" role="tab" aria-selected="false">季營收</button>
+      </div>
+      <div class="revenue-view" data-revenue-view="monthly">${monthlyRevenueTable(monthly)}</div>
+      <div class="revenue-view" data-revenue-view="quarterly" hidden>${quarterly.length ? quarterlyRevenueTable(quarterly) : `<div class="empty">此股票目前沒有可用季營收資料。</div>`}</div>
+      ${revenueVerificationLinks(code)}
+    </section>
+  `;
+}
+
+function bindRevenueTabs() {
+  $all(".revenue-tab").forEach((button) => {
+    button.addEventListener("click", () => {
+      const mode = button.dataset.revenueMode;
+      $all(".revenue-tab").forEach((tab) => {
+        const active = tab.dataset.revenueMode === mode;
+        tab.classList.toggle("active", active);
+        tab.classList.toggle("secondary", !active);
+        tab.setAttribute("aria-selected", String(active));
+      });
+      $all(".revenue-view").forEach((view) => {
+        view.hidden = view.dataset.revenueView !== mode;
+      });
+    });
+  });
+}
+
 function renderStock() {
   renderHeader("stock");
   const params = new URLSearchParams(location.search);
@@ -1015,8 +1349,15 @@ function renderStock() {
           ${stockMasterDetail(code, stock)}
           <p class="muted">尚無內部雷達資料。</p>
         </section>
+        ${revenuePanel(code)}
         <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
       `;
+      bindRevenueTabs();
+      if (!state.revenueLoaded) {
+        loadRevenueHistory().then(() => {
+          if (normalizeCode($("#stockSearch")?.value) === code) render();
+        });
+      }
       return;
     }
     const relatedNews = state.news.filter((event) => (event.related_stocks || []).map(normalizeCode).includes(code));
@@ -1029,11 +1370,18 @@ function renderStock() {
         ${stockRadarDetail(stock)}
       </section>
       <section class="panel"><div class="section-title"><h2>阿斯拉方針</h2></div>${chip(asuradaStance(stock), "warn")}</section>
+      ${revenuePanel(code)}
       <section class="panel"><div class="section-title"><h2>技術圖表</h2></div>${externalLinks(code)}</section>
       <section class="panel"><div class="section-title"><h2>相關重大新聞</h2></div>${relatedNews.length ? relatedNews.map(eventCard).join("") : `<div class="empty">目前沒有該股相關重大新聞</div>`}</section>
       <section class="panel"><div class="section-title"><h2>相關題材</h2></div><div class="chip-row">${relatedThemes.length ? relatedThemes.map((x) => chip(x.theme_name)).join("") : chip("暫無題材對應")}</div></section>
       <section class="panel"><div class="section-title"><h2>技術面欄位</h2></div>${tech ? `<pre>${escapeHtml(JSON.stringify(tech, null, 2))}</pre>` : `<div class="empty">技術面資料尚未建立</div>`}</section>
     `;
+    bindRevenueTabs();
+    if (!state.revenueLoaded) {
+      loadRevenueHistory().then(() => {
+        if (normalizeCode($("#stockSearch")?.value) === code) render();
+      });
+    }
   };
   $("#stockSearch").addEventListener("input", render);
   render();

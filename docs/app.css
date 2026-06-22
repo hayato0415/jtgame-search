@@ -195,6 +195,42 @@ th {
   z-index: 2;
 }
 tr:nth-child(even) { background: #f8fafc; }
+.transparency-note {
+  border-left: 4px solid var(--accent);
+}
+.transparency-note p {
+  line-height: 1.7;
+  margin: 4px 0;
+}
+.radar-evidence-table {
+  min-width: 1780px;
+  table-layout: fixed;
+}
+.radar-evidence-table th:nth-child(1) { width: 58px; }
+.radar-evidence-table th:nth-child(2) { width: 90px; }
+.radar-evidence-table th:nth-child(3) { width: 100px; }
+.radar-evidence-table th:nth-child(4) { width: 115px; }
+.radar-evidence-table th:nth-child(5) { width: 270px; }
+.radar-evidence-table th:nth-child(6) { width: 245px; }
+.radar-evidence-table th:nth-child(7) { width: 190px; }
+.radar-evidence-table th:nth-child(8) { width: 210px; }
+.radar-evidence-table th:nth-child(9) { width: 250px; }
+.radar-evidence-table th:nth-child(10) { width: 250px; }
+.radar-evidence-table td {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.evidence-section {
+  background: #e8f2ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  color: #174a7c;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
 .stock-card h3,
 .news-card h3,
 .theme-card h3 {
@@ -259,6 +295,37 @@ tr:nth-child(even) { background: #f8fafc; }
 }
 .stock-search-form {
   max-width: 420px;
+}
+.revenue-summary {
+  margin-bottom: 14px;
+}
+.revenue-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+.revenue-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.revenue-table {
+  min-width: 860px;
+}
+.revenue-table td,
+.revenue-table th {
+  text-align: right;
+  white-space: nowrap;
+}
+.revenue-table td:first-child,
+.revenue-table th:first-child,
+.revenue-table td:last-child,
+.revenue-table th:last-child {
+  text-align: left;
+}
+.revenue-verify {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 12px;
 }
 .muted {
   color: var(--muted);
@@ -358,6 +425,16 @@ tr:nth-child(even) { background: #f8fafc; }
   .stock-info-grid {
     grid-template-columns: 1fr;
   }
+  .revenue-summary {
+    grid-template-columns: 1fr;
+  }
+  .revenue-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .revenue-tab {
+    width: 100%;
+  }
   .stock-info-card {
     border-radius: 14px;
     padding: 12px;
@@ -404,6 +481,43 @@ tr:nth-child(even) { background: #f8fafc; }
     overflow-x: auto;
     width: 100%;
   }
+  .radar-evidence-table,
+  .radar-evidence-table thead,
+  .radar-evidence-table tbody,
+  .radar-evidence-table tr,
+  .radar-evidence-table th,
+  .radar-evidence-table td {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+  .radar-evidence-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+  .radar-evidence-table thead {
+    display: none;
+  }
+  .radar-evidence-table tr {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(15, 35, 70, .06);
+    padding: 10px;
+  }
+  .radar-evidence-table td {
+    border: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 92px minmax(0, 1fr);
+    padding: 7px 2px;
+  }
+  .radar-evidence-table td::before {
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 800;
+  }
   table {
     min-width: 900px;
   }
@@ -442,6 +556,49 @@ tr:nth-child(even) { background: #f8fafc; }
     font-size: 16px;
     font-weight: 800;
     overflow-wrap: anywhere;
+  }
+  .revenue-table,
+  .revenue-table thead,
+  .revenue-table tbody,
+  .revenue-table tr,
+  .revenue-table th,
+  .revenue-table td {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+  .revenue-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+  .revenue-table thead {
+    display: none;
+  }
+  .revenue-table tr {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(15, 35, 70, .06);
+    padding: 10px;
+  }
+  .revenue-table td,
+  .revenue-table td:first-child,
+  .revenue-table td:last-child {
+    align-items: center;
+    border: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 126px minmax(0, 1fr);
+    padding: 7px 2px;
+    text-align: right;
+    white-space: normal;
+  }
+  .revenue-table td::before {
+    color: var(--muted);
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
   }
   .concept-stock-table,
   .concept-stock-table thead,
