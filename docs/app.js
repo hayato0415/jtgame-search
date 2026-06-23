@@ -836,10 +836,10 @@ function renderHeader(active) {
   const nav = [
     ["index.html", "首頁", "index"],
     ["radar.html", "全股雷達", "radar"],
-    ["news.html", "重大新聞", "news"],
     ["concepts.html", "概念股資料庫", "concepts"],
+    ["news.html", "新聞雷達", "news"],
+    ["portfolio.html", "持股追蹤", "portfolio"],
     ["stock.html", "個股查詢", "stock"],
-    ["portfolio.html", "我的持股", "portfolio"],
   ];
   const el = $("#siteHeader");
   if (!el) return;
