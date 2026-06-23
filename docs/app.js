@@ -845,8 +845,8 @@ function renderHeader(active) {
   if (!el) return;
   el.innerHTML = `
     <div class="site-header">
-      <h1>阿斯拉台股月營收轉強雷達</h1>
-      <p>月營收轉強 + 主升段候選股觀察雷達，僅供研究與風險控管參考。</p>
+      <h1>霆隼AI選股網</h1>
+      <p>台股題材研究與候選股整理平台</p>
       <nav class="nav">${nav.map(([href, label, key]) => `<a class="${active === key ? "active" : ""}" href="${href}">${label}</a>`).join("")}</nav>
     </div>
   `;
@@ -1551,7 +1551,6 @@ async function boot(page) {
     renderError("#app", `資料載入失敗或尚未建立：${missing.join("、")}`);
     return;
   }
-  if (page === "index") renderHome();
   if (page === "radar") renderRadar();
   if (page === "news") renderNews();
   if (page === "themes") renderThemes();
