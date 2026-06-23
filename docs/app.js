@@ -835,11 +835,11 @@ function conceptMatches(concept, query, group = "全部概念") {
 function renderHeader(active) {
   const nav = [
     ["index.html", "首頁", "index"],
-    ["radar.html", "全股雷達", "radar"],
-    ["concepts.html", "概念股資料庫", "concepts"],
-    ["news.html", "新聞雷達", "news"],
+    ["radar.html", "AI選股", "radar"],
+    ["concepts.html", "產業題材庫", "concepts"],
+    ["news.html", "重大新聞", "news"],
+    ["stock.html", "個股概覽", "stock"],
     ["portfolio.html", "持股追蹤", "portfolio"],
-    ["stock.html", "個股查詢", "stock"],
   ];
   const el = $("#siteHeader");
   if (!el) return;

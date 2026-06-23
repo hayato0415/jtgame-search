@@ -22,6 +22,8 @@
 
 ## Git 操作
 
-- 不要自動執行 `git push`。
 - 不要自動合併 `main`。
-- 提交或推送前必須由使用者明確要求。
+- 每次完成任務後，除非使用者明確說不要 push，否則必須 commit 並 push 到 `origin/main`。
+- 若有修改 `docs/app.js` 或 `docs/app.css`，必須同步更新使用這些資產之 HTML 內的版本參數，避免 GitHub Pages 或瀏覽器快取造成線上看不到更新。
+- 完成後必須回報 commit hash 與 GitHub Pages 線上驗證結果。
+- 不可只用 `127.0.0.1` 本機預覽作為完成依據，必須確認 GitHub Pages 線上版本。
