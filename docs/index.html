@@ -3,12 +3,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>阿斯拉台股雷達首頁</title>
+  <title>霆隼AI選股網</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
   <header id="siteHeader"></header>
-  <main id="app" class="page"><div class="panel">資料載入中...</div></main>
+  <main class="page home-page">
+    <section class="home-hero">
+      <div class="home-hero-copy">
+        <p class="home-eyebrow">台股題材研究與候選股整理平台</p>
+        <h1>霆隼AI選股網</h1>
+        <p>整合全股篩選、概念股資料庫、新聞題材追蹤與持股追蹤，協助快速鎖定台股題材與候選股票。</p>
+        <div class="home-actions">
+          <a class="home-primary-action" href="radar.html">開始全股篩選</a>
+          <a class="home-secondary-action" href="concepts.html">查看概念股資料庫</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel home-entry-section">
+      <div class="section-title"><h2>主要功能入口</h2><span>第一次使用可從全股篩選開始</span></div>
+      <div class="home-entry-grid">
+        <a class="home-entry-card" href="radar.html"><h3>全股篩選</h3><p>查看目前系統整理出的台股候選名單、題材、營收與關注原因。</p><span>進入功能</span></a>
+        <a class="home-entry-card" href="concepts.html"><h3>概念股資料庫</h3><p>依題材分類查找相關概念股，支援快速搜尋與分類瀏覽。</p><span>進入功能</span></a>
+        <a class="home-entry-card" href="news.html"><h3>新聞題材追蹤</h3><p>整理近期市場重要新聞、受惠題材與相關股票。</p><span>進入功能</span></a>
+        <a class="home-entry-card" href="portfolio.html"><h3>持股追蹤</h3><p>追蹤自選持股與重大新聞、題材變化的連動。</p><span>進入功能</span></a>
+        <a class="home-entry-card" href="stock.html"><h3>個股查詢</h3><p>輸入股票代號或名稱，查看個股基本資訊與題材連結。</p><span>進入功能</span></a>
+      </div>
+    </section>
+
+    <section class="panel home-flow-section">
+      <div class="section-title"><h2>建議使用流程</h2><span>從候選名單逐步確認到個股</span></div>
+      <ol class="home-flow-list">
+        <li><strong>先看全股篩選</strong><span>找出今日候選股</span></li>
+        <li><strong>再看概念股資料庫</strong><span>確認題材歸屬</span></li>
+        <li><strong>接著看新聞題材追蹤</strong><span>確認是否有事件催化</span></li>
+        <li><strong>最後使用個股查詢與持股追蹤</strong><span>完成個別確認</span></li>
+      </ol>
+    </section>
+
+    <div id="app"><div class="panel">資料載入中...</div></div>
+  </main>
   <p class="footer-note">本網站僅供研究與風險控管參考，不構成投資建議。</p>
   <script src="app.js"></script>
   <script>boot("index");</script>

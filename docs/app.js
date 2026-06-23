@@ -879,13 +879,6 @@ function renderHome() {
   const techStocks = sortedStocks("tech").slice(0, 30);
   const topStocks = techStocks.slice(0, 10);
     const nonTech = sortedStocks("nontech").slice(0, 30);
-    const navEntrances = [
-      ["radar.html", "全股雷達"],
-      ["concepts.html", "概念股資料庫"],
-      ["news.html", "重大新聞"],
-      ["stock.html", "個股查詢"],
-    ["portfolio.html", "我的持股"],
-  ];
   main.innerHTML = `
     <section class="panel">
       <div class="section-title"><h2>今日雷達總覽</h2><span>${escapeHtml(state.stocks[0]?.data_version || "")}</span></div>
@@ -911,10 +904,6 @@ function renderHome() {
     <section class="panel">
       <div class="section-title"><h2>我的持股命中摘要</h2><a class="stock-link" href="portfolio.html">編輯清單</a></div>
       <div class="chip-row">${hitHoldings.length ? stockChips(hitHoldings) : chip("今日未命中，或尚未設定持股")}</div>
-    </section>
-    <section class="panel">
-      <div class="section-title"><h2>導航入口</h2><span>新聞集中在重大新聞頁</span></div>
-      <div class="button-row">${navEntrances.map(([href, label]) => `<a class="solid-link" href="${href}">${label}</a>`).join("")}</div>
     </section>
   `;
 }
