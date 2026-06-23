@@ -871,40 +871,111 @@ function nonTechEventStocks() {
   });
 }
 
-function renderHome() {
-  renderHeader("index");
+function normalizeDashboardData(raw) {
+  if (Array.isArray(raw)) return { date: "", updated_at: "", items: raw, available: true };
+  if (!raw || typeof raw !== "object") return { date: "", updated_at: "", items: [], available: false };
+  return {
+    ...raw,
+    date: String(raw.date || "").trim(),
+    updated_at: String(raw.updated_at || "").trim(),
+    items: Array.isArray(raw.items) ? raw.items : [],
+    available: true,
+  };
+}
+
+function dashboardUpdateText(data) {
+  if (!data?.available) return "資料尚未更新";
+  if (data.updated_at) return `更新：${data.updated_at}`;
+  if (data.date) return `資料日期：${data.date}`;
+  return "更新時間未標示";
+}
+
+function dashboardNumber(value, digits = 0) {
+  const number = toNumber(value);
+  return Number.isFinite(number)
+    ? number.toLocaleString("zh-TW", { minimumFractionDigits: digits, maximumFractionDigits: digits })
+    : "-";
+}
+
+function dashboardPercent(value) {
+  const number = toNumber(value);
+  if (!Number.isFinite(number)) return "-";
+  return `${number > 0 ? "+" : ""}${number.toFixed(2)}%`;
+}
+
+function dashboardList(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean).join("、") || "-";
+  return String(value || "").trim() || "-";
+}
+
+function dashboardEmpty(message) {
+  return `<div class="dashboard-empty">${escapeHtml(message)}</div>`;
+}
+
+function dashboardSectionTitle(title, data) {
+  return `<div class="section-title dashboard-title"><h2>${escapeHtml(title)}</h2><span class="dashboard-meta">${escapeHtml(dashboardUpdateText(data))}</span></div>`;
+}
+
+function hotStocksTable(data) {
+  const items = data.available ? data.items.slice(0, 10) : [];
+  if (!items.length) return dashboardEmpty("今日熱門股資料尚未更新");
+  return `<div class="table-wrap"><table class="dashboard-table"><thead><tr><th>排名</th><th>代號</th><th>名稱</th><th>股價</th><th>漲跌幅</th><th>成交量</th><th>所屬題材</th></tr></thead><tbody>${items.map((item, index) => `<tr><td>${escapeHtml(item.rank || index + 1)}</td><td>${escapeHtml(item.code || "-")}</td><td>${escapeHtml(item.name || "-")}</td><td>${escapeHtml(dashboardNumber(item.price, 2))}</td><td>${escapeHtml(dashboardPercent(item.change_percent))}</td><td>${escapeHtml(dashboardNumber(item.volume))}</td><td>${escapeHtml(item.theme || "-")}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function hotSectorsTable(data) {
+  const items = data.available ? data.items.slice(0, 5) : [];
+  if (!items.length) return dashboardEmpty("今日熱門類股資料尚未更新");
+  return `<div class="table-wrap"><table class="dashboard-table"><thead><tr><th>排名</th><th>類股</th><th>漲跌幅</th><th>成交量變化</th><th>代表股</th><th>強弱判斷</th></tr></thead><tbody>${items.map((item, index) => `<tr><td>${escapeHtml(item.rank || index + 1)}</td><td>${escapeHtml(item.sector || "-")}</td><td>${escapeHtml(dashboardPercent(item.change_percent))}</td><td>${escapeHtml(item.volume_status || "-")}</td><td>${escapeHtml(dashboardList(item.stocks))}</td><td>${escapeHtml(item.status || "-")}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function hotThemesTable(data) {
+  const items = data.available ? data.items.slice(0, 5) : [];
+  if (!items.length) return dashboardEmpty("今日熱門題材資料尚未更新");
+  return `<div class="table-wrap"><table class="dashboard-table"><thead><tr><th>排名</th><th>題材</th><th>強度</th><th>代表股</th><th>觸發原因</th><th>相關新聞數</th></tr></thead><tbody>${items.map((item, index) => `<tr><td>${escapeHtml(item.rank || index + 1)}</td><td>${escapeHtml(item.theme || "-")}</td><td>${escapeHtml(dashboardNumber(item.score))}</td><td>${escapeHtml(dashboardList(item.stocks))}</td><td>${escapeHtml(item.reason || "-")}</td><td>${escapeHtml(dashboardNumber(item.news_count))}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function majorNewsList(data) {
+  if (!data.available || !data.items.length) return dashboardEmpty("今日重大新聞資料尚未更新");
+  const items = [...data.items]
+    .sort((left, right) => {
+      const impact = (item) => Number(item.priority || item.impact_score || 0) + (dashboardList(item.themes) !== "-" ? 2 : 0) + (dashboardList(item.stocks) !== "-" ? 2 : 0) + (isRealSourceUrl(item.url) ? 1 : 0);
+      return impact(right) - impact(left) || String(right.time || "").localeCompare(String(left.time || ""));
+    })
+    .slice(0, 5);
+  return `<div class="dashboard-news-list">${items.map((item) => {
+    const title = escapeHtml(item.title || "未命名新聞");
+    const headline = isRealSourceUrl(item.url)
+      ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${title}</a>`
+      : `<span>${title}</span>`;
+    return `<article class="dashboard-news-item"><time>${escapeHtml(item.time || "-")}</time><div><h3>${headline}</h3><p>${escapeHtml(item.source || "來源未標示")}</p></div><div><span class="label">影響題材</span>${escapeHtml(dashboardList(item.themes))}</div><div><span class="label">相關個股</span>${escapeHtml(dashboardList(item.stocks))}</div></article>`;
+  }).join("")}</div>`;
+}
+
+async function renderHome() {
   const main = $("#app");
-  const holdings = readStoredCodes(HOLDINGS_KEY);
-  const hitHoldings = holdings.filter((code) => stockByCode(code));
-  const techStocks = sortedStocks("tech").slice(0, 30);
-  const topStocks = techStocks.slice(0, 10);
-    const nonTech = sortedStocks("nontech").slice(0, 30);
+  const [snapshotRaw, stocksRaw, sectorsRaw, themesRaw, newsRaw] = await Promise.all([
+    loadJson("data/daily_market_snapshot.json", null),
+    loadJson("data/daily_hot_stocks.json", null),
+    loadJson("data/daily_hot_sectors.json", null),
+    loadJson("data/daily_hot_themes.json", null),
+    loadJson("data/daily_major_news.json", null),
+  ]);
+  const snapshot = normalizeDashboardData(snapshotRaw);
+  const hotStocks = normalizeDashboardData(stocksRaw);
+  const hotSectors = normalizeDashboardData(sectorsRaw);
+  const hotThemes = normalizeDashboardData(themesRaw);
+  const majorNews = normalizeDashboardData(newsRaw);
   main.innerHTML = `
-    <section class="panel">
-      <div class="section-title"><h2>今日雷達總覽</h2><span>${escapeHtml(state.stocks[0]?.data_version || "")}</span></div>
-      <div class="grid cols-4">
-        <div class="metric"><span>電子主升段</span><strong>${techStocks.length} 檔</strong></div>
-        <div class="metric"><span>A級</span><strong>${techStocks.filter((s) => s.rating === "A").length} 檔</strong></div>
-        <div class="metric"><span>A-級</span><strong>${techStocks.filter((s) => s.rating === "A-").length} 檔</strong></div>
-        <div class="metric"><span>持股命中</span><strong>${hitHoldings.length} 檔</strong></div>
-      </div>
+    <section class="panel dashboard-section">
+      ${dashboardSectionTitle("今日市場快照", snapshot)}
+      ${snapshot.available ? `<div class="dashboard-metrics"><div class="metric"><span>資料更新時間</span><strong>${escapeHtml(snapshot.updated_at || snapshot.date || "更新時間未標示")}</strong></div><div class="metric"><span>加權指數</span><strong>${escapeHtml(dashboardNumber(snapshot.taiex, 2))}</strong></div><div class="metric"><span>櫃買指數</span><strong>${escapeHtml(dashboardNumber(snapshot.otc, 2))}</strong></div><div class="metric"><span>上漲家數</span><strong>${escapeHtml(dashboardNumber(snapshot.up_count))}</strong></div><div class="metric"><span>下跌家數</span><strong>${escapeHtml(dashboardNumber(snapshot.down_count))}</strong></div></div>` : dashboardEmpty("今日市場快照資料尚未更新")}
     </section>
-    <section class="panel">
-      <div class="section-title"><h2>前 10 名電子主升段雷達股</h2><a class="stock-link" href="radar.html">全股雷達</a></div>
-      ${stockTable(topStocks, "main", true)}
-    </section>
-    <section class="panel">
-      <div class="section-title"><h2>非電子類別摘要</h2><a class="stock-link" href="radar.html">切換非電子類別</a></div>
-      <div class="grid cols-3">
-        <div class="metric"><span>非電子入選</span><strong>${nonTech.length} 檔</strong></div>
-        <div class="metric"><span>A級以上</span><strong>${nonTech.filter((s) => ["S", "A"].includes(s.rating)).length} 檔</strong></div>
-        <div class="metric"><span>最高分</span><strong>${nonTech[0] ? radarScore(nonTech[0], "market") : "-"}</strong></div>
-      </div>
-    </section>
-    <section class="panel">
-      <div class="section-title"><h2>我的持股命中摘要</h2><a class="stock-link" href="portfolio.html">編輯清單</a></div>
-      <div class="chip-row">${hitHoldings.length ? stockChips(hitHoldings) : chip("今日未命中，或尚未設定持股")}</div>
-    </section>
+    <div class="dashboard-grid">
+      <section class="panel dashboard-section">${dashboardSectionTitle("今日熱門股", hotStocks)}${hotStocksTable(hotStocks)}</section>
+      <section class="panel dashboard-section">${dashboardSectionTitle("今日熱門類股", hotSectors)}${hotSectorsTable(hotSectors)}</section>
+    </div>
+    <section class="panel dashboard-section">${dashboardSectionTitle("今日熱門題材", hotThemes)}${hotThemesTable(hotThemes)}</section>
+    <section class="panel dashboard-section">${dashboardSectionTitle("今日重大新聞", majorNews)}${majorNewsList(majorNews)}<div class="dashboard-more"><a class="solid-link" href="news.html">查看全部重大新聞</a></div></section>
   `;
 }
 
@@ -1542,6 +1613,10 @@ function renderCodeHits(selector, codes) {
 
 async function boot(page) {
   renderHeader(page);
+  if (page === "index") {
+    await renderHome();
+    return;
+  }
   await loadAllData();
   const missing = [];
   if (!state.stocks.length) missing.push("data/stocks-latest.json");
