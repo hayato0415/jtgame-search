@@ -1,7 +1,7 @@
 const HOLDINGS_KEY = "asurada_holdings";
 const WATCHLIST_KEY = "asurada_watchlist";
-const BUILD_VERSION = "20260625-home-no-brief";
-const APP_VERSION = "20260625-home-no-brief";
+const BUILD_VERSION = "20260625-no-tz";
+const APP_VERSION = "20260625-no-tz";
 
 const state = {
   stocks: [],
@@ -1038,10 +1038,17 @@ function normalizeDashboardData(raw) {
   };
 }
 
+function formatDashboardTime(value) {
+  return String(value || "")
+    .replace(/\s*Asia\/Taipei\b/g, "")
+    .replace(/\s*\(Asia\/Taipei\)\s*/g, "")
+    .trim();
+}
+
 function dashboardUpdateText(data) {
   if (!data?.available) return "資料尚未更新";
-  if (data.updated_at) return `更新：${data.updated_at}`;
-  if (data.date) return `資料日期：${data.date}`;
+  if (data.updated_at) return `更新：${formatDashboardTime(data.updated_at)}`;
+  if (data.date) return `資料日期：${formatDashboardTime(data.date)}`;
   return "更新時間未標示";
 }
 
