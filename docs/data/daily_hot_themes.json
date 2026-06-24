@@ -1,7 +1,9 @@
 {
   "date": "2026-06-24",
   "session": "盤後",
-  "updated_at": "2026-06-24 16:37 Asia/Taipei",
+  "updated_at": "2026-06-24 16:57 Asia/Taipei",
+  "build_version": "20260624-marketflow-v2",
+  "app_version": "20260624-marketflow-v2",
   "source_type": "market_objective",
   "items": [
     {
@@ -367,61 +369,6 @@
       "signal": "觀察"
     }
   ],
-  "sector_summary": [
-    {
-      "sector": "電子",
-      "status": "觀察",
-      "change_percent": 0.0,
-      "themes": [
-        "綠能環保",
-        "生技醫療",
-        "04",
-        "光電",
-        "其他"
-      ],
-      "stocks": [
-        "8422 可寧衛*",
-        "6589 台康生技",
-        "6446 藥華藥",
-        "1444 力麗",
-        "1449 佳和"
-      ],
-      "reason": "依題材強度、代表股與候選股同步性彙整"
-    },
-    {
-      "sector": "傳產",
-      "status": "觀察",
-      "change_percent": 0.0,
-      "themes": [
-        "營建",
-        "輪胎",
-        "鋼鐵",
-        "航運"
-      ],
-      "stocks": [
-        "5522 遠雄",
-        "2543 皇昌",
-        "2101 南港",
-        "2030 彰源"
-      ],
-      "reason": "依題材強度、代表股與候選股同步性彙整"
-    },
-    {
-      "sector": "金融",
-      "status": "觀察",
-      "change_percent": 0.0,
-      "themes": [
-        "金融"
-      ],
-      "stocks": [
-        "2885 元大金",
-        "2889 國票金"
-      ],
-      "reason": "依題材強度、代表股與候選股同步性彙整"
-    }
-  ],
-  "build_version": "20260624-marketflow-v2",
-  "app_version": "20260624-marketflow-v2",
   "capital_inflow_themes": [
     {
       "rank": 1,
@@ -595,6 +542,59 @@
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
+    }
+  ],
+  "sector_summary": [
+    {
+      "sector": "電子",
+      "status": "觀察",
+      "change_percent": 0.0,
+      "themes": [
+        "綠能環保",
+        "生技醫療",
+        "04",
+        "光電",
+        "其他"
+      ],
+      "stocks": [
+        "8422 可寧衛*",
+        "6589 台康生技",
+        "6446 藥華藥",
+        "1444 力麗",
+        "1449 佳和"
+      ],
+      "reason": "依題材強度、代表股與候選股同步性彙整"
+    },
+    {
+      "sector": "傳產",
+      "status": "觀察",
+      "change_percent": 0.0,
+      "themes": [
+        "營建",
+        "輪胎",
+        "鋼鐵",
+        "航運"
+      ],
+      "stocks": [
+        "5522 遠雄",
+        "2543 皇昌",
+        "2101 南港",
+        "2030 彰源"
+      ],
+      "reason": "依題材強度、代表股與候選股同步性彙整"
+    },
+    {
+      "sector": "金融",
+      "status": "觀察",
+      "change_percent": 0.0,
+      "themes": [
+        "金融"
+      ],
+      "stocks": [
+        "2885 元大金",
+        "2889 國票金"
+      ],
+      "reason": "依題材強度、代表股與候選股同步性彙整"
     }
   ],
   "data_quality_warning": []
