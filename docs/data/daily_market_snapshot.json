@@ -1,19 +1,19 @@
 {
   "date": "2026-06-24",
   "session": "晚間",
-  "updated_at": "2026-06-24 18:17 Asia/Taipei",
+  "updated_at": "2026-06-24 23:14 Asia/Taipei",
   "build_version": "20260624-marketflow-v2",
   "app_version": "20260624-marketflow-v2",
   "next_update_at": "依 GitHub Actions 排程更新",
   "source_type": "market_objective",
-  "taiex": 46043.6,
-  "taiex_change": -1057.05,
-  "taiex_change_percent": -2.24,
+  "taiex": "資料待補",
+  "taiex_change": "資料待補",
+  "taiex_change_percent": "資料待補",
   "turnover": "資料待補",
-  "up_count": 920,
-  "down_count": 956,
-  "limit_up_count": 53,
-  "limit_down_count": 0,
+  "up_count": "資料待補",
+  "down_count": "資料待補",
+  "limit_up_count": 0,
+  "limit_down_count": "資料待補",
   "market_status": "依全市場候選股、題材同步性與新聞風險自動彙整；大盤即時數值待後續資料源補強。",
   "fund_flow": "依題材候選股分布推估市場資金焦點，未納入個人持股或自選股。",
   "international_risks": [
@@ -32,26 +32,8 @@
       "url": "https://www.cmoney.tw/notes/?navId=twstock_fund_etf_future_material"
     },
     {
-      "title": "FedEx Q4 財報亮眼：營收年增13.7%，未來展望樂觀！",
-      "impact": "偏多",
-      "related_markets": [
-        "金融",
-        "壽險",
-        "銀行",
-        "Fed",
-        "美債",
-        "利率",
-        "匯率",
-        "美元",
-        "台幣"
-      ],
-      "reason": "CMoney 美股新聞快訊 消息指出：FedEx Q4 財報亮眼：營收年增13.7%，未來展望樂觀！。此事件被歸類為 金融壽險 題材，需觀察是否帶動相關族群資金輪動。",
-      "source_name": "CMoney 美股新聞快訊",
-      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223662"
-    },
-    {
-      "title": "【即時新聞】AI概念股跳水！美光(MU)財報前崩跌13%，輝達(NVDA)與晶片巨頭全倒",
-      "impact": "偏空",
+      "title": "【即時新聞】AI晶片爆發！美光(MU)與SpaceX(SPCX)大對決，這檔獲利飆升更具吸引力",
+      "impact": "中性",
       "related_markets": [
         "記憶體",
         "DRAM",
@@ -64,62 +46,66 @@
         "SK hynix",
         "三星"
       ],
-      "reason": "CMoney 美股新聞快訊 消息指出：【即時新聞】AI概念股跳水！美光(MU)財報前崩跌13%，輝達(NVDA)與晶片巨頭全倒。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+      "reason": "CMoney 美股新聞快訊 消息指出：【即時新聞】AI晶片爆發！美光(MU)與SpaceX(SPCX)大對決，這檔獲利飆升更具吸引力。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
       "source_name": "CMoney 美股新聞快訊",
-      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223658"
+      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223699"
     },
     {
-      "title": "Nvidia股價回撥，是否該進場？專家分析顯示未來成長潛力驚人！",
-      "impact": "偏多",
-      "related_markets": [
-        "AI伺服器",
-        "AI 伺服器",
-        "NVIDIA",
-        "輝達",
-        "GB200",
-        "GB300",
-        "B200",
-        "Blackwell",
-        "Rubin",
-        "H100",
-        "H200",
-        "ASIC",
-        "TPU",
-        "AWS",
-        "Google",
-        "Meta",
-        "Microsoft",
-        "CSP",
-        "AI機櫃",
-        "液冷",
-        "散熱",
-        "高功耗",
-        "高速傳輸",
-        "800G",
-        "1.6T",
-        "AI資料中心"
-      ],
-      "reason": "CMoney 美股新聞快訊 消息指出：Nvidia股價回撥，是否該進場？專家分析顯示未來成長潛力驚人！。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
-      "source_name": "CMoney 美股新聞快訊",
-      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223656"
-    },
-    {
-      "title": "歐洲數位歐元拍板試行、MSCI砸1.2億美元買氣候數據：全球金融體系正悄悄改寫",
+      "title": "AI 記憶體大戰失控？SK Hynix 巨額掛牌、Micron 股價暴衝，HBM 軍備競賽點燃新一波泡沫疑慮",
       "impact": "中性",
       "related_markets": [
-        "金融",
-        "壽險",
-        "銀行",
-        "Fed",
-        "美債",
-        "利率",
-        "匯率",
-        "美元",
-        "台幣"
+        "記憶體",
+        "DRAM",
+        "NAND",
+        "HBM",
+        "SSD",
+        "美光",
+        "Micron",
+        "海力士",
+        "SK hynix",
+        "三星"
       ],
-      "reason": "CMoney 美股新聞快訊 消息指出：歐洲數位歐元拍板試行、MSCI砸1.2億美元買氣候數據：全球金融體系正悄悄改寫。此事件被歸類為 金融壽險 題材，需觀察是否帶動相關族群資金輪動。",
+      "reason": "CMoney 美股新聞快訊 消息指出：AI 記憶體大戰失控？SK Hynix 巨額掛牌、Micron 股價暴衝，HBM 軍備競賽點燃新一波泡沫疑慮。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
       "source_name": "CMoney 美股新聞快訊",
-      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223651"
+      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223697"
+    },
+    {
+      "title": "AI 熱潮點燃企業併購與授權戰：從醫藥研發到記憶體晶片、會計事務所全線開打",
+      "impact": "中性",
+      "related_markets": [
+        "記憶體",
+        "DRAM",
+        "NAND",
+        "HBM",
+        "SSD",
+        "美光",
+        "Micron",
+        "海力士",
+        "SK hynix",
+        "三星"
+      ],
+      "reason": "CMoney 美股新聞快訊 消息指出：AI 熱潮點燃企業併購與授權戰：從醫藥研發到記憶體晶片、會計事務所全線開打。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+      "source_name": "CMoney 美股新聞快訊",
+      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223696"
+    },
+    {
+      "title": "美國晶片巨頭Micron表現亮眼，超越競爭對手！財報前景引發市場關注",
+      "impact": "中性",
+      "related_markets": [
+        "記憶體",
+        "DRAM",
+        "NAND",
+        "HBM",
+        "SSD",
+        "美光",
+        "Micron",
+        "海力士",
+        "SK hynix",
+        "三星"
+      ],
+      "reason": "CMoney 美股新聞快訊 消息指出：美國晶片巨頭Micron表現亮眼，超越競爭對手！財報前景引發市場關注。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+      "source_name": "CMoney 美股新聞快訊",
+      "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1223695"
     }
   ],
   "tomorrow_conditions": [
@@ -128,5 +114,9 @@
     "若候選股開高走低或量縮，視為短線退潮訊號。",
     "若外資續賣權值股，指數反彈力道會受壓抑。"
   ],
-  "data_quality_warning": []
+  "data_quality_warning": [
+    "daily_market_snapshot missing up_count",
+    "daily_market_snapshot missing down_count",
+    "daily_market_snapshot missing limit_down_count"
+  ]
 }

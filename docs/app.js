@@ -1,7 +1,7 @@
 const HOLDINGS_KEY = "asurada_holdings";
 const WATCHLIST_KEY = "asurada_watchlist";
-const BUILD_VERSION = "20260624-trust-labels";
-const APP_VERSION = "20260624-trust-labels";
+const BUILD_VERSION = "20260624-price-source";
+const APP_VERSION = "20260624-price-source";
 
 const state = {
   stocks: [],
@@ -294,14 +294,17 @@ function compareRadarPoolStocks(a, b) {
 }
 
 function buildRadarPoolLists(stocks = state.stocks) {
-  const electronicTechTop30 = stocks.filter((stock) => getRadarPool(stock) === "electronicTechPool").sort(compareRadarPoolStocks).slice(0, 30);
-  const nonElectronicTop30 = stocks.filter((stock) => getRadarPool(stock) === "nonElectronicPool").sort(compareRadarPoolStocks).slice(0, 30);
+  const officialStocks = stocks.filter(officialRankEligible);
+  const electronicTechTop30 = officialStocks.filter((stock) => getRadarPool(stock) === "electronicTechPool").sort(compareRadarPoolStocks).slice(0, 30);
+  const nonElectronicTop30 = officialStocks.filter((stock) => getRadarPool(stock) === "nonElectronicPool").sort(compareRadarPoolStocks).slice(0, 30);
   const rank = (list) => list.map((stock, index) => ({ ...stock, display_rank: index + 1 }));
   const combinedTop60 = [...electronicTechTop30, ...nonElectronicTop30].sort(compareRadarPoolStocks).slice(0, 60);
+  const dataGapPool = stocks.filter((stock) => !officialRankEligible(stock)).sort(compareRadarPoolStocks).slice(0, 60);
   return {
     electronicTechPool: rank(electronicTechTop30),
     nonElectronicPool: rank(nonElectronicTop30),
     combinedPool: rank(combinedTop60),
+    dataGapPool: rank(dataGapPool),
   };
 }
 
@@ -499,6 +502,7 @@ function evidenceRevenue(stock) {
 }
 
 function evidenceVolume(stock) {
+  if (!officialRankEligible(stock)) return priceStatusLine(stock);
   const volume = evidenceNumber(stock?.volume_value);
   if (volume === null) return "成交量資料不足";
   const amount = Math.round(volume).toLocaleString("zh-TW");
@@ -517,7 +521,7 @@ const SIGNAL_STATUS_LABELS = {
   estimated: "推估",
   manual: "手動",
   missing: "缺資料",
-  fallback: "替代來源",
+  fallback: "fallback，不列入正式排名",
   unknown: "推估或手動，來源待確認",
 };
 
@@ -556,9 +560,44 @@ function signalStatus(stock, statusField, valueFields, allowedStatuses) {
 
 function priceSourceStatus(stock) {
   const rawStatus = String(stock?.price_source_status || "").trim().toLowerCase();
-  if (["verified", "fallback", "missing"].includes(rawStatus)) return rawStatus;
+  if (rawStatus === "verified") return hasVerifiedMarketDate(stock) ? "verified" : "fallback";
+  if (["fallback", "missing"].includes(rawStatus)) return rawStatus;
+  const rawSource = String(stock?.price_source || stock?.price_data_source || "").trim().toLowerCase();
+  if (/fallback|simulated|generated|mock/.test(rawSource)) return "fallback";
   if (isMissingSignalValue(stock?.close)) return "missing";
-  return isMissingSignalValue(stock?.market_date) ? "fallback" : "verified";
+  return hasVerifiedMarketDate(stock) ? "verified" : "fallback";
+}
+
+function hasVerifiedMarketDate(stock) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(stock?.market_date || "").trim());
+}
+
+function officialRankEligible(stock) {
+  if (priceSourceStatus(stock) !== "verified" || !hasVerifiedMarketDate(stock)) return false;
+  if (hasOwn(stock, "official_rank_eligible")) {
+    const value = stock.official_rank_eligible;
+    if (typeof value === "boolean") return value;
+    const text = String(value || "").trim().toLowerCase();
+    return ["true", "1", "yes", "y"].includes(text);
+  }
+  return true;
+}
+
+function priceStatusLine(stock) {
+  const status = priceSourceStatus(stock);
+  const source = cleanDisplay(stock?.price_source || stock?.price_data_source || stock?.data_source || "-");
+  const date = cleanDisplay(stock?.market_date);
+  if (status === "verified") return `價格資料：${source}${date !== "-" ? `，市場日期 ${date}` : ""}`;
+  if (status === "fallback") return "價格資料缺漏：fallback，不列入正式排名";
+  return "價格資料缺漏";
+}
+
+function displayClose(stock) {
+  return officialRankEligible(stock) ? cleanDisplay(stock?.close) : "價格資料缺漏";
+}
+
+function displayVolume(stock) {
+  return officialRankEligible(stock) ? cleanDisplay(stock?.volume) : "價格資料缺漏";
 }
 
 function trustInfo(stock) {
@@ -725,8 +764,8 @@ function stockCard(stock, mode = "main", compact = false) {
       </div>
       <div class="grid ${compact ? "cols-3" : "cols-4"}">
         <div class="metric"><span>雷達評分</span><strong>${escapeHtml(radarScore(stock, mode))}</strong></div>
-        <div class="metric"><span>收盤價</span><strong>${escapeHtml(stock.close)}</strong></div>
-        <div class="metric"><span>成交量</span><strong>${escapeHtml(stock.volume)} 張</strong></div>
+        <div class="metric"><span>收盤價</span><strong>${escapeHtml(displayClose(stock))}</strong></div>
+        <div class="metric"><span>成交量</span><strong>${escapeHtml(displayVolume(stock))}${officialRankEligible(stock) ? " 張" : ""}</strong></div>
         ${compact ? "" : `<div class="metric"><span>雷達模式</span><strong>${escapeHtml(modeName)}</strong></div>`}
       </div>
       ${info.downgraded ? `<p class="penalty-note">主升段模式降權：族群非當前高動能主流，需等待政策、利率或量價確認。</p>` : ""}
@@ -739,6 +778,7 @@ function stockCard(stock, mode = "main", compact = false) {
       </div>`}
       <p><span class="label">概念股</span>${escapeHtml(stock.concept || "-")}</p>
       <p><span class="label">入選理由</span>${escapeHtml(stock.reason || "-")}</p>
+      <p><span class="label">價格資料</span>${escapeHtml(priceStatusLine(stock))}</p>
       <p><span class="label">資料來源狀態</span>${escapeHtml(trustSourceLine(stock))}</p>
       <div class="chip-row">${String(stock.risk_tags || "一般觀察").split("、").map((x) => chip(x)).join("")}</div>
     </article>
@@ -756,8 +796,8 @@ function stockTable(stocks, mode = "main", compact = false) {
         <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(stock.code)}">${escapeHtml(stock.code)}</a></td>
         <td>${escapeHtml(displayStockName(stock.code))}</td>
         <td>${escapeHtml(radarScore(stock, mode))}${info.downgraded ? "<br><span class=\"chip warn\">降權</span>" : ""}</td>
-        <td>${escapeHtml(stock.close)}</td>
-        <td>${escapeHtml(stock.volume)}</td>
+        <td>${escapeHtml(displayClose(stock))}</td>
+        <td>${escapeHtml(displayVolume(stock))}</td>
         <td>${escapeHtml(revenueAmount(stock))}</td>
         <td>${escapeHtml(stock.revenue_mom)}</td>
         <td>${escapeHtml(stock.revenue_yoy)}</td>
@@ -788,7 +828,7 @@ function radarEvidenceTable(stocks, mode = "mid") {
     const themeText = evidenceTheme(stock);
     const warningText = warningReason(stock);
     const gapText = dataGapNote(stock, mode);
-    const sourceText = `資料來源狀態：${trustSourceLine(stock)}。${gapText}`;
+    const sourceText = `資料來源狀態：${trustSourceLine(stock)}。${priceStatusLine(stock)}。${gapText}`;
     const trustText = trustReasonText(stock);
     return `
       <tr title="${escapeHtml(scoreHint)}">
@@ -821,8 +861,8 @@ function stockRadarDetail(stock) {
   const rows = [
     ["雷達排名", stock.rank],
     ["雷達評分", radarScore(stock, "market")],
-    ["收盤價", stock.close],
-    ["成交量", stock.volume],
+    ["收盤價", displayClose(stock)],
+    ["成交量", displayVolume(stock)],
     [labels.current, revenueAmount(stock)],
     [labels.mom, stock.revenue_mom],
     [labels.yoy, stock.revenue_yoy],
@@ -835,6 +875,7 @@ function stockRadarDetail(stock) {
         ${rows.map(([label, value]) => infoItem(label, value)).join("")}
       </div>
       <div class="stock-notes">
+        <p><span class="label">價格資料</span>${escapeHtml(priceStatusLine(stock))}</p>
         <p><span class="label">資料來源狀態</span>${escapeHtml(trustSourceLine(stock))}</p>
         <p><span class="label">資料可信度說明</span>${escapeHtml(trustReasonText(stock))}</p>
         <p><span class="label">概念股</span>${escapeHtml(cleanDisplay(stock.concept))}</p>
@@ -1323,6 +1364,7 @@ function renderRadar() {
         <button type="button" class="radar-pool-button" data-radar-pool="electronicTechPool">電子 / AI科技前30 <span data-pool-count="electronicTechPool">0</span></button>
         <button type="button" class="radar-pool-button" data-radar-pool="nonElectronicPool">非電子前30 <span data-pool-count="nonElectronicPool">0</span></button>
         <button type="button" class="radar-pool-button active" data-radar-pool="combinedPool">綜合60 <span data-pool-count="combinedPool">0</span></button>
+        <button type="button" class="radar-pool-button" data-radar-pool="dataGapPool">資料缺漏觀察 <span data-pool-count="dataGapPool">0</span></button>
       </div>
     </section>
     <section class="panel transparency-note">
@@ -1479,10 +1521,10 @@ function conceptStockTable(concept) {
             const holdingHit = holdings.has(code);
             return `<tr>
               <td><a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(stockLabel(code))}</a></td>
-              <td>${escapeHtml(stock?.close || "-")}</td>
+              <td>${escapeHtml(stock ? displayClose(stock) : "-")}</td>
               <td>${escapeHtml(stock?.price_change || stock?.change || "-")}</td>
               <td>${escapeHtml(stock?.daily_change || stock?.change_percent || "-")}</td>
-              <td>${escapeHtml(stock?.volume || "-")}</td>
+              <td>${escapeHtml(stock ? displayVolume(stock) : "-")}</td>
               <td>${radarHit ? "是" : "否"}</td>
               <td>${holdingHit ? "是" : "否"}</td>
             </tr>`;
@@ -1930,7 +1972,7 @@ function renderCodeHits(selector, codes) {
           ${stock ? chip("命中今日雷達", "good") : chip("今日未入選雷達")}
           ${newsHits.length ? chip(`命中重大新聞 ${newsHits.length} 則`, "warn") : chip("未命中重大新聞")}
         </div>
-        ${stock ? `<p class="muted">雷達評分 ${escapeHtml(radarScore(stock))}｜收盤價 ${escapeHtml(stock.close)}｜成交量 ${escapeHtml(stock.volume)} 張</p>` : ""}
+        ${stock ? `<p class="muted">雷達評分 ${escapeHtml(radarScore(stock))}｜收盤價 ${escapeHtml(displayClose(stock))}｜成交量 ${escapeHtml(displayVolume(stock))}${officialRankEligible(stock) ? " 張" : ""}</p>` : ""}
         ${newsHits.length ? `<div class="news-hit-list"><p><span class="label">命中重大新聞</span></p>${newsListHtml(newsHits, "來源待補")}</div>` : ""}
       </article>
     `;

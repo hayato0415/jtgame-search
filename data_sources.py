@@ -208,23 +208,18 @@ class DataProvider:
 
     def fallback_price_signal(self, stock: dict[str, object]) -> dict[str, object]:
         code = normalize_code(stock["股票代號"])
-        seed = int(code)
-        revenue_yoy = _number(stock.get("月營收年增率"))
-        revenue_mom = _number(stock.get("月營收月增率"))
-        base_price = 20 + seed % 80 + (seed % 7) * 0.35
-        volume_ratio = 0.8 + min(max((revenue_yoy if pd.notna(revenue_yoy) else 0) / 200, 0), 0.9)
-        volume_ratio += min(max((revenue_mom if pd.notna(revenue_mom) else 0) / 300, 0), 0.4)
-        volume_ratio = round(float(volume_ratio), 2)
-        latest_volume = 100_000 + seed * 137
         return {
             "股票代號": code,
-            "收盤價": round(float(base_price), 2),
+            "收盤價": np.nan,
             "股價是否仍在低位階": False,
-            "成交量是否溫和放大": 1.1 <= volume_ratio <= 2.5,
-            "量比": volume_ratio,
-            "當天成交量": latest_volume,
-            "股價資料來源": "fallback 模擬資料",
-            "股價最後日期": "無真實資料",
+            "成交量是否溫和放大": False,
+            "量比": np.nan,
+            "當天成交量": np.nan,
+            "股價資料來源": "fallback_simulated",
+            "股價最後日期": None,
+            "price_source": "fallback_simulated",
+            "price_source_status": "fallback",
+            "market_date": None,
         }
 
     def fetch_price_signals(self, candidates: pd.DataFrame, limit: int = 180) -> pd.DataFrame:
@@ -273,6 +268,7 @@ class DataProvider:
                 if "Date" in history.columns
                 else pd.to_datetime(close.index[-1]).strftime("%Y-%m-%d")
             )
+            price_source = "twse_stock_day" if used_symbol == "TWSE STOCK_DAY" else "yfinance"
             rows.append(
                 {
                     "股票代號": code,
@@ -283,6 +279,9 @@ class DataProvider:
                     "當天成交量": latest_volume,
                     "股價資料來源": used_symbol,
                     "股價最後日期": latest_date,
+                    "price_source": price_source,
+                    "price_source_status": "verified",
+                    "market_date": latest_date,
                 }
             )
         return pd.DataFrame(rows)

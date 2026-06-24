@@ -23,8 +23,31 @@ def run_scan(
     price_signals = provider.fetch_price_signals(prefiltered, limit=price_limit)
     candidates = build_candidates(stocks, revenue, manual, price_signals)
     report = top_report(candidates, limit=top_n)
-    interactive_report = top_report(candidates, limit=max(site_top_n, top_n))
+    interactive_report = top_report(candidates, limit=max(site_top_n, top_n), include_price_gaps=True)
     csv_path, html_path = write_reports(report, interactive_report=interactive_report)
+    if "price_source_status" in candidates:
+        price_status = candidates["price_source_status"]
+    elif "股價資料來源" in candidates:
+        price_status = candidates["股價資料來源"].astype(str).str.contains("fallback", case=False, na=False).map(
+            {True: "fallback", False: "missing"}
+        )
+    else:
+        price_status = candidates.assign(price_source_status="missing")["price_source_status"]
+    price_status = price_status.fillna("missing").astype(str).str.lower()
+    official_eligible = (
+        candidates["official_rank_eligible"]
+        if "official_rank_eligible" in candidates
+        else candidates.assign(official_rank_eligible=False)["official_rank_eligible"]
+    )
+    price_qa = {
+        "total_stocks_scanned": int(len(candidates)),
+        "verified_price_count": int(price_status.eq("verified").sum()),
+        "fallback_price_count": int(price_status.eq("fallback").sum()),
+        "missing_price_count": int(price_status.eq("missing").sum()),
+        "excluded_due_to_fallback_price_count": int(
+            (price_status.eq("fallback") & ~official_eligible.fillna(False).astype(bool)).sum()
+        ),
+    }
     try:
         events = build_events()
         existing_news_count = 0
@@ -54,6 +77,7 @@ def run_scan(
         "新聞事件數": news_count,
         "首頁戰情資料": home_dashboard_files,
         "網站互動資料筆數": len(interactive_report),
+        "price_data_qa": price_qa,
         "CSV": str(csv_path),
         "HTML": str(html_path),
     }

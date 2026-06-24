@@ -87,8 +87,13 @@ def _signal_status(row: pd.Series, status_column: str, value_columns: list[str],
 
 def _price_source_status(row: pd.Series) -> str:
     explicit = _validated_status(row.get("price_source_status"), {"verified", "fallback", "missing"})
+    if explicit == "verified":
+        return "verified" if not _is_missing_public_value(row.get("market_date")) else "fallback"
     if explicit:
         return explicit
+    source = str(row.get("price_source") or row.get("股價資料來源") or "").strip().lower()
+    if any(keyword in source for keyword in ["fallback", "simulated", "mock", "generated"]):
+        return "fallback"
     if _is_missing_public_value(row.get("收盤價")):
         return "missing"
     return "verified" if not _is_missing_public_value(row.get("market_date")) else "fallback"
@@ -429,10 +434,12 @@ def publish_interactive_data(display_report: pd.DataFrame, site_dir: Path = SITE
             "tracking_status": _value(row, "追蹤狀態"),
             "market": _value(row, "市場"),
             "daily_change": _value(row, "今日漲跌幅"),
+            "price_source": _value(row, "price_source", "missing"),
             "eps_signal_status": eps_status,
             "gross_margin_signal_status": gross_margin_status,
             "institutional_target_status": institutional_status,
             "price_source_status": price_status,
+            "official_rank_eligible": str(row.get("official_rank_eligible", "")).strip().lower() == "true",
             "data_confidence_level": confidence_level,
             "data_confidence_reasons": confidence_reasons,
         }
@@ -512,7 +519,21 @@ def _json_number(value: object, default: float = 0.0) -> float:
     return default if number is None else float(number)
 
 
+def _stock_price_verified(stock: dict[str, object]) -> bool:
+    status = str(stock.get("price_source_status", "")).strip().lower()
+    if status != "verified":
+        return False
+    eligible = stock.get("official_rank_eligible", True)
+    if isinstance(eligible, str) and eligible.strip().lower() in {"false", "0", "no", "n"}:
+        return False
+    if eligible is False:
+        return False
+    return bool(re.match(r"^\d{4}-\d{2}-\d{2}$", str(stock.get("market_date", "")).strip()))
+
+
 def _dashboard_hot_stocks(stocks: list[dict[str, object]]) -> list[dict[str, object]]:
+    stocks = [stock for stock in stocks if _stock_price_verified(stock)]
+
     def sort_key(stock: dict[str, object]) -> tuple[float, float, float]:
         change = _json_number(stock.get("daily_change"), float("-inf"))
         volume = _json_number(stock.get("volume_value"), 0)
@@ -549,6 +570,7 @@ def _dashboard_hot_stocks(stocks: list[dict[str, object]]) -> list[dict[str, obj
 
 
 def _dashboard_themes(stocks: list[dict[str, object]]) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    stocks = [stock for stock in stocks if _stock_price_verified(stock)]
     groups: dict[str, list[dict[str, object]]] = {}
     for stock in stocks:
         theme = _first_theme(stock.get("concept", ""))

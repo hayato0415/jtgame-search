@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pandas as pd
 
@@ -146,6 +148,22 @@ def _clean_text(value: object) -> str:
     return "" if text.lower() in {"nan", "none", ""} else text
 
 
+def _valid_market_date(value: object) -> bool:
+    if pd.isna(value):
+        return False
+    text = str(value).strip()
+    return bool(re.match(r"^\d{4}-\d{2}-\d{2}$", text))
+
+
+def _price_verified(frame: pd.DataFrame) -> pd.Series:
+    status = frame.get("price_source_status", pd.Series("missing", index=frame.index)).fillna("missing").astype(str).str.lower()
+    if "market_date" in frame.columns:
+        market_dates = frame["market_date"]
+    else:
+        market_dates = frame.get("股價最後日期", pd.Series("", index=frame.index))
+    return status.eq("verified") & market_dates.map(_valid_market_date)
+
+
 def _concept_and_business(row: pd.Series) -> pd.Series:
     code = str(row.get("股票代號", "")).zfill(4)
     industry = _industry_label(row.get("產業別"))
@@ -188,6 +206,15 @@ def build_candidates(
     frame = frame.drop(columns=["股票名稱_清單"], errors="ignore")
     frame = frame.merge(manual, on="股票代號", how="left")
     frame = frame.merge(price_signals, on="股票代號", how="left")
+    if "price_source" not in frame:
+        frame["price_source"] = "missing"
+    frame["price_source"] = frame["price_source"].fillna("missing")
+    if "price_source_status" not in frame:
+        frame["price_source_status"] = "missing"
+    frame["price_source_status"] = frame["price_source_status"].fillna("missing")
+    if "market_date" not in frame:
+        frame["market_date"] = frame.get("股價最後日期", "")
+    frame["official_rank_eligible"] = _price_verified(frame)
 
     frame["手動題材分類"] = frame["題材分類"]
     industry_topics = frame["產業別"].map(_industry_label)
@@ -202,6 +229,9 @@ def build_candidates(
         if column not in frame:
             frame[column] = False
         frame[column] = _as_bool(frame[column])
+    unverified_price = ~frame["official_rank_eligible"]
+    frame.loc[unverified_price, ["股價是否仍在低位階", "成交量是否溫和放大"]] = False
+    frame.loc[unverified_price, ["收盤價", "當天成交量", "量比"]] = np.nan
 
     # Heuristic defaults until real EPS/margin/institutional data is connected.
     frame["EPS 是否轉虧為盈"] = frame["EPS 是否轉虧為盈"] | (
@@ -230,6 +260,7 @@ def build_candidates(
         bins=[-1, 50, 65, 75, 85, 101],
         labels=["觀察", "B", "A-", "A", "S"],
     ).astype(str)
+    frame.loc[~frame["official_rank_eligible"], "阿斯拉評級"] = "資料缺漏"
     frame["是否適合慢慢買"] = np.where(
         (frame["阿斯拉分數"] >= 70)
         & frame["股價是否仍在低位階"]
@@ -247,9 +278,15 @@ def build_candidates(
     return frame.sort_values("阿斯拉分數", ascending=False)
 
 
-def top_report(frame: pd.DataFrame, limit: int | None = 30) -> pd.DataFrame:
+def top_report(
+    frame: pd.DataFrame,
+    limit: int | None = 30,
+    include_price_gaps: bool = False,
+) -> pd.DataFrame:
     filtered = frame.copy()
-    if "當天成交量" in filtered.columns:
+    if not include_price_gaps and "official_rank_eligible" in filtered.columns:
+        filtered = filtered[filtered["official_rank_eligible"]]
+    if "當天成交量" in filtered.columns and not include_price_gaps:
         filtered["當天成交量"] = pd.to_numeric(filtered["當天成交量"], errors="coerce")
         filtered = filtered[filtered["當天成交量"].ge(MIN_REPORT_VOLUME_SHARES)]
 
@@ -263,6 +300,18 @@ def top_report(frame: pd.DataFrame, limit: int | None = 30) -> pd.DataFrame:
     ranked.insert(0, "排名", range(1, len(ranked) + 1))
     columns = [column for column in REPORT_COLUMNS if column in filtered.columns]
     columns.insert(0, "排名")
-    extra = ["阿斯拉分數", "收盤價", "當天成交量", "股價最後日期", "市場", "年月", "單月營收_千元"]
+    extra = [
+        "阿斯拉分數",
+        "收盤價",
+        "當天成交量",
+        "股價最後日期",
+        "price_source",
+        "price_source_status",
+        "market_date",
+        "official_rank_eligible",
+        "市場",
+        "年月",
+        "單月營收_千元",
+    ]
     columns.extend([column for column in extra if column in filtered.columns])
     return ranked[columns]

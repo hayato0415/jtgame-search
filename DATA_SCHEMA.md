@@ -36,7 +36,8 @@
 | `volume` | string | 當日成交量顯示值，單位為張 | `"124602"` |
 | `volume_value` | number | 量能條件運算值，單位為張 | `124602.0` |
 | `daily_change` | string／number | 當日漲跌幅；資料不足時可為 `"-"` | `3.25` |
-| `market_date` | string | 行情日期 | `"2026-06-18"` |
+| `market_date` | string／null | 行情日期；fallback 或缺資料時為 `null` | `"2026-06-18"`、`null` |
+| `price_source` | string | 價量資料來源名稱；fallback/mock/simulated 資料不得偽裝成正式行情 | `yfinance`、`twse_stock_day`、`manual`、`fallback_simulated`、`missing` |
 
 ## 月營收欄位
 
@@ -62,10 +63,13 @@
 | `gross_margin_signal_status` | string | 毛利率改善訊號來源狀態 | `verified`、`estimated`、`manual`、`missing` |
 | `institutional_target_status` | string | 法人目標價或目標上修訊號來源狀態 | `verified`、`manual`、`missing` |
 | `price_source_status` | string | 價量資料來源狀態 | `verified`、`fallback`、`missing` |
+| `official_rank_eligible` | boolean | 是否可進入正式 S／A／A-／B 排名池；fallback 或 missing 價格資料必須為 `false` | `true`、`false` |
 | `data_confidence_level` | string | 前端資料可信度彙整 | `high`、`medium`、`low` |
 | `data_confidence_reasons` | string[] | 可信度原因清單 | `["EPS signal estimated from proxy rules"]` |
 
 `verified` 只能用於已有明確外部資料來源驗證的欄位。若 EPS、毛利率或法人目標價只是代理規則、人工補值或來源未標示，前端不得顯示為已驗證。
+
+價量資料若為 `fallback` 或 `missing`，不得進入正式 S／A／A-／B 排名池，也不得取得成交量或低位階相關加分；前端可放入「資料缺漏觀察」作研究追蹤。
 
 ## 前端衍生欄位
 
