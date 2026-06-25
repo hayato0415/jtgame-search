@@ -1706,63 +1706,239 @@ async function renderHome() {
   bindHomeFilters(hotThemes, hotStocks);
 }
 
+function radarStockSearchText(stock) {
+  return [
+    stock.code,
+    displayStockName(stock.code),
+    getIndustryName(stock),
+    inferThemeTags(stock).join(" "),
+    stock.concept,
+    stock.business,
+    stock.reason,
+    stock.risk_tags,
+  ].join(" ").toLowerCase();
+}
+
+function radarCleanThemeLabel(value) {
+  const text = cleanDisplay(value);
+  if (/^\d{2}$/.test(text)) return TWSE_INDUSTRY_LABELS[text] || `產業代碼 ${text}`;
+  return text === "—" ? "題材待補" : text;
+}
+
+function radarThemeList(stock) {
+  const tags = inferThemeTags(stock).map(radarCleanThemeLabel).filter((tag) => tag && tag !== "題材待補");
+  String(stock.concept || "").split(/[;、,，/｜|]/).map(radarCleanThemeLabel).forEach((tag) => {
+    if (tag && tag !== "題材待補") tags.push(tag);
+  });
+  const industry = radarCleanThemeLabel(getIndustryName(stock));
+  if (industry && industry !== "題材待補") tags.push(industry);
+  return [...new Set(tags)].slice(0, 4);
+}
+
+function radarStockLink(stock) {
+  const code = normalizeCode(stock?.code);
+  const name = displayStockName(code);
+  if (!code) return "-";
+  return `<a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(`${code} ${name}`)}</a>`;
+}
+
+function radarThemeLink(theme) {
+  const label = radarCleanThemeLabel(theme);
+  if (!label || label === "題材待補") return escapeHtml(label);
+  return `<a class="stock-link" href="concepts.html?q=${encodeURIComponent(label)}">${escapeHtml(label)}</a>`;
+}
+
+function radarTopStocksByTheme(stocks, limit = 5) {
+  const groups = new Map();
+  stocks.forEach((stock) => {
+    radarThemeList(stock).forEach((theme) => {
+      const current = groups.get(theme) || { theme, score: 0, stocks: [], stockCodes: new Set(), reasons: [] };
+      current.score += Math.max(0, radarScoreValue(stock));
+      const code = normalizeCode(stock.code);
+      if (code && !current.stockCodes.has(code) && current.stocks.length < limit) {
+        current.stockCodes.add(code);
+        current.stocks.push(stock);
+      }
+      if (dashboardHasValue(stock.reason) && current.reasons.length < 2) current.reasons.push(stock.reason);
+      groups.set(theme, current);
+    });
+  });
+  return [...groups.values()]
+    .map((group) => ({ ...group, avgScore: group.stocks.length ? group.score / group.stocks.length : 0 }))
+    .sort((a, b) => b.avgScore - a.avgScore || b.stocks.length - a.stocks.length)
+    .slice(0, 5);
+}
+
+function radarRecentNewsThemes(news = state.news) {
+  const groups = new Map();
+  news.filter((event) => isRealSourceUrl(eventUrl(event))).forEach((event) => {
+    const labels = [
+      event.category,
+      ...(event.related_keywords || []),
+    ].map(radarCleanThemeLabel).filter((label) => label && label !== "題材待補");
+    [...new Set(labels)].forEach((theme) => {
+      const current = groups.get(theme) || { theme, count: 0, stocks: new Set(), events: [] };
+      current.count += 1;
+      (event.related_stocks || []).map(normalizeCode).filter(Boolean).forEach((code) => current.stocks.add(code));
+      if (current.events.length < 3) current.events.push(event.title || event.category || "新聞");
+      groups.set(theme, current);
+    });
+  });
+  return [...groups.values()].sort((a, b) => b.count - a.count || b.stocks.size - a.stocks.size).slice(0, 5);
+}
+
+function radarLowBaseStocks(stocks) {
+  return stocks
+    .filter((stock) => {
+      const yoy = evidenceNumber(stock.revenue_yoy_value ?? stock.revenue_yoy);
+      const mom = evidenceNumber(stock.revenue_mom_value ?? stock.revenue_mom);
+      const reason = `${stock.reason || ""} ${stock.risk_tags || ""}`;
+      return (Number.isFinite(yoy) && yoy >= 50 && Number.isFinite(mom) && mom >= 0) || /低基期/.test(reason);
+    })
+    .sort((a, b) =>
+      radarScoreValue(b) - radarScoreValue(a) ||
+      (evidenceNumber(b.revenue_yoy_value) || 0) - (evidenceNumber(a.revenue_yoy_value) || 0) ||
+      (evidenceNumber(b.volume_value) || 0) - (evidenceNumber(a.volume_value) || 0)
+    )
+    .slice(0, 10);
+}
+
+function radarStockLinks(stocks, limit = 5) {
+  const list = Array.isArray(stocks) ? stocks : [];
+  const links = list.slice(0, limit).map((stock) => {
+    if (typeof stock === "string") {
+      const code = normalizeCode(stock);
+      return code ? `<a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(`${code} ${displayStockName(code)}`)}</a>` : escapeHtml(stock);
+    }
+    return radarStockLink(stock);
+  });
+  return links.length ? links.join("、") : "-";
+}
+
+function radarThemeGroupsTable(groups) {
+  if (!groups.length) return `<div class="empty">目前沒有符合搜尋條件的題材</div>`;
+  const rows = groups.map((group, index) => `
+    <tr>
+      <td class="cell-number">${index + 1}</td>
+      <td>${radarThemeLink(group.theme)}</td>
+      <td class="cell-number">${dashboardNumber(group.avgScore ?? group.score ?? group.count, 0)}</td>
+      <td>${radarStockLinks(group.stocks, 5)}</td>
+      <td>${escapeHtml((group.reasons || group.events || []).slice(0, 2).join("；") || "依現有資料彙整")}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="table-wrap ai-selection-table-wrap">
+      <table class="ai-selection-table">
+        <thead><tr><th>排名</th><th>題材</th><th>強度</th><th>代表個股</th><th>判斷依據</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function radarLowBaseTable(stocks) {
+  if (!stocks.length) return `<div class="empty">目前沒有符合搜尋條件的低基期觀察股</div>`;
+  const rows = stocks.map((stock, index) => {
+    const themes = radarThemeList(stock).slice(0, 3).map(radarThemeLink).join("、") || "題材待補";
+    return `
+      <tr>
+        <td class="cell-number">${index + 1}</td>
+        <td>${radarStockLink(stock)}</td>
+        <td>${themes}</td>
+        <td class="cell-number">${escapeHtml(dashboardPercent(stock.revenue_yoy_value))}</td>
+        <td class="cell-number">${escapeHtml(dashboardPercent(stock.revenue_mom_value))}</td>
+        <td class="cell-number">${escapeHtml(dashboardNumber(stock.volume_value, 0))}</td>
+        <td>${escapeHtml(cleanDisplay(stock.reason))}</td>
+      </tr>
+    `;
+  }).join("");
+  return `
+    <div class="table-wrap ai-selection-table-wrap">
+      <table class="ai-selection-table">
+        <thead><tr><th>排名</th><th>個股</th><th>相關題材</th><th>營收年增</th><th>營收月增</th><th>成交量</th><th>觀察理由</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function radarNewsThemesTable(groups) {
+  if (!groups.length) return `<div class="empty">目前新聞資料尚未形成題材排行</div>`;
+  const rows = groups.map((group, index) => `
+    <tr>
+      <td class="cell-number">${index + 1}</td>
+      <td>${radarThemeLink(group.theme)}</td>
+      <td class="cell-number">${dashboardNumber(group.count, 0)}</td>
+      <td>${radarStockLinks([...group.stocks], 5)}</td>
+      <td>${escapeHtml(group.events.slice(0, 2).join("；"))}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="table-wrap ai-selection-table-wrap">
+      <table class="ai-selection-table">
+        <thead><tr><th>排名</th><th>新聞題材</th><th>出現次數</th><th>相關個股</th><th>代表新聞</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderRadar() {
   renderHeader("radar");
   const main = $("#app");
   const conceptOptions = conceptEntries().map((concept) => `<option value="${escapeHtml(concept.name)}"></option>`).join("");
   main.innerHTML = `
     <section class="panel">
-      <div class="section-title"><h2>全股雷達清單</h2><span id="radarCount"></span></div>
+      <div class="section-title"><h2>AI選股清單</h2><span>全台股 1,780 檔上市櫃股票</span></div>
       <div class="filters">
         <label>股票搜尋<input id="search" placeholder="代號、名稱或概念股，例如 2337、旺宏、CPO"></label>
-        <label>簡單題材篩選<input id="concept" list="conceptOptions" placeholder="AI、PCB、記憶體..."></label>
+        <label>題材搜尋<input id="concept" list="conceptOptions" placeholder="AI、PCB、記憶體、玻璃基板..."></label>
       </div>
       <datalist id="conceptOptions">${conceptOptions}</datalist>
-      <p class="mode-note">各雷達池依原始雷達分數由高至低排序；分數只供排序，判斷請搭配條件與資料證據。</p>
-      <div class="radar-pool-label">篩選區</div>
-      <div class="radar-pool-filters" role="group" aria-label="雷達池篩選">
-        <button type="button" class="radar-pool-button" data-radar-pool="electronicTechPool">電子 / AI科技前30 <span data-pool-count="electronicTechPool">0</span></button>
-        <button type="button" class="radar-pool-button" data-radar-pool="nonElectronicPool">非電子前30 <span data-pool-count="nonElectronicPool">0</span></button>
-        <button type="button" class="radar-pool-button active" data-radar-pool="combinedPool">綜合60 <span data-pool-count="combinedPool">0</span></button>
-        <button type="button" class="radar-pool-button" data-radar-pool="dataGapPool">資料缺漏觀察 <span data-pool-count="dataGapPool">0</span></button>
-      </div>
+      <p class="mode-note">此頁改為題材與低基期觀察清單；目前以內部雷達資料與新聞題材資料彙整，完整 1,780 檔全市場資料會隨後續資料源補齊。</p>
     </section>
-    <section class="panel transparency-note">
-      <div class="section-title"><h2>選股機制透明化</h2></div>
-      <p>本頁不以單一分數決定股票好壞，而是依上市股票、營收年增、月增、成交量、電子/非電子題材、低基期警示等條件分區。分數與評級僅保留為排序參考，實際判斷請看條件命中、營收證據、量能證據、警示原因與資料缺口。</p>
-      <p class="muted">目前尚未納入技術面、籌碼面、完整新聞強度與估值資料，後續分階段補強。</p>
+    <section class="panel ai-selection-panel">
+      <div class="section-title"><h2>五天最強題材股</h2><span id="themeStockCount"></span></div>
+      <p class="mode-note">依現有營收、成交量、題材與雷達分數暫代五日強弱排序；正式五日漲跌與量價資料待資料源補齊。</p>
+      <div id="themeStockList"></div>
     </section>
-    <section id="radarList"></section>
+    <section class="panel ai-selection-panel">
+      <div class="section-title"><h2>新聞最多題材</h2><span id="newsThemeCount"></span></div>
+      <p class="mode-note">統計現有重大新聞資料中出現次數較高的題材與相關個股。</p>
+      <div id="newsThemeList"></div>
+    </section>
+    <section class="panel ai-selection-panel">
+      <div class="section-title"><h2>低基期題材個股排行</h2><span id="lowBaseCount"></span></div>
+      <p class="mode-note">優先觀察營收年增轉強、月增仍為正，且能對應題材的候選股。</p>
+      <div id="lowBaseList"></div>
+    </section>
   `;
-  let selectedRadarPool = "combinedPool";
   const render = () => {
     const search = $("#search").value.trim().toLowerCase();
     const concept = $("#concept").value.trim().toLowerCase();
-    const pools = buildRadarPoolLists();
-    $all("[data-pool-count]").forEach((node) => {
-      node.textContent = pools[node.dataset.poolCount]?.length ?? 0;
-    });
-    $all(".radar-pool-button").forEach((button) => {
-      const active = button.dataset.radarPool === selectedRadarPool;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", String(active));
-    });
-    const list = (pools[selectedRadarPool] || []).filter((stock) => {
-      const haystack = `${stock.code} ${displayStockName(stock.code)} ${getIndustryName(stock)} ${inferThemeTags(stock).join(" ")} ${stock.concept || ""} ${stock.reason || ""}`.toLowerCase();
+    const filteredStocks = state.stocks.filter((stock) => {
+      const haystack = radarStockSearchText(stock);
       if (search && !haystack.includes(search)) return false;
       if (concept && !haystack.includes(concept)) return false;
       return true;
     });
-    $("#radarCount").textContent = `顯示 ${list.length} 檔`;
-    $("#radarList").innerHTML = radarEvidenceTable(list, "mid");
+    const filteredNews = state.news.filter((event) => {
+      const haystack = `${event.title || ""} ${event.category || ""} ${(event.related_keywords || []).join(" ")} ${(event.related_stocks || []).join(" ")}`.toLowerCase();
+      if (concept && !haystack.includes(concept)) return false;
+      if (search && !haystack.includes(search)) return false;
+      return true;
+    });
+    const themeGroups = radarTopStocksByTheme(filteredStocks);
+    const newsGroups = radarRecentNewsThemes(filteredNews);
+    const lowBase = radarLowBaseStocks(filteredStocks);
+    $("#themeStockCount").textContent = `${themeGroups.length} 組題材`;
+    $("#newsThemeCount").textContent = `${newsGroups.length} 組題材`;
+    $("#lowBaseCount").textContent = `${lowBase.length} 檔`;
+    $("#themeStockList").innerHTML = radarThemeGroupsTable(themeGroups);
+    $("#newsThemeList").innerHTML = radarNewsThemesTable(newsGroups);
+    $("#lowBaseList").innerHTML = radarLowBaseTable(lowBase);
   };
   ["search", "concept"].forEach((id) => $(`#${id}`).addEventListener("input", render));
-  $all(".radar-pool-button").forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedRadarPool = button.dataset.radarPool || "combinedPool";
-      render();
-    });
-  });
   render();
 }
 

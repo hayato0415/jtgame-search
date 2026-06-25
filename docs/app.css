@@ -399,6 +399,42 @@ a { color: inherit; }
 .radar-page .radar-pool-button.active span {
   background: rgba(255, 255, 255, .2);
 }
+.radar-page .ai-selection-panel .section-title span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.radar-page .ai-selection-table {
+  background: #ffffff;
+  border-collapse: collapse;
+  min-width: 980px;
+  width: 100%;
+}
+.radar-page .ai-selection-table th,
+.radar-page .ai-selection-table td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.radar-page .ai-selection-table th {
+  background: #f8fafc;
+  color: #1f2f46;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.radar-page .ai-selection-table td {
+  color: var(--ink);
+}
+.radar-page .ai-selection-table .cell-number {
+  text-align: right;
+  white-space: nowrap;
+}
+.radar-page .ai-selection-table a {
+  font-weight: 800;
+}
+.radar-page .ai-selection-table-wrap {
+  border-radius: 14px;
+  overflow-x: auto;
+}
 input,
 select,
 textarea {
