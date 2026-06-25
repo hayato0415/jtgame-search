@@ -1,0 +1,17 @@
+{
+  "updated_at": "2026-06-25 14:37:08 Asia/Taipei",
+  "success": true,
+  "total_count": 1973,
+  "listed_count": 1083,
+  "otc_count": 890,
+  "listed_encoding": "utf-8-sig",
+  "otc_encoding": "utf-8-sig",
+  "listed_source_url": "https://openapi.twse.com.tw/v1/opendata/t187ap03_L",
+  "otc_source_url": "https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O",
+  "output_files": [
+    "data/stock-master.json",
+    "docs/data/stock-master.json",
+    "data/stock-master-report.json",
+    "docs/data/stock-master-report.json"
+  ]
+}

@@ -1722,6 +1722,11 @@ function radarStockSearchText(stock) {
   ].join(" ").toLowerCase();
 }
 
+function stockMasterCountText() {
+  const count = Object.keys(state.master || {}).length;
+  return count ? `全台股 ${dashboardNumber(count)} 檔上市櫃股票` : "全台股上市櫃股票";
+}
+
 function radarFormatTimestamp(value) {
   const raw = String(value || "").trim();
   if (!raw) return "";
@@ -1976,13 +1981,13 @@ function renderRadar() {
   const conceptOptions = conceptEntries().map((concept) => `<option value="${escapeHtml(concept.name)}"></option>`).join("");
   main.innerHTML = `
     <section class="panel">
-      <div class="section-title"><h2>AI選股清單</h2><span>全台股 1,780 檔上市櫃股票</span></div>
+      <div class="section-title"><h2>AI選股清單</h2><span>${escapeHtml(stockMasterCountText())}</span></div>
       <div class="filters">
         <label>股票搜尋<input id="search" placeholder="代號、名稱或概念股，例如 2337、旺宏、CPO"></label>
         <label>題材搜尋<input id="concept" list="conceptOptions" placeholder="AI、PCB、記憶體、玻璃基板..."></label>
       </div>
       <datalist id="conceptOptions">${conceptOptions}</datalist>
-      <p class="mode-note">此頁改為題材與低基期觀察清單；目前以內部雷達資料與新聞題材資料彙整，完整 1,780 檔全市場資料會隨後續資料源補齊。</p>
+      <p class="mode-note">此頁改為題材與低基期觀察清單；股票名稱與市場別以官方上市、上櫃主檔為準，題材與觀察清單則依目前內部雷達資料與新聞題材資料彙整。</p>
     </section>
     <section class="panel ai-selection-panel">
       <div class="section-title"><h2>近五個交易日最強題材股</h2><span id="themeStockCount"></span></div>
