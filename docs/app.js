@@ -1,7 +1,7 @@
 const HOLDINGS_KEY = "asurada_holdings";
 const WATCHLIST_KEY = "asurada_watchlist";
-const BUILD_VERSION = "20260625-home-flow-cards";
-const APP_VERSION = "20260625-home-flow-cards";
+const BUILD_VERSION = "20260625-home-links";
+const APP_VERSION = "20260625-home-links";
 
 const state = {
   stocks: [],
@@ -1374,6 +1374,73 @@ function homeJoinList(value, limit = 4) {
   return text || "-";
 }
 
+const TWSE_INDUSTRY_LABELS = {
+  "01": "水泥",
+  "02": "食品",
+  "03": "塑膠",
+  "04": "紡織纖維",
+  "05": "電機機械",
+  "06": "電器電纜",
+  "08": "玻璃陶瓷",
+  "09": "造紙",
+  "10": "鋼鐵",
+  "11": "橡膠",
+  "12": "汽車",
+  "14": "營建",
+  "15": "航運",
+  "16": "觀光",
+  "17": "金融",
+  "18": "貿易百貨",
+  "20": "其他",
+  "21": "化學",
+  "22": "生技醫療",
+  "23": "油電燃氣",
+  "24": "半導體",
+  "25": "電腦及週邊",
+  "26": "光電",
+  "27": "通信網路",
+  "28": "電子零組件",
+  "29": "電子通路",
+  "30": "資訊服務",
+  "31": "其他電子",
+  "32": "文化創意",
+  "33": "農業科技",
+  "34": "電子商務",
+  "35": "綠能環保",
+  "36": "數位雲端",
+  "37": "運動休閒",
+  "38": "居家生活",
+};
+
+function homeDisplayTheme(item) {
+  const theme = String(item?.theme || "").trim();
+  if (/^\d{2}$/.test(theme)) return TWSE_INDUSTRY_LABELS[theme] || `產業代碼 ${theme}`;
+  return theme || item?.sector || item?.market_group || "-";
+}
+
+function homeStockLinks(value, limit = 5) {
+  const items = Array.isArray(value) ? value : [value];
+  const links = items.map((item) => String(item || "").trim()).filter(Boolean).slice(0, limit).map((text) => {
+    const match = text.match(/^(\d{4})\s*(.*)$/);
+    if (!match) return escapeHtml(text);
+    const code = normalizeCode(match[1]);
+    const name = match[2] || "";
+    return `<a href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(`${code} ${name}`.trim())}</a>`;
+  });
+  return links.length ? links.join("、") : "-";
+}
+
+function homeThemeLink(theme) {
+  const label = String(theme || "").trim() || "-";
+  if (label === "-") return "-";
+  return `<a href="concepts.html?q=${encodeURIComponent(label)}">${escapeHtml(label)}</a>`;
+}
+
+function isExcludedHomeObservation(item) {
+  const text = `${item.sector || ""} ${item.market_group || ""} ${item.theme || ""} ${item.reason || ""}`;
+  return /金融|銀行|壽險|金控|營建|營造|建材營造/.test(text);
+}
+
 function homeFlowJudge(item) {
   const signal = item.signal || item.status || item.volume_status || "";
   const limitUp = toNumber(item.limit_up_count);
@@ -1386,13 +1453,14 @@ function homeFlowJudge(item) {
 }
 
 function homeStockFlowGroups(data) {
-  const items = data.available ? data.items : [];
+  const items = data.available ? data.items.filter((item) => !isExcludedHomeObservation(item)) : [];
   const groups = new Map();
   items.forEach((item) => {
-    const key = `${item.sector || item.market_group || "未分類"}|${item.theme || "題材未標示"}`;
+    const theme = homeDisplayTheme(item);
+    const key = `${item.sector || item.market_group || "未分類"}|${theme}`;
     const current = groups.get(key) || {
       sector: item.sector || item.market_group || "未分類",
-      theme: item.theme || "題材未標示",
+      theme,
       score: 0,
       stocks: [],
       reasons: [],
@@ -1443,9 +1511,9 @@ function homeThemeTopTable(data) {
   if (!items.length) return dashboardEmpty("熱門題材資料尚未更新");
   const rows = items.map((item, index) => ({
     rank: item.rank || index + 1,
-    theme: item.theme || "-",
+    theme: homeDisplayTheme(item),
     strength: dashboardNumber(item.score),
-    leaders: homeJoinList(item.stocks, 5),
+    leaders: item.stocks || [],
     judge: homeFlowJudge(item),
   }));
   return `
@@ -1456,9 +1524,9 @@ function homeThemeTopTable(data) {
         <tbody>${rows.map((item) => `
           <tr>
             <td>${escapeHtml(item.rank)}</td>
-            <td>${escapeHtml(item.theme)}</td>
+            <td>${homeThemeLink(item.theme)}</td>
             <td class="home-number">${escapeHtml(item.strength)}</td>
-            <td>${escapeHtml(item.leaders)}</td>
+            <td>${homeStockLinks(item.leaders, 5)}</td>
             <td>${escapeHtml(item.judge)}</td>
           </tr>
         `).join("")}</tbody>
@@ -1467,8 +1535,8 @@ function homeThemeTopTable(data) {
     <div class="home-mobile-cards">
       ${rows.map((item) => `
         <article>
-          <div><strong>${escapeHtml(item.rank)}. ${escapeHtml(item.theme)}</strong><span>資金強度 ${escapeHtml(item.strength)}</span></div>
-          <p><b>最強代表股</b>${escapeHtml(item.leaders)}</p>
+          <div><strong>${escapeHtml(item.rank)}. ${homeThemeLink(item.theme)}</strong><span>資金強度 ${escapeHtml(item.strength)}</span></div>
+          <p><b>最強代表股</b>${homeStockLinks(item.leaders, 5)}</p>
           <p><b>判斷</b>${escapeHtml(item.judge)}</p>
         </article>
       `).join("")}
@@ -1489,8 +1557,8 @@ function homeAiStockTable(data) {
           return `
             <tr>
               <td>${escapeHtml(item.sector)}</td>
-              <td>${escapeHtml(item.theme)}</td>
-              <td>${escapeHtml(homeJoinList(item.stocks, 5))}</td>
+              <td>${homeThemeLink(item.theme)}</td>
+              <td>${homeStockLinks(item.stocks, 5)}</td>
               <td>${escapeHtml(comment)}</td>
             </tr>
           `;
@@ -1502,8 +1570,8 @@ function homeAiStockTable(data) {
         const comment = item.reasons.length ? item.reasons[0] : `依候選股分數與量能同步性排序，第 ${index + 1} 組資金方向。`;
         return `
           <article>
-            <div><strong>${escapeHtml(item.sector)}｜${escapeHtml(item.theme)}</strong><span>第 ${index + 1} 組</span></div>
-            <p><b>最強代表股</b>${escapeHtml(homeJoinList(item.stocks, 5))}</p>
+            <div><strong>${escapeHtml(item.sector)}｜${homeThemeLink(item.theme)}</strong><span>第 ${index + 1} 組</span></div>
+            <p><b>最強代表股</b>${homeStockLinks(item.stocks, 5)}</p>
             <p><b>阿斯拉評語</b>${escapeHtml(comment)}</p>
           </article>
         `;

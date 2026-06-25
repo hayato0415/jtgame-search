@@ -138,6 +138,16 @@ function renderLayout() {
   });
 }
 
+function applyInitialConceptQuery() {
+  const query = new URLSearchParams(window.location.search).get("q") || "";
+  const normalized = query.trim();
+  if (!normalized) return;
+  const input = document.querySelector("#conceptSearch");
+  if (input) input.value = normalized;
+  const match = state.categories.find((category) => conceptMatches(category, normalized));
+  if (match) state.activeCode = match.concept_code;
+}
+
 function renderConceptList() {
   const query = document.querySelector("#conceptSearch")?.value.trim() || "";
   const filtered = query
@@ -233,6 +243,7 @@ async function bootConcepts() {
       );
     state.activeCode = state.categories[0]?.concept_code || "";
     renderLayout();
+    applyInitialConceptQuery();
     renderConceptList();
     renderActiveConcept();
   } catch (error) {
