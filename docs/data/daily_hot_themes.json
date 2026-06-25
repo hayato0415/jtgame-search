@@ -1,7 +1,7 @@
 {
   "date": "2026-06-26",
   "session": "隔日早晨",
-  "updated_at": "2026-06-26 00:41 Asia/Taipei",
+  "updated_at": "2026-06-26 03:29 Asia/Taipei",
   "build_version": "20260625-market-breadth",
   "app_version": "20260625-market-breadth",
   "source_type": "market_objective",
@@ -227,26 +227,6 @@
     },
     {
       "rank": 13,
-      "theme": "PCB",
-      "sector": "電子",
-      "market_group": "電子",
-      "score": 56.87,
-      "change_percent_avg": 0.0,
-      "up_count": 0,
-      "limit_up_count": 0,
-      "volume_status": "放量",
-      "stocks": [
-        "2059 川湖",
-        "3432 台端",
-        "2383 台光電",
-        "2368 金像電",
-        "4943 康控-KY"
-      ],
-      "reason": "依全市場候選股分數、量能與題材同步性彙整",
-      "signal": "觀察"
-    },
-    {
-      "rank": 14,
       "theme": "光電",
       "sector": "電子",
       "market_group": "電子",
@@ -266,7 +246,47 @@
       "signal": "觀察"
     },
     {
+      "rank": 14,
+      "theme": "網通",
+      "sector": "電子",
+      "market_group": "電子",
+      "score": 56.0,
+      "change_percent_avg": 0.0,
+      "up_count": 0,
+      "limit_up_count": 0,
+      "volume_status": "放量",
+      "stocks": [
+        "6442 光聖",
+        "3025 星通",
+        "6152 百一",
+        "6863 永道-KY",
+        "5388 中磊"
+      ],
+      "reason": "依全市場候選股分數、量能與題材同步性彙整",
+      "signal": "觀察"
+    },
+    {
       "rank": 15,
+      "theme": "PCB",
+      "sector": "電子",
+      "market_group": "電子",
+      "score": 55.76,
+      "change_percent_avg": 0.0,
+      "up_count": 0,
+      "limit_up_count": 0,
+      "volume_status": "放量",
+      "stocks": [
+        "3432 台端",
+        "2059 川湖",
+        "2383 台光電",
+        "2368 金像電",
+        "4943 康控-KY"
+      ],
+      "reason": "依全市場候選股分數、量能與題材同步性彙整",
+      "signal": "觀察"
+    },
+    {
+      "rank": 16,
       "theme": "電子通路",
       "sector": "電子",
       "market_group": "電子",
@@ -286,27 +306,27 @@
       "signal": "觀察"
     },
     {
-      "rank": 16,
-      "theme": "網通",
+      "rank": 17,
+      "theme": "半導體",
       "sector": "電子",
       "market_group": "電子",
-      "score": 52.64,
+      "score": 52.65,
       "change_percent_avg": 0.0,
       "up_count": 0,
       "limit_up_count": 0,
       "volume_status": "放量",
       "stocks": [
-        "6442 光聖",
-        "3025 星通",
-        "6152 百一",
-        "6863 永道-KY",
-        "5388 中磊"
+        "3041 揚智",
+        "4967 十銓",
+        "3443 創意",
+        "7822 倍利科",
+        "6770 力積電"
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
     },
     {
-      "rank": 17,
+      "rank": 18,
       "theme": "金融",
       "sector": "金融",
       "market_group": "非電子",
@@ -326,31 +346,29 @@
       "signal": "觀察"
     },
     {
-      "rank": 18,
-      "theme": "半導體",
+      "rank": 19,
+      "theme": "汽車零組件",
       "sector": "電子",
       "market_group": "電子",
-      "score": 51.86,
+      "score": 51.97,
       "change_percent_avg": 0.0,
       "up_count": 0,
       "limit_up_count": 0,
-      "volume_status": "放量",
+      "volume_status": "觀察",
       "stocks": [
-        "3041 揚智",
-        "4967 十銓",
-        "3443 創意",
-        "6770 力積電",
-        "2408 南亞科"
+        "7821 神數",
+        "2258 鴻華先進-創",
+        "7736 虎山"
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
     },
     {
-      "rank": 19,
+      "rank": 20,
       "theme": "AI伺服器",
       "sector": "電子",
       "market_group": "電子",
-      "score": 49.69,
+      "score": 50.35,
       "change_percent_avg": 0.0,
       "up_count": 0,
       "limit_up_count": 0,
@@ -359,27 +377,8 @@
         "3022 威強電",
         "2432 倚天酷碁-創",
         "2425 承啟",
-        "2495 普安",
-        "4916 事欣科"
-      ],
-      "reason": "依全市場候選股分數、量能與題材同步性彙整",
-      "signal": "觀察"
-    },
-    {
-      "rank": 20,
-      "theme": "鋼鐵",
-      "sector": "傳產",
-      "market_group": "非電子",
-      "score": 47.85,
-      "change_percent_avg": 0.0,
-      "up_count": 0,
-      "limit_up_count": 0,
-      "volume_status": "觀察",
-      "stocks": [
-        "2025 千興",
-        "2028 威致",
-        "3004 豐達科",
-        "2030 彰源"
+        "3706 神達",
+        "2495 普安"
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
@@ -478,29 +477,10 @@
   "capital_outflow_themes": [
     {
       "rank": 20,
-      "theme": "鋼鐵",
-      "sector": "傳產",
-      "market_group": "非電子",
-      "score": 47.85,
-      "change_percent_avg": 0.0,
-      "up_count": 0,
-      "limit_up_count": 0,
-      "volume_status": "觀察",
-      "stocks": [
-        "2025 千興",
-        "2028 威致",
-        "3004 豐達科",
-        "2030 彰源"
-      ],
-      "reason": "依全市場候選股分數、量能與題材同步性彙整",
-      "signal": "觀察"
-    },
-    {
-      "rank": 19,
       "theme": "AI伺服器",
       "sector": "電子",
       "market_group": "電子",
-      "score": 49.69,
+      "score": 50.35,
       "change_percent_avg": 0.0,
       "up_count": 0,
       "limit_up_count": 0,
@@ -509,34 +489,32 @@
         "3022 威強電",
         "2432 倚天酷碁-創",
         "2425 承啟",
-        "2495 普安",
-        "4916 事欣科"
+        "3706 神達",
+        "2495 普安"
+      ],
+      "reason": "依全市場候選股分數、量能與題材同步性彙整",
+      "signal": "觀察"
+    },
+    {
+      "rank": 19,
+      "theme": "汽車零組件",
+      "sector": "電子",
+      "market_group": "電子",
+      "score": 51.97,
+      "change_percent_avg": 0.0,
+      "up_count": 0,
+      "limit_up_count": 0,
+      "volume_status": "觀察",
+      "stocks": [
+        "7821 神數",
+        "2258 鴻華先進-創",
+        "7736 虎山"
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
     },
     {
       "rank": 18,
-      "theme": "半導體",
-      "sector": "電子",
-      "market_group": "電子",
-      "score": 51.86,
-      "change_percent_avg": 0.0,
-      "up_count": 0,
-      "limit_up_count": 0,
-      "volume_status": "放量",
-      "stocks": [
-        "3041 揚智",
-        "4967 十銓",
-        "3443 創意",
-        "6770 力積電",
-        "2408 南亞科"
-      ],
-      "reason": "依全市場候選股分數、量能與題材同步性彙整",
-      "signal": "觀察"
-    },
-    {
-      "rank": 17,
       "theme": "金融",
       "sector": "金融",
       "market_group": "非電子",
@@ -556,21 +534,41 @@
       "signal": "觀察"
     },
     {
-      "rank": 16,
-      "theme": "網通",
+      "rank": 17,
+      "theme": "半導體",
       "sector": "電子",
       "market_group": "電子",
-      "score": 52.64,
+      "score": 52.65,
       "change_percent_avg": 0.0,
       "up_count": 0,
       "limit_up_count": 0,
       "volume_status": "放量",
       "stocks": [
-        "6442 光聖",
-        "3025 星通",
-        "6152 百一",
-        "6863 永道-KY",
-        "5388 中磊"
+        "3041 揚智",
+        "4967 十銓",
+        "3443 創意",
+        "7822 倍利科",
+        "6770 力積電"
+      ],
+      "reason": "依全市場候選股分數、量能與題材同步性彙整",
+      "signal": "觀察"
+    },
+    {
+      "rank": 16,
+      "theme": "電子通路",
+      "sector": "電子",
+      "market_group": "電子",
+      "score": 55.24,
+      "change_percent_avg": 0.0,
+      "up_count": 0,
+      "limit_up_count": 0,
+      "volume_status": "放量",
+      "stocks": [
+        "8112 至上",
+        "2347 聯強",
+        "2414 精技",
+        "3036 文曄",
+        "3028 增你強"
       ],
       "reason": "依全市場候選股分數、量能與題材同步性彙整",
       "signal": "觀察"
