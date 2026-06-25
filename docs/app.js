@@ -12,6 +12,7 @@ const state = {
   technical: {},
   profiles: {},
   master: {},
+  hotThemes: { date: "", updated_at: "", items: [], available: false },
   monthlyRevenue: [],
   quarterlyRevenue: [],
   revenueLoaded: false,
@@ -188,7 +189,7 @@ async function loadRevenueHistory() {
 }
 
 async function loadAllData() {
-  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master] = await Promise.all([
+  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes] = await Promise.all([
     loadJson("data/stocks-latest.json", []),
     loadJson("data/news-events.json", []),
     loadJson("data/themes-map.json", {}),
@@ -197,6 +198,7 @@ async function loadAllData() {
     loadJson("data/technical-latest.json", {}),
     loadJson("data/stock-profiles.json", {}),
     loadJson("data/stock-master.json", {}),
+    loadJson("data/daily_hot_themes.json", null),
   ]);
   state.stocks = Array.isArray(stocks) ? stocks : [];
   state.news = Array.isArray(news) ? news : [];
@@ -208,6 +210,7 @@ async function loadAllData() {
   state.technical = technical && typeof technical === "object" ? technical : {};
   state.profiles = profiles && typeof profiles === "object" ? profiles : {};
   state.master = master && typeof master === "object" ? master : {};
+  state.hotThemes = normalizeDashboardData(dailyHotThemes);
 }
 
 function stockByCode(code) {
@@ -1851,6 +1854,54 @@ function radarStockLinks(stocks, limit = 5) {
   return links.length ? links.join("、") : "-";
 }
 
+function radarVerifiedThemeItems(data = state.hotThemes) {
+  if (!data?.available) return [];
+  const source = Array.isArray(data.five_day_strong_themes) && data.five_day_strong_themes.length
+    ? data.five_day_strong_themes
+    : (Array.isArray(data.verified_hot_themes) && data.verified_hot_themes.length
+      ? data.verified_hot_themes
+      : (Array.isArray(data.three_day_limit_themes) && data.three_day_limit_themes.length ? data.three_day_limit_themes : data.items));
+  return source.slice(0, 5).map((item, index) => ({
+    rank: item.rank || index + 1,
+    theme: item.theme || item.category || "-",
+    strength: item.fund_strength || item.score || item.limit_up_count_3d || "-",
+    stocks: item.stocks || item.related_stocks || [],
+    judgement: item.judgement || item.reason || item.signal || "依已核對題材資料彙整",
+    sources: item.sources || [],
+  }));
+}
+
+function radarVerifiedThemeSearchText(item) {
+  return [
+    item.theme,
+    item.strength,
+    item.judgement,
+    ...(item.stocks || []),
+    ...(item.sources || []).map((source) => source.name || ""),
+  ].join(" ").toLowerCase();
+}
+
+function radarVerifiedThemeTable(items) {
+  if (!items.length) return `<div class="empty">近五個交易日題材資料尚未更新</div>`;
+  const rows = items.map((item, index) => `
+    <tr>
+      <td class="cell-number">${escapeHtml(item.rank || index + 1)}</td>
+      <td>${radarThemeLink(item.theme)}</td>
+      <td class="cell-number">${escapeHtml(item.strength || "-")}</td>
+      <td>${radarStockLinks(item.stocks, 5)}</td>
+      <td>${escapeHtml(item.judgement || "-")}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="table-wrap ai-selection-table-wrap">
+      <table class="ai-selection-table">
+        <thead><tr><th>排名</th><th>題材</th><th>資金強度</th><th>代表個股</th><th>判斷</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
 function radarThemeGroupsTable(groups) {
   if (!groups.length) return `<div class="empty">目前沒有符合搜尋條件的題材</div>`;
   const rows = groups.map((group, index) => `
@@ -1964,14 +2015,19 @@ function renderRadar() {
       if (search && !haystack.includes(search)) return false;
       return true;
     });
-    const themeGroups = radarTopStocksByTheme(filteredStocks);
+    const verifiedThemes = radarVerifiedThemeItems().filter((item) => {
+      const haystack = radarVerifiedThemeSearchText(item);
+      if (search && !haystack.includes(search)) return false;
+      if (concept && !haystack.includes(concept)) return false;
+      return true;
+    });
     const newsGroups = radarRecentNewsThemes(filteredNews);
     const lowBase = radarLowBaseStocks(filteredStocks);
-    const dataTime = radarLatestDataText(filteredStocks, filteredNews);
-    $("#themeStockCount").textContent = `${dataTime}｜${themeGroups.length} 組題材`;
+    const dataTime = state.hotThemes?.available ? dashboardUpdateText(state.hotThemes) : radarLatestDataText(filteredStocks, filteredNews);
+    $("#themeStockCount").textContent = `${dataTime}｜${verifiedThemes.length} 組題材`;
     $("#newsThemeCount").textContent = `${dataTime}｜${newsGroups.length} 組題材`;
     $("#lowBaseCount").textContent = `${dataTime}｜${lowBase.length} 檔`;
-    $("#themeStockList").innerHTML = radarThemeGroupsTable(themeGroups);
+    $("#themeStockList").innerHTML = radarVerifiedThemeTable(verifiedThemes);
     $("#newsThemeList").innerHTML = radarNewsThemesTable(newsGroups);
     $("#lowBaseList").innerHTML = radarLowBaseTable(lowBase);
   };
