@@ -1911,7 +1911,7 @@ function radarVerifiedThemeSearchText(item) {
 }
 
 function radarVerifiedThemeTable(items) {
-  if (!items.length) return `<div class="empty">近五個交易日題材資料尚未更新</div>`;
+  if (!items.length) return `<div class="empty">五日內最強題材資料尚未更新</div>`;
   const rows = items.map((item, index) => `
     <tr>
       <td class="cell-number">${escapeHtml(item.rank || index + 1)}</td>
@@ -1924,7 +1924,7 @@ function radarVerifiedThemeTable(items) {
   return `
     <div class="table-wrap ai-selection-table-wrap">
       <table class="ai-selection-table">
-        <thead><tr><th>排名</th><th>題材</th><th>資金強度</th><th>代表個股</th><th>判斷</th></tr></thead>
+        <thead><tr><th>排名</th><th>題材</th><th>綜合強度</th><th>代表個股</th><th>多面向判斷</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -2014,8 +2014,8 @@ function renderRadar() {
       <p class="mode-note">此頁改為題材與低基期觀察清單；股票名稱與市場別以官方上市、上櫃主檔為準，題材與觀察清單則依目前內部雷達資料與新聞題材資料彙整。</p>
     </section>
     <section class="panel ai-selection-panel">
-      <div class="section-title"><h2>近五個交易日最強題材</h2><span id="themeStockCount"></span></div>
-      <p class="mode-note">「近五個交易日」來判斷，不只看單日漲停；排序會把新聞熱度、族群擴散、個股漲幅/量能、技術位置一起打分，避免只抓到當天煙火。</p>
+      <div class="section-title"><h2>五日內最強題材 TOP 5</h2><span id="themeStockCount"></span></div>
+      <p class="mode-note">以近五個交易日為觀察區間，綜合新聞面、技術面、漲跌面、量能面與族群擴散一起評估，避免只抓到單日煙火。</p>
       <div id="themeStockList"></div>
     </section>
     <section class="panel ai-selection-panel">
