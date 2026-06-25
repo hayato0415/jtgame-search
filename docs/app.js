@@ -1779,11 +1779,35 @@ function radarThemeList(stock) {
   return [...new Set(tags)].slice(0, 4);
 }
 
+function stockNameForList(code, fallbackName = "") {
+  const master = masterName(code);
+  const fallback = String(fallbackName || "").trim();
+  const name = master || fallback;
+  return name && name !== "名稱待補" ? name : "";
+}
+
+function radarStockLabelLink(code, fallbackName = "") {
+  const normalized = normalizeCode(code);
+  if (!/^\d{4}$/.test(normalized)) return escapeHtml(String(code || "").trim() || "-");
+  const name = stockNameForList(normalized, fallbackName);
+  const nameText = name ? ` ${name}` : "";
+  return `<a class="stock-link" href="stock.html?code=${encodeURIComponent(normalized)}">${escapeHtml(normalized)}</a>${escapeHtml(nameText)}`;
+}
+
+function parseStockText(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/^(\d{4})(?:\s+(.+))?$/);
+  return {
+    code: match ? match[1] : normalizeCode(text),
+    name: match ? String(match[2] || "").trim() : "",
+  };
+}
+
 function radarStockLink(stock) {
   const code = normalizeCode(stock?.code);
-  const name = displayStockName(code);
+  const name = stock?.name || "";
   if (!code) return "-";
-  return `<a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(`${code} ${name}`)}</a>`;
+  return radarStockLabelLink(code, name);
 }
 
 function radarThemeLink(theme) {
@@ -1851,8 +1875,8 @@ function radarStockLinks(stocks, limit = 5) {
   const list = Array.isArray(stocks) ? stocks : [];
   const links = list.slice(0, limit).map((stock) => {
     if (typeof stock === "string") {
-      const code = normalizeCode(stock);
-      return code ? `<a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(`${code} ${displayStockName(code)}`)}</a>` : escapeHtml(stock);
+      const parsed = parseStockText(stock);
+      return parsed.code ? radarStockLabelLink(parsed.code, parsed.name) : escapeHtml(stock);
     }
     return radarStockLink(stock);
   });
