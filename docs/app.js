@@ -1,7 +1,7 @@
 const HOLDINGS_KEY = "asurada_holdings";
 const WATCHLIST_KEY = "asurada_watchlist";
-const BUILD_VERSION = "20260625-taiex-summary";
-const APP_VERSION = "20260625-taiex-summary";
+const BUILD_VERSION = "20260625-market-breadth";
+const APP_VERSION = "20260625-market-breadth";
 
 const state = {
   stocks: [],
@@ -1053,7 +1053,7 @@ function formatDashboardDate(value) {
 
 function dashboardUpdateText(data) {
   if (!data?.available) return "資料尚未更新";
-  if (data.updated_at) return `資料日期：${formatDashboardDate(data.updated_at)}`;
+  if (data.updated_at) return `資料日期：${formatDashboardTime(data.updated_at)}`;
   if (data.date) return `資料日期：${formatDashboardDate(data.date)}`;
   return "更新時間未標示";
 }
@@ -1085,6 +1085,14 @@ function dashboardDisplayBillion(source, keys) {
   if (text.includes("億")) return text;
   const number = toNumber(raw);
   return Number.isFinite(number) ? `${number.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 億` : text;
+}
+
+function dashboardToneClass(value) {
+  const number = toNumber(value);
+  if (!Number.isFinite(number)) return "";
+  if (number > 0) return " is-up";
+  if (number < 0) return " is-down";
+  return "";
 }
 
 function dashboardNumber(value, digits = 0) {
@@ -1377,17 +1385,21 @@ function homePanelTitle(title, data) {
 
 function homeMarketOverview(snapshot) {
   if (!snapshot.available) return dashboardEmpty("今日市場總覽資料尚未更新");
-  const metric = (label, value) => dashboardHasValue(value) ? [label, value] : null;
+  const metric = (label, value, toneSource = value) => dashboardHasValue(value) ? [label, value, toneSource] : null;
   const metrics = [
     metric("加權指數", dashboardDisplayNumber(snapshot, ["taiex", "close", "index_close"], 2)),
     metric("成交(億)", dashboardDisplayBillion(snapshot, ["turnover_billion", "turnover_value_billion", "trading_value_billion", "turnover"])),
-    metric("漲幅", dashboardDisplayPercent(snapshot, ["taiex_change_percent", "change_percent", "change_pct"])),
-    metric("漲跌", dashboardDisplayNumber(snapshot, ["taiex_change", "change_points", "change"], 2)),
+    metric("漲幅", dashboardDisplayPercent(snapshot, ["taiex_change_percent", "change_percent", "change_pct"]), dashboardFirstValue(snapshot, ["taiex_change_percent", "change_percent", "change_pct"])),
+    metric("漲跌", dashboardDisplayNumber(snapshot, ["taiex_change", "change_points", "change"], 2), dashboardFirstValue(snapshot, ["taiex_change", "change_points", "change"])),
     metric("昨收", dashboardDisplayNumber(snapshot, ["previous_close", "prev_close", "yesterday_close"], 2)),
     metric("昨量(億)", dashboardDisplayBillion(snapshot, ["previous_turnover_billion", "prev_turnover_billion", "yesterday_turnover_billion"])),
+    metric("上漲家數", dashboardDisplayNumber(snapshot, ["up_count", "stock_up_count"], 0), dashboardFirstValue(snapshot, ["up_count", "stock_up_count"])),
+    metric("下跌家數", dashboardDisplayNumber(snapshot, ["down_count", "stock_down_count"], 0), -Math.abs(toNumber(dashboardFirstValue(snapshot, ["down_count", "stock_down_count"])) || 0)),
+    metric("漲停家數", dashboardDisplayNumber(snapshot, ["limit_up_count", "stock_limit_up_count"], 0), dashboardFirstValue(snapshot, ["limit_up_count", "stock_limit_up_count"])),
+    metric("跌停家數", dashboardDisplayNumber(snapshot, ["limit_down_count", "stock_limit_down_count"], 0), -Math.abs(toNumber(dashboardFirstValue(snapshot, ["limit_down_count", "stock_limit_down_count"])) || 0)),
   ].filter(Boolean);
   if (!metrics.length) return dashboardEmpty("大盤數值待補，盤後資料會沿用至隔日 09:00 前。");
-  return `<div class="home-market-grid">${metrics.map(([label, value]) => `<article><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`).join("")}</div>`;
+  return `<div class="home-market-grid">${metrics.map(([label, value, toneSource]) => `<article><span>${escapeHtml(label)}</span><strong class="${dashboardToneClass(toneSource).trim()}">${escapeHtml(value)}</strong></article>`).join("")}</div>`;
 }
 
 function homeThemeTopTable(data) {

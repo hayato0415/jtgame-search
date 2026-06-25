@@ -21,7 +21,7 @@ BOOLEAN_DISPLAY_COLUMNS = [
     "成交量是否溫和放大",
 ]
 
-DASHBOARD_BUILD_VERSION = "20260624-marketflow-v2"
+DASHBOARD_BUILD_VERSION = "20260625-market-breadth"
 
 DISPLAY_COLUMN_RENAMES = {
     "阿斯拉分數": "強度分數",
@@ -683,6 +683,8 @@ def _preserve_existing_snapshot_values(snapshot: dict[str, object], existing: ob
         "source_type",
         "source_name",
         "source_url",
+        "breadth_source_name",
+        "breadth_source_url",
         "up_count",
         "down_count",
         "limit_up_count",
@@ -728,6 +730,10 @@ def validate_dashboard_data(
         "turnover_billion",
         "previous_close",
         "previous_turnover_billion",
+        "up_count",
+        "down_count",
+        "limit_up_count",
+        "limit_down_count",
     ]:
         if _is_missing_dashboard_value(snapshot.get(key)):
             warnings.append(f"daily_market_snapshot missing {key}")

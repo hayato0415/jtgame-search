@@ -1433,6 +1433,12 @@ tr:nth-child(even) { background: #f8fafc; }
   font-size: 17px;
   overflow-wrap: anywhere;
 }
+.home-war-room .home-market-grid strong.is-up {
+  color: #dc2626;
+}
+.home-war-room .home-market-grid strong.is-down {
+  color: #16a34a;
+}
 .home-war-room .home-table-wrap {
   overflow-x: auto;
 }
