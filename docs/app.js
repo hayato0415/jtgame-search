@@ -1,7 +1,7 @@
 const HOLDINGS_KEY = "asurada_holdings";
 const WATCHLIST_KEY = "asurada_watchlist";
-const BUILD_VERSION = "20260625-theme-top5-json";
-const APP_VERSION = "20260625-theme-top5-json";
+const BUILD_VERSION = "20260625-radar-rankings";
+const APP_VERSION = "20260625-radar-rankings";
 
 const state = {
   stocks: [],
@@ -1951,6 +1951,163 @@ function radarTop5ThemeCards(items) {
   `;
 }
 
+function rankingDataItems(raw) {
+  const data = normalizeDashboardData(raw);
+  return {
+    ...data,
+    generated_at: String(raw?.generated_at || raw?.updated_at || raw?.date || "").trim(),
+    range: String(raw?.range || "").trim(),
+    source_note: String(raw?.source_note || "").trim(),
+    items: Array.isArray(raw?.items) ? raw.items : [],
+  };
+}
+
+function rankingMetaText(data) {
+  if (data.generated_at) return `資料時間：${escapeHtml(formatDashboardTime(data.generated_at))}`;
+  if (data.updated_at) return `資料時間：${escapeHtml(formatDashboardTime(data.updated_at))}`;
+  if (data.date) return `資料日期：${escapeHtml(formatDashboardDate(data.date))}`;
+  return "資料時間未標示";
+}
+
+function rankingStockChips(stocks = [], limit = 6) {
+  const list = Array.isArray(stocks) ? stocks.slice(0, limit) : [];
+  if (!list.length) return `<span class="muted">代表股待補</span>`;
+  return list.map((stock) => `<span class="ranking-chip">${radarStockLink(stock)}</span>`).join("");
+}
+
+function rankingList(values = []) {
+  const list = Array.isArray(values) ? values : [values].filter(Boolean);
+  return list.length ? list.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>資料待補</li>";
+}
+
+function qualityBadge(item) {
+  if (!item?.data_quality || item.data_quality !== "low") return "";
+  return `<span class="ranking-quality">資料不足</span>`;
+}
+
+function renderNewsThemeRankingCards(items, showAll = false) {
+  const visible = items.slice(0, showAll ? 10 : 5);
+  return `
+    <div class="ranking-card-list">
+      ${visible.map((item) => `
+        <article class="ranking-card">
+          <div class="ranking-card-head">
+            <div>
+              <span class="theme-rank">#${escapeHtml(item.rank || "")}</span>
+              <h3>${radarThemeLink(item.theme || "題材待補")}</h3>
+              <div class="ranking-submeta">新聞 ${escapeHtml(item.news_count ?? 0)} 篇｜來源 ${escapeHtml(item.unique_sources ?? 0)} 個｜提及 ${escapeHtml(item.mentioned_stock_count ?? 0)} 檔</div>
+            </div>
+            <div class="ranking-score"><strong>${escapeHtml(item.theme_score ?? "-")}</strong><span>綜合分數</span></div>
+          </div>
+          <div class="ranking-stock-row">${rankingStockChips(item.representative_stocks, 6)}</div>
+          <div class="evidence-grid">
+            <div class="supply-demand-box"><strong>需求訊號</strong><ul>${rankingList(item.supply_demand?.demand)}</ul></div>
+            <div class="supply-demand-box"><strong>供給訊號</strong><ul>${rankingList(item.supply_demand?.supply)}</ul></div>
+            <div class="supply-demand-box"><strong>盤面依據</strong><p>${escapeHtml(item.evidence?.price || item.evidence?.volume || "資料待補")}</p></div>
+            <div class="supply-demand-box"><strong>阿斯拉判斷 ${qualityBadge(item)}</strong><p>${escapeHtml(item.asurada_comment || item.supply_demand?.conclusion || "資料待補")}</p></div>
+          </div>
+          ${item.data_quality_note ? `<p class="risk-note">${escapeHtml(item.data_quality_note)}</p>` : ""}
+        </article>
+      `).join("")}
+    </div>
+    ${items.length > 5 ? `<button class="ranking-toggle" id="newsThemeToggle">${showAll ? "收合 TOP 5" : "顯示更多 6-10 名"}</button>` : ""}
+  `;
+}
+
+function renderLowBaseRankingCards(items, market = "上市") {
+  const filtered = items
+    .filter((item) => market === "全部" || (item.market || "") === market)
+    .slice(0, 10);
+  if (!filtered.length) return `<div class="empty">低基期題材資料載入失敗，請確認 docs/data/low-base-theme-ranking.json 是否存在。</div>`;
+  return `
+    <div class="ranking-card-list">
+      ${filtered.map((item) => `
+        <article class="ranking-card">
+          <div class="ranking-card-head">
+            <div>
+              <span class="theme-rank">#${escapeHtml(item.rank || "")}</span>
+              <h3>${radarStockLabelLink(item.code, item.name)}</h3>
+              <div class="ranking-submeta">${radarThemeLink(item.theme || "題材待補")}｜${escapeHtml(item.market || "市場別待補")}</div>
+            </div>
+            <div class="ranking-score"><strong>${escapeHtml(item.score ?? "-")}</strong><span>綜合分數</span></div>
+          </div>
+          <div class="evidence-grid">
+            <div class="supply-demand-box"><strong>五日漲跌</strong><p>${item.five_day_change_pct === null || item.five_day_change_pct === undefined ? "資料待補" : escapeHtml(dashboardPercent(item.five_day_change_pct))}</p></div>
+            <div class="supply-demand-box"><strong>20 日量比</strong><p>${item.volume_ratio_20d === null || item.volume_ratio_20d === undefined ? "資料待補" : escapeHtml(dashboardNumber(item.volume_ratio_20d, 2))}</p></div>
+            <div class="supply-demand-box"><strong>低位階位置</strong><p>${item.position?.range_position_pct === null || item.position?.range_position_pct === undefined ? "資料待補" : escapeHtml(`${dashboardNumber(item.position.range_position_pct, 1)}%`)}</p></div>
+            <div class="supply-demand-box"><strong>技術狀態</strong><p>${escapeHtml(item.technical?.note || "資料待補")}</p></div>
+            <div class="supply-demand-box"><strong>供需催化</strong><p>${escapeHtml(item.supply_demand?.conclusion || item.supply_demand?.demand || "資料待補")}</p></div>
+            <div class="supply-demand-box"><strong>判斷理由 ${qualityBadge(item)}</strong><p>${escapeHtml(item.reason || "資料待補")}</p></div>
+          </div>
+          <p class="risk-note"><strong>風險線</strong>${escapeHtml(item.risk || "風險資料待補")}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function renderNewsThemeRanking(showAll = false) {
+  const root = $("#newsThemeRankingRoot");
+  if (!root) return;
+  const raw = await loadJson("./data/news-theme-ranking.json", null);
+  if (!raw) {
+    root.innerHTML = `<div class="empty">新聞題材資料載入失敗，請確認 docs/data/news-theme-ranking.json 是否存在。</div>`;
+    return;
+  }
+  const data = rankingDataItems(raw);
+  const items = data.items
+    .slice()
+    .sort((a, b) => (Number(b.theme_score) || 0) - (Number(a.theme_score) || 0))
+    .slice(0, 10);
+  root.innerHTML = `
+    <div class="section-title">
+      <div>
+        <h2>新聞最多題材</h2>
+        <p class="mode-note">近五個交易日，依新聞熱度、題材擴散與供需訊號排序</p>
+      </div>
+      <span>${rankingMetaText(data)}</span>
+    </div>
+    ${data.source_note ? `<p class="ranking-source-note">${escapeHtml(data.source_note)}</p>` : ""}
+    ${items.length ? renderNewsThemeRankingCards(items, showAll) : `<div class="empty">新聞題材資料載入失敗，請確認 docs/data/news-theme-ranking.json 是否存在。</div>`}
+  `;
+  const toggle = $("#newsThemeToggle");
+  if (toggle) toggle.addEventListener("click", () => renderNewsThemeRanking(!showAll));
+}
+
+async function renderLowBaseThemeRanking(market = "上市") {
+  const root = $("#lowBaseThemeRankingRoot");
+  if (!root) return;
+  const raw = await loadJson("./data/low-base-theme-ranking.json", null);
+  if (!raw) {
+    root.innerHTML = `<div class="empty">低基期題材資料載入失敗，請確認 docs/data/low-base-theme-ranking.json 是否存在。</div>`;
+    return;
+  }
+  const data = rankingDataItems(raw);
+  const items = data.items
+    .slice()
+    .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
+  root.innerHTML = `
+    <div class="section-title">
+      <div>
+        <h2>低基期題材個股排行</h2>
+        <p class="mode-note">從強題材中篩出低位階、剛轉強、具供需催化的個股</p>
+      </div>
+      <span>${rankingMetaText(data)}</span>
+    </div>
+    <div class="ranking-toolbar">
+      <label>市場別
+        <select id="lowBaseMarketFilter">
+          ${["全部", "上市", "上櫃"].map((option) => `<option value="${option}" ${option === market ? "selected" : ""}>${option}</option>`).join("")}
+        </select>
+      </label>
+    </div>
+    ${data.source_note ? `<p class="ranking-source-note">${escapeHtml(data.source_note)}</p>` : ""}
+    ${renderLowBaseRankingCards(items, market)}
+  `;
+  const select = $("#lowBaseMarketFilter");
+  if (select) select.addEventListener("change", (event) => renderLowBaseThemeRanking(event.target.value));
+}
+
 function radarThemeGroupsTable(groups) {
   if (!groups.length) return `<div class="empty">目前沒有符合搜尋條件的題材</div>`;
   const rows = groups.map((group, index) => `
@@ -2024,6 +2181,12 @@ function renderRadar() {
   const main = $("#app");
   const conceptOptions = conceptEntries().map((concept) => `<option value="${escapeHtml(concept.name)}"></option>`).join("");
   main.innerHTML = `
+    <section id="newsThemeRankingSection" class="radar-section news-theme-ranking">
+      <div id="newsThemeRankingRoot"></div>
+    </section>
+    <section id="lowBaseThemeRankingSection" class="radar-section low-base-theme-ranking">
+      <div id="lowBaseThemeRankingRoot"></div>
+    </section>
     <section class="panel">
       <div class="section-title"><h2>AI選股清單</h2><span>${escapeHtml(stockMasterCountText())}</span></div>
       <div class="filters">
@@ -2038,48 +2201,21 @@ function renderRadar() {
       <p class="mode-note">選出前五強後，拆成新聞面、技術面、漲跌面、資金面、基本面 / 產業催化，讓盤面依據一眼看懂。</p>
       <div id="themeStockList"></div>
     </section>
-    <section class="panel ai-selection-panel">
-      <div class="section-title"><h2>新聞最多題材</h2><span id="newsThemeCount"></span></div>
-      <p class="mode-note">統計現有重大新聞資料中出現次數較高的題材與相關個股。</p>
-      <div id="newsThemeList"></div>
-    </section>
-    <section class="panel ai-selection-panel">
-      <div class="section-title"><h2>低基期題材個股排行</h2><span id="lowBaseCount"></span></div>
-      <p class="mode-note">優先觀察營收年增轉強、月增仍為正，且能對應題材的候選股。</p>
-      <div id="lowBaseList"></div>
-    </section>
   `;
+  renderNewsThemeRanking();
+  renderLowBaseThemeRanking();
   const render = () => {
     const search = $("#search").value.trim().toLowerCase();
     const concept = $("#concept").value.trim().toLowerCase();
-    const filteredStocks = state.stocks.filter((stock) => {
-      const haystack = radarStockSearchText(stock);
-      if (search && !haystack.includes(search)) return false;
-      if (concept && !haystack.includes(concept)) return false;
-      return true;
-    });
-    const filteredNews = state.news.filter((event) => {
-      const haystack = `${event.title || ""} ${event.category || ""} ${(event.related_keywords || []).join(" ")} ${(event.related_stocks || []).join(" ")}`.toLowerCase();
-      if (concept && !haystack.includes(concept)) return false;
-      if (search && !haystack.includes(search)) return false;
-      return true;
-    });
     const top5Themes = radarTop5ThemeItems().filter((item) => {
       const haystack = radarTop5ThemeSearchText(item);
       if (search && !haystack.includes(search)) return false;
       if (concept && !haystack.includes(concept)) return false;
       return true;
     });
-    const newsGroups = radarRecentNewsThemes(filteredNews);
-    const lowBase = radarLowBaseStocks(filteredStocks);
-    const dataTime = state.hotThemes?.available ? dashboardUpdateText(state.hotThemes) : radarLatestDataText(filteredStocks, filteredNews);
     const top5Time = state.themeTop5?.updated_at || state.themeTop5?.date ? `${dashboardUpdateText(state.themeTop5)}｜` : "";
     $("#themeStockCount").textContent = `${top5Time}${top5Themes.length} 組題材`;
-    $("#newsThemeCount").textContent = `${dataTime}｜${newsGroups.length} 組題材`;
-    $("#lowBaseCount").textContent = `${dataTime}｜${lowBase.length} 檔`;
     $("#themeStockList").innerHTML = radarTop5ThemeCards(top5Themes);
-    $("#newsThemeList").innerHTML = radarNewsThemesTable(newsGroups);
-    $("#lowBaseList").innerHTML = radarLowBaseTable(lowBase);
   };
   ["search", "concept"].forEach((id) => $(`#${id}`).addEventListener("input", render));
   render();
