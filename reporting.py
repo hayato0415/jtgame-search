@@ -672,7 +672,17 @@ def _preserve_existing_snapshot_values(snapshot: dict[str, object], existing: ob
         "taiex_change",
         "taiex_change_percent",
         "otc_change_percent",
+        "market_date",
         "turnover",
+        "turnover_billion",
+        "turnover_value",
+        "previous_market_date",
+        "previous_close",
+        "previous_turnover_billion",
+        "previous_turnover_value",
+        "source_type",
+        "source_name",
+        "source_url",
         "up_count",
         "down_count",
         "limit_up_count",
@@ -709,7 +719,16 @@ def validate_dashboard_data(
     hot_stocks_payload: dict[str, object],
 ) -> list[str]:
     warnings: list[str] = []
-    for key in ["updated_at", "session", "up_count", "down_count", "limit_up_count", "limit_down_count"]:
+    for key in [
+        "updated_at",
+        "session",
+        "taiex",
+        "taiex_change",
+        "taiex_change_percent",
+        "turnover_billion",
+        "previous_close",
+        "previous_turnover_billion",
+    ]:
         if _is_missing_dashboard_value(snapshot.get(key)):
             warnings.append(f"daily_market_snapshot missing {key}")
 
