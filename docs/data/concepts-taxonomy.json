@@ -1,1423 +1,1555 @@
 {
-  "generated_at": "2026-06-25 18:00",
+  "generated_at": "2026-06-25 21:00",
   "source_policy": {
-    "official_industry": "官方產業以證交所、櫃買、公開資訊觀測站與政府開放資料為優先。",
-    "supply_chain": "供應鏈分類以 MoneyDJ、CMoney、公司年報、法說會與公司業務說明交叉確認。",
-    "market_theme": "市場題材以概念股資料、公開新聞與公司公告交叉驗證；單一新聞題材不得直接視為公司本業。"
+    "official_industry": "以證交所、櫃買、公開資訊觀測站、政府開放資料為優先。",
+    "supply_chain": "以 MoneyDJ、CMoney、Yahoo、公司年報與法說會交叉驗證。",
+    "market_theme": "以 MoneyDJ、CMoney、Yahoo、公開新聞與公司公告交叉驗證，單一來源不得視為高可信。"
   },
   "categories": [
     {
       "id": "listed_semiconductor",
-      "name": "半導體業",
+      "name": "上市半導體業",
       "display_group": "listed",
-      "type": "上市類股",
+      "type": "上市 / 上櫃",
       "aliases": [
-        "半導體",
         "半導體業",
-        "上市半導體"
+        "上市半導體",
+        "晶圓代工",
+        "IC設計"
       ],
       "stock_count": 6,
+      "declared_max_source_count": null,
       "source_count": 2,
       "sources": [
-        "TWSE",
-        "MOPS"
+        "Yahoo",
+        "WantGoo",
+        "PChome"
       ],
-      "confidence": "A",
+      "confidence": "B",
       "data_quality": "partial",
       "coverage_status": "partial",
+      "coverage_rate": null,
       "url": "concept-detail.html?id=listed_semiconductor",
       "representative_stocks": [
         {
-          "code": "2330",
-          "name": "台積電",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
           "code": "2303",
           "name": "聯電",
-          "market": "",
-          "confidence": "A",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "TWSE",
-          "status": "matched",
-          "note": "官方上市產業分類"
-        },
-        {
-          "source": "MOPS",
-          "status": "matched",
-          "note": "公開資訊觀測站公司資料"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前先放代表性樣本，完整上市半導體清單待官方主檔補齊。"
-      },
-      "all_stocks": [
         {
           "code": "2330",
           "name": "台積電",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "晶圓代工",
-          "market_theme": "權值半導體 / AI 晶片",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "公開資訊觀測站"
-          ]
-        },
-        {
-          "code": "2303",
-          "name": "聯電",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "晶圓代工",
-          "market_theme": "成熟製程",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "公開資訊觀測站"
-          ]
-        },
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "IC 設計",
-          "market_theme": "AI 晶片 / 邊緣運算",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "公開資訊觀測站"
-          ]
-        },
-        {
-          "code": "2408",
-          "name": "南亞科",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "DRAM",
-          "market_theme": "記憶體報價循環",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業分類"
-          ]
-        },
-        {
-          "code": "2344",
-          "name": "華邦電",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "DRAM / NOR",
-          "market_theme": "記憶體報價循環",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業分類"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "2337",
           "name": "旺宏",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "NOR Flash",
-          "market_theme": "記憶體低基期轉強",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業分類"
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2344",
+          "name": "華邦電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2408",
+          "name": "南亞科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
           ]
         }
-      ]
-    },
-    {
-      "id": "listed_electronic_components",
-      "name": "電子零組件業",
-      "display_group": "listed",
-      "type": "上市類股",
-      "aliases": [
-        "電子零組件",
-        "電子零組件業",
-        "上市零組件"
       ],
-      "stock_count": 5,
-      "source_count": 2,
-      "sources": [
-        "TWSE",
-        "MOPS"
-      ],
-      "confidence": "A",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=listed_electronic_components",
-      "representative_stocks": [
-        {
-          "code": "3037",
-          "name": "欣興",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "8046",
-          "name": "南電",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "2383",
-          "name": "台光電",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "TWSE",
-          "status": "matched",
-          "note": "官方上市產業分類"
-        },
-        {
-          "source": "MOPS",
-          "status": "matched",
-          "note": "公開資訊觀測站公司資料"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前先放 AI / PCB 相關代表性樣本，完整類股清單待補。"
-      },
       "all_stocks": [
         {
-          "code": "3037",
-          "name": "欣興",
+          "code": "2303",
+          "name": "聯電",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "PCB / ABF 載板",
-          "market_theme": "AI 伺服器材料",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "8046",
-          "name": "南電",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "ABF 載板",
-          "market_theme": "AI 伺服器 / 高階載板",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "2383",
-          "name": "台光電",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "CCL",
-          "market_theme": "AI 伺服器高速材料",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "2313",
-          "name": "華通",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "PCB",
-          "market_theme": "低軌衛星 / AI 伺服器",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "6213",
-          "name": "聯茂",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "CCL",
-          "market_theme": "AI 伺服器材料",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "listed_plastics",
-      "name": "塑膠工業",
-      "display_group": "listed",
-      "type": "上市類股",
-      "aliases": [
-        "塑膠",
-        "塑化",
-        "塑膠工業",
-        "台塑四寶"
-      ],
-      "stock_count": 5,
-      "source_count": 2,
-      "sources": [
-        "TWSE",
-        "MOPS"
-      ],
-      "confidence": "A",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=listed_plastics",
-      "representative_stocks": [
-        {
-          "code": "1301",
-          "name": "台塑",
-          "market": "",
-          "confidence": "A",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
         {
-          "code": "1303",
-          "name": "南亞",
-          "market": "",
-          "confidence": "A",
+          "code": "2330",
+          "name": "台積電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
         {
-          "code": "1326",
-          "name": "台化",
-          "market": "",
-          "confidence": "A",
+          "code": "2337",
+          "name": "旺宏",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2344",
+          "name": "華邦電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2408",
+          "name": "南亞科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         }
       ],
-      "source_breakdown": [
-        {
-          "source": "TWSE",
-          "status": "matched",
-          "note": "官方上市產業分類"
+      "source_breakdown": {
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "半導體",
+          "source_group": "上市類股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 6,
+          "collection_status": "partial"
         },
-        {
-          "source": "MOPS",
-          "status": "matched",
-          "note": "公開資訊觀測站公司資料"
+        "WantGoo": {
+          "source_id": "wantgoo",
+          "source_category_name": "半導體",
+          "source_group": "上市類股",
+          "url": "https://www.wantgoo.com/index/overview#index-4",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        },
+        "PChome": {
+          "source_id": "pchome",
+          "source_category_name": "半導體",
+          "source_group": "產業股",
+          "url": "https://pchome.megatime.com.tw/group/sto0",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "link_only"
         }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前先放台塑四寶與代表股，完整塑膠工業清單待補。"
-      },
-      "all_stocks": [
-        {
-          "code": "1301",
-          "name": "台塑",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化 / PVC",
-          "market_theme": "低基期傳產 / 台塑四寶",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業循環"
-          ]
-        },
-        {
-          "code": "1303",
-          "name": "南亞",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化 / 電子材料",
-          "market_theme": "低基期傳產 / 台塑四寶",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業循環"
-          ]
-        },
-        {
-          "code": "1326",
-          "name": "台化",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化 / PTA",
-          "market_theme": "低基期傳產 / 台塑四寶",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業循環"
-          ]
-        },
-        {
-          "code": "6505",
-          "name": "台塑化",
-          "market": "上市",
-          "official_industry": "油電燃氣業",
-          "supply_chain": "煉油 / 石化",
-          "market_theme": "台塑四寶 / 油價利差",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業循環"
-          ]
-        },
-        {
-          "code": "1304",
-          "name": "台聚",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化 / PE",
-          "market_theme": "塑化低基期",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業",
-            "產業循環"
-          ]
-        }
-      ]
+      }
     },
     {
       "id": "otc_semiconductor",
-      "name": "上櫃半導體",
-      "display_group": "otc",
-      "type": "上櫃類股",
+      "name": "上櫃半導體業",
+      "display_group": "listed",
+      "type": "上市 / 上櫃",
       "aliases": [
         "上櫃半導體",
-        "櫃買半導體",
-        "OTC 半導體"
+        "OTC半導體",
+        "櫃買半導體"
       ],
       "stock_count": 3,
-      "source_count": 2,
+      "declared_max_source_count": null,
+      "source_count": 1,
       "sources": [
-        "TPEx",
-        "MOPS"
+        "Yahoo",
+        "WantGoo"
       ],
-      "confidence": "A",
+      "confidence": "C",
       "data_quality": "partial",
       "coverage_status": "partial",
+      "coverage_rate": null,
       "url": "concept-detail.html?id=otc_semiconductor",
       "representative_stocks": [
         {
-          "code": "8299",
-          "name": "群聯",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "5425",
-          "name": "台半",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3707",
-          "name": "漢磊",
-          "market": "",
-          "confidence": "A",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "TPEx",
-          "status": "matched",
-          "note": "櫃買官方分類待完整主檔導入"
-        },
-        {
-          "source": "MOPS",
-          "status": "matched",
-          "note": "公司公開資訊"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前為上櫃半導體代表樣本，完整櫃買分類待補。"
-      },
-      "all_stocks": [
-        {
-          "code": "8299",
-          "name": "群聯",
-          "market": "上櫃",
-          "official_industry": "半導體業",
-          "supply_chain": "NAND 控制晶片",
-          "market_theme": "記憶體 / SSD",
-          "confidence": "A",
-          "source_count": 2,
-          "data_quality": "high",
-          "evidence": [
-            "官方產業分類",
-            "公司本業"
-          ]
-        },
-        {
-          "code": "5425",
-          "name": "台半",
-          "market": "上櫃",
-          "official_industry": "半導體業",
-          "supply_chain": "功率半導體",
-          "market_theme": "二極體 / 車用",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        },
-        {
           "code": "3707",
           "name": "漢磊",
           "market": "上櫃",
-          "official_industry": "半導體業",
-          "supply_chain": "功率半導體 / SiC",
-          "market_theme": "車用 / AI 電源",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "electronics_ic_design",
-      "name": "IC設計",
-      "display_group": "electronics",
-      "type": "電子產業",
-      "aliases": [
-        "IC設計",
-        "晶片設計",
-        "ASIC",
-        "MCU",
-        "PMIC"
-      ],
-      "stock_count": 4,
-      "source_count": 3,
-      "sources": [
-        "MoneyDJ",
-        "CMoney",
-        "Manual"
-      ],
-      "confidence": "B",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=electronics_ic_design",
-      "representative_stocks": [
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "",
-          "confidence": "B",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "2379",
-          "name": "瑞昱",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3443",
-          "name": "創意",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "matched",
-          "note": "產業 / 概念分類參考"
-        },
-        {
-          "source": "CMoney",
-          "status": "matched",
-          "note": "產業分類參考"
-        },
-        {
-          "source": "Manual",
-          "status": "matched",
-          "note": "人工校對公司本業"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "僅先保留代表股，完整 IC 設計清單待補。"
-      },
-      "all_stocks": [
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "IC 設計",
-          "market_theme": "AI 晶片",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
-          "evidence": [
-            "公司本業",
-            "MoneyDJ 收錄",
-            "CMoney 收錄"
-          ]
-        },
-        {
-          "code": "2379",
-          "name": "瑞昱",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "IC 設計",
-          "market_theme": "網通 / AI 眼鏡",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "公司本業",
-            "產業分類"
-          ]
-        },
-        {
-          "code": "3443",
-          "name": "創意",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "ASIC",
-          "market_theme": "AI ASIC",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "3034",
-          "name": "聯詠",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "驅動 IC",
-          "market_theme": "面板 / AI 邊緣裝置",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "公司本業",
-            "產業分類"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "electronics_optical",
-      "name": "光學元件",
-      "display_group": "electronics",
-      "type": "電子產業",
-      "aliases": [
-        "光學",
-        "光學元件",
-        "鏡頭",
-        "光學鏡頭"
-      ],
-      "stock_count": 3,
-      "source_count": 2,
-      "sources": [
-        "MoneyDJ",
-        "Manual"
-      ],
-      "confidence": "B",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=electronics_optical",
-      "representative_stocks": [
-        {
-          "code": "3008",
-          "name": "大立光",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3406",
-          "name": "玉晶光",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3504",
-          "name": "揚明光",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "matched",
-          "note": "概念 / 產業分類參考"
-        },
-        {
-          "source": "Manual",
-          "status": "matched",
-          "note": "人工校對供應鏈位置"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "光學元件完整族群待補。"
-      },
-      "all_stocks": [
-        {
-          "code": "3008",
-          "name": "大立光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學鏡頭",
-          "market_theme": "AI眼鏡 / 手機鏡頭",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "公司本業",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "3406",
-          "name": "玉晶光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學鏡頭",
-          "market_theme": "AI眼鏡 / 光學",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "公司本業",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "3504",
-          "name": "揚明光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學元件",
-          "market_theme": "投影 / AR 光學",
+          "relation_type": "source_category",
           "confidence": "C",
-          "source_count": 1,
           "data_quality": "low",
           "evidence": [
-            "供應鏈邏輯",
-            "市場題材連動"
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "5425",
+          "name": "台半",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "8299",
+          "name": "群聯",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
           ]
         }
-      ]
+      ],
+      "all_stocks": [
+        {
+          "code": "3707",
+          "name": "漢磊",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "5425",
+          "name": "台半",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "8299",
+          "name": "群聯",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "source_breakdown": {
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "上櫃半導體",
+          "source_group": "上櫃類股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 3,
+          "collection_status": "partial"
+        },
+        "WantGoo": {
+          "source_id": "wantgoo",
+          "source_category_name": "上櫃半導體",
+          "source_group": "上櫃類股",
+          "url": "https://www.wantgoo.com/index/overview#index-4",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
     },
     {
-      "id": "supply_pcb",
+      "id": "pcb",
       "name": "PCB",
-      "display_group": "supplyChain",
-      "type": "供應鏈分類",
+      "display_group": "electronics",
+      "type": "電子產業",
       "aliases": [
         "PCB",
+        "PCB電子產業",
+        "PCB類股",
+        "PCB-製造",
         "印刷電路板",
-        "PCB類股"
+        "ABF",
+        "CCL"
       ],
-      "stock_count": 6,
+      "stock_count": 9,
+      "declared_max_source_count": 58,
       "source_count": 3,
       "sources": [
-        "MoneyDJ",
+        "WantGoo",
+        "Yahoo",
         "CMoney",
-        "Manual"
+        "MoneyDJ",
+        "PChome"
       ],
       "confidence": "B",
       "data_quality": "partial",
       "coverage_status": "partial",
-      "url": "concept-detail.html?id=supply_pcb",
+      "coverage_rate": 0.1552,
+      "url": "concept-detail.html?id=pcb",
       "representative_stocks": [
         {
           "code": "2313",
           "name": "華通",
-          "market": "",
-          "confidence": "B",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
         {
-          "code": "2383",
-          "name": "台光電",
-          "market": "",
-          "confidence": "B",
+          "code": "2316",
+          "name": "楠梓電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
         {
-          "code": "3037",
-          "name": "欣興",
-          "market": "",
-          "confidence": "B",
+          "code": "2355",
+          "name": "敬鵬",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         },
         {
-          "code": "8046",
-          "name": "南電",
-          "market": "",
-          "confidence": "B",
+          "code": "2367",
+          "name": "燿華",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2368",
+          "name": "金像電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
         }
       ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "matched",
-          "note": "概念股與產業分類參考"
-        },
-        {
-          "source": "CMoney",
-          "status": "matched",
-          "note": "產業分類參考"
-        },
-        {
-          "source": "Manual",
-          "status": "matched",
-          "note": "人工校對代表股"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前是代表股與 AI 高階材料方向，非完整 PCB 58 檔。"
-      },
       "all_stocks": [
         {
           "code": "2313",
           "name": "華通",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "PCB",
-          "market_theme": "低軌衛星 / AI 伺服器",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "MoneyDJ 收錄",
-            "供應鏈邏輯"
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2316",
+          "name": "楠梓電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2355",
+          "name": "敬鵬",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2367",
+          "name": "燿華",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2368",
+          "name": "金像電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "2383",
           "name": "台光電",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "CCL / 高頻高速材料",
-          "market_theme": "AI 伺服器",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "CMoney 收錄",
-            "供應鏈邏輯"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "3037",
           "name": "欣興",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "PCB / ABF 載板",
-          "market_theme": "AI 伺服器材料",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "MoneyDJ 收錄",
-            "CMoney 收錄"
-          ]
-        },
-        {
-          "code": "8046",
-          "name": "南電",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "ABF 載板",
-          "market_theme": "AI 伺服器高階載板",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
-          "evidence": [
-            "公司本業",
-            "MoneyDJ 收錄",
-            "CMoney 收錄"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "3189",
           "name": "景碩",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "IC 載板 / ABF",
-          "market_theme": "AI 伺服器高階載板",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "MoneyDJ 收錄",
-            "CMoney 收錄"
+            "Yahoo 收錄"
           ]
         },
         {
-          "code": "6274",
-          "name": "台燿",
+          "code": "8046",
+          "name": "南電",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "CCL / 高頻高速材料",
-          "market_theme": "AI 伺服器材料",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "產業分類",
-            "供應鏈邏輯"
+            "Yahoo 收錄"
           ]
         }
-      ]
+      ],
+      "source_breakdown": {
+        "WantGoo": {
+          "source_id": "wantgoo",
+          "source_category_name": "PCB",
+          "source_group": "電子產業",
+          "url": "https://www.wantgoo.com/index/%5E097/stocks",
+          "declared_stock_count": 58,
+          "collected_stock_count": 0,
+          "collection_status": "needs_fill"
+        },
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "PCB",
+          "source_group": "電子產業",
+          "url": "https://tw.stock.yahoo.com/class-quote?category=PCB&categoryLabel=%E9%9B%BB%E5%AD%90%E7%94%A2%E6%A5%AD",
+          "declared_stock_count": 58,
+          "collected_stock_count": 9,
+          "collection_status": "partial"
+        },
+        "CMoney": {
+          "source_id": "cmoney",
+          "source_category_name": "PCB-製造",
+          "source_group": "電子上游",
+          "url": "https://www.cmoney.tw/forum/category/C23120",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_fill"
+        },
+        "MoneyDJ": {
+          "source_id": "moneydj",
+          "source_category_name": "PCB相關",
+          "source_group": "產業分類 / 同業股價表現",
+          "url": "https://www.moneydj.com/z/zg/zge/zge_E_E.djhtm",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        },
+        "PChome": {
+          "source_id": "pchome",
+          "source_category_name": "PCB相關",
+          "source_group": "產業股 / 概念股",
+          "url": "https://pchome.megatime.com.tw/group/sto0",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
     },
     {
-      "id": "supply_memory",
-      "name": "DRAM / NAND 記憶體",
+      "id": "ic_design",
+      "name": "IC設計",
+      "display_group": "electronics",
+      "type": "電子產業",
+      "aliases": [
+        "IC設計",
+        "IC設計服務",
+        "IC-設計",
+        "ASIC",
+        "MCU",
+        "PMIC"
+      ],
+      "stock_count": 5,
+      "declared_max_source_count": null,
+      "source_count": 3,
+      "sources": [
+        "WantGoo",
+        "CMoney",
+        "Yahoo"
+      ],
+      "confidence": "B",
+      "data_quality": "partial",
+      "coverage_status": "partial",
+      "coverage_rate": null,
+      "url": "concept-detail.html?id=ic_design",
+      "representative_stocks": [
+        {
+          "code": "2379",
+          "name": "瑞昱",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3443",
+          "name": "創意",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3661",
+          "name": "世芯-KY",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "all_stocks": [
+        {
+          "code": "2379",
+          "name": "瑞昱",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3034",
+          "name": "聯詠",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3443",
+          "name": "創意",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3661",
+          "name": "世芯-KY",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "source_breakdown": {
+        "WantGoo": {
+          "source_id": "wantgoo",
+          "source_category_name": "IC設計服務",
+          "source_group": "電子產業",
+          "url": "https://www.wantgoo.com/index/overview#index-4",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "mapped"
+        },
+        "CMoney": {
+          "source_id": "cmoney",
+          "source_category_name": "IC-設計",
+          "source_group": "電子上游",
+          "url": "https://www.cmoney.tw/finance/f00016.aspx",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "mapped"
+        },
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "IC設計服務",
+          "source_group": "電子產業",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 5,
+          "collection_status": "partial"
+        }
+      }
+    },
+    {
+      "id": "memory",
+      "name": "記憶體",
       "display_group": "supplyChain",
       "type": "供應鏈分類",
       "aliases": [
         "記憶體",
         "DRAM",
         "NAND",
+        "NOR",
         "HBM",
-        "NOR"
+        "記憶體模組"
       ],
       "stock_count": 5,
-      "source_count": 3,
+      "declared_max_source_count": null,
+      "source_count": 1,
       "sources": [
+        "Yahoo",
         "MoneyDJ",
-        "CMoney",
-        "Manual"
+        "CMoney"
       ],
-      "confidence": "B",
+      "confidence": "C",
       "data_quality": "partial",
       "coverage_status": "partial",
-      "url": "concept-detail.html?id=supply_memory",
+      "coverage_rate": null,
+      "url": "concept-detail.html?id=memory",
       "representative_stocks": [
         {
-          "code": "2408",
-          "name": "南亞科",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "2344",
-          "name": "華邦電",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
           "code": "2337",
           "name": "旺宏",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "matched",
-          "note": "記憶體概念分類參考"
-        },
-        {
-          "source": "CMoney",
-          "status": "matched",
-          "note": "產業分類參考"
-        },
-        {
-          "source": "Manual",
-          "status": "matched",
-          "note": "人工校對本業"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "目前先放台股記憶體代表股。"
-      },
-      "all_stocks": [
-        {
-          "code": "2408",
-          "name": "南亞科",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "DRAM",
-          "market_theme": "記憶體報價循環",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "產業分類",
-            "多來源確認"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "2344",
           "name": "華邦電",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "DRAM / NOR",
-          "market_theme": "記憶體報價循環",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "產業分類",
-            "多來源確認"
+            "Yahoo 收錄"
           ]
         },
         {
-          "code": "2337",
-          "name": "旺宏",
+          "code": "2408",
+          "name": "南亞科",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "NOR Flash",
-          "market_theme": "記憶體低基期轉強",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "產業分類",
-            "多來源確認"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "6770",
           "name": "力積電",
           "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "晶圓代工 / 記憶體",
-          "market_theme": "記憶體外溢",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "產業分類",
-            "新聞提及"
+            "Yahoo 收錄"
           ]
         },
         {
           "code": "8299",
           "name": "群聯",
           "market": "上櫃",
-          "official_industry": "半導體業",
-          "supply_chain": "NAND 控制晶片",
-          "market_theme": "SSD / NAND",
-          "confidence": "A",
-          "source_count": 3,
-          "data_quality": "high",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "產業分類",
-            "多來源確認"
+            "Yahoo 收錄"
           ]
         }
-      ]
+      ],
+      "all_stocks": [
+        {
+          "code": "2337",
+          "name": "旺宏",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2344",
+          "name": "華邦電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2408",
+          "name": "南亞科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "6770",
+          "name": "力積電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "8299",
+          "name": "群聯",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "source_breakdown": {
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "記憶體",
+          "source_group": "電子產業",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 5,
+          "collection_status": "partial"
+        },
+        "MoneyDJ": {
+          "source_id": "moneydj",
+          "source_category_name": "記憶體概念股",
+          "source_group": "概念股表現",
+          "url": "https://www.moneydj.com/z/zg/zge/zge_E_E.djhtm",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        },
+        "CMoney": {
+          "source_id": "cmoney",
+          "source_category_name": "記憶體",
+          "source_group": "電子上游",
+          "url": "https://www.cmoney.tw/finance/f00016.aspx",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
     },
     {
-      "id": "theme_ai_glasses",
+      "id": "power_semiconductor",
+      "name": "功率半導體",
+      "display_group": "supplyChain",
+      "type": "供應鏈分類",
+      "aliases": [
+        "功率半導體",
+        "二極體",
+        "MOSFET",
+        "SiC",
+        "GaN",
+        "電源管理"
+      ],
+      "stock_count": 5,
+      "declared_max_source_count": null,
+      "source_count": 1,
+      "sources": [
+        "Yahoo",
+        "MoneyDJ"
+      ],
+      "confidence": "C",
+      "data_quality": "partial",
+      "coverage_status": "partial",
+      "coverage_rate": null,
+      "url": "concept-detail.html?id=power_semiconductor",
+      "representative_stocks": [
+        {
+          "code": "2481",
+          "name": "強茂",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "8261",
+          "name": "富鼎",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3675",
+          "name": "德微",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3707",
+          "name": "漢磊",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "5425",
+          "name": "台半",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "all_stocks": [
+        {
+          "code": "2481",
+          "name": "強茂",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "8261",
+          "name": "富鼎",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3675",
+          "name": "德微",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3707",
+          "name": "漢磊",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "5425",
+          "name": "台半",
+          "market": "上櫃",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "source_breakdown": {
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "功率半導體",
+          "source_group": "概念股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 5,
+          "collection_status": "partial"
+        },
+        "MoneyDJ": {
+          "source_id": "moneydj",
+          "source_category_name": "功率元件",
+          "source_group": "概念股表現",
+          "url": "https://www.moneydj.com/z/zg/zge/zge_E_E.djhtm",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
+    },
+    {
+      "id": "ai_artificial_intelligence",
+      "name": "AI人工智慧",
+      "display_group": "themes",
+      "type": "概念股",
+      "aliases": [
+        "AI",
+        "AI人工智慧",
+        "人工智慧",
+        "AI概念股",
+        "AI伺服器"
+      ],
+      "stock_count": 6,
+      "declared_max_source_count": null,
+      "source_count": 1,
+      "sources": [
+        "Yahoo",
+        "WantGoo",
+        "MoneyDJ"
+      ],
+      "confidence": "C",
+      "data_quality": "partial",
+      "coverage_status": "partial",
+      "coverage_rate": null,
+      "url": "concept-detail.html?id=ai_artificial_intelligence",
+      "representative_stocks": [
+        {
+          "code": "2330",
+          "name": "台積電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2382",
+          "name": "廣達",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3231",
+          "name": "緯創",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "all_stocks": [
+        {
+          "code": "2330",
+          "name": "台積電",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2357",
+          "name": "華碩",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2382",
+          "name": "廣達",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "2454",
+          "name": "聯發科",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "3231",
+          "name": "緯創",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        },
+        {
+          "code": "6669",
+          "name": "緯穎",
+          "market": "上市",
+          "sources": [
+            "Yahoo"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "Yahoo 收錄"
+          ]
+        }
+      ],
+      "source_breakdown": {
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "AI人工智慧",
+          "source_group": "概念股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 6,
+          "collection_status": "partial"
+        },
+        "WantGoo": {
+          "source_id": "wantgoo",
+          "source_category_name": "人工智慧 / AI相關",
+          "source_group": "概念股",
+          "url": "https://www.wantgoo.com/index/overview#index-4",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        },
+        "MoneyDJ": {
+          "source_id": "moneydj",
+          "source_category_name": "AI相關概念股",
+          "source_group": "概念股表現",
+          "url": "https://www.moneydj.com/z/zg/zge/zge_E_E.djhtm",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
+    },
+    {
+      "id": "ai_glasses",
       "name": "AI眼鏡",
       "display_group": "themes",
       "type": "概念股",
       "aliases": [
         "AI眼鏡",
-        "智慧眼鏡",
         "AI智慧眼鏡",
-        "AR眼鏡"
+        "智慧眼鏡",
+        "AR眼鏡",
+        "智慧穿戴"
       ],
-      "stock_count": 5,
-      "source_count": 2,
+      "stock_count": 0,
+      "declared_max_source_count": 45,
+      "source_count": 1,
       "sources": [
         "MoneyDJ",
-        "Manual"
+        "Yahoo"
       ],
       "confidence": "C",
-      "data_quality": "partial",
+      "data_quality": "low",
       "coverage_status": "needs_fill",
-      "url": "concept-detail.html?id=theme_ai_glasses",
-      "representative_stocks": [
-        {
-          "code": "3008",
-          "name": "大立光",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
+      "coverage_rate": 0.0,
+      "url": "concept-detail.html?id=ai_glasses",
+      "representative_stocks": [],
+      "all_stocks": [],
+      "source_breakdown": {
+        "MoneyDJ": {
+          "source_id": "moneydj",
+          "source_category_name": "AI智慧眼鏡概念股",
+          "source_group": "概念股表現",
+          "url": "https://www.moneydj.com/z/zg/zge_EH001271_1.djhtm",
+          "declared_stock_count": 45,
+          "collected_stock_count": 0,
+          "collection_status": "link_only"
         },
-        {
-          "code": "2379",
-          "name": "瑞昱",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3406",
-          "name": "玉晶光",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "AI眼鏡",
+          "source_group": "概念股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
         }
-      ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "matched",
-          "note": "AI智慧眼鏡概念股參考頁"
-        },
-        {
-          "source": "Manual",
-          "status": "partial",
-          "note": "公司本業與供應鏈仍需逐檔驗證"
-        }
-      ],
-      "coverage_check": {
-        "status": "needs_fill",
-        "note": "市場題材觀察清單，不代表每檔公司皆已取得 AI 眼鏡訂單。"
-      },
-      "all_stocks": [
-        {
-          "code": "3008",
-          "name": "大立光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學鏡頭",
-          "market_theme": "AI眼鏡",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "光學供應鏈",
-            "MoneyDJ 收錄",
-            "市場題材連動"
-          ]
-        },
-        {
-          "code": "2379",
-          "name": "瑞昱",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "IC 設計",
-          "market_theme": "AI眼鏡",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "MoneyDJ 收錄",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "3406",
-          "name": "玉晶光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學鏡頭",
-          "market_theme": "AI眼鏡",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "光學供應鏈",
-            "市場題材連動"
-          ]
-        },
-        {
-          "code": "3504",
-          "name": "揚明光",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光學元件",
-          "market_theme": "AI眼鏡 / AR",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "市場題材連動",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "2383",
-          "name": "台光電",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "高頻高速材料",
-          "market_theme": "AI眼鏡 / 高速材料",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "市場題材連動",
-            "需公司資料確認"
-          ]
-        }
-      ]
+      }
     },
     {
-      "id": "theme_glass_substrate",
-      "name": "玻璃基板 / TGV",
-      "display_group": "themes",
-      "type": "概念股",
-      "aliases": [
-        "玻璃基板",
-        "TGV",
-        "先進封裝材料"
-      ],
-      "stock_count": 3,
-      "source_count": 2,
-      "sources": [
-        "MoneyDJ",
-        "Manual"
-      ],
-      "confidence": "C",
-      "data_quality": "partial",
-      "coverage_status": "needs_fill",
-      "url": "concept-detail.html?id=theme_glass_substrate",
-      "representative_stocks": [
-        {
-          "code": "1802",
-          "name": "台玻",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "3149",
-          "name": "正達",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "6456",
-          "name": "GIS-KY",
-          "market": "",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "MoneyDJ",
-          "status": "partial",
-          "note": "概念分類參考"
-        },
-        {
-          "source": "Manual",
-          "status": "partial",
-          "note": "題材與供應鏈邏輯待逐檔驗證"
-        }
-      ],
-      "coverage_check": {
-        "status": "needs_fill",
-        "note": "市場題材，不代表公司已量產或取得明確訂單。"
-      },
-      "all_stocks": [
-        {
-          "code": "1802",
-          "name": "台玻",
-          "market": "上市",
-          "official_industry": "玻璃陶瓷",
-          "supply_chain": "玻璃材料",
-          "market_theme": "玻璃基板 / TGV",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "市場題材連動",
-            "需公司資料確認"
-          ]
-        },
-        {
-          "code": "3149",
-          "name": "正達",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "光電材料 / 玻璃加工",
-          "market_theme": "玻璃基板 / TGV",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "市場題材連動",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "6456",
-          "name": "GIS-KY",
-          "market": "上市",
-          "official_industry": "光電業",
-          "supply_chain": "觸控 / 光學貼合",
-          "market_theme": "玻璃基板 / AI 封裝材料",
-          "confidence": "C",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": [
-            "市場題材連動",
-            "需公司資料確認"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "group_formosa_plastics",
+      "id": "formosa_plastics_group",
       "name": "台塑集團",
       "display_group": "groups",
       "type": "集團股",
@@ -1427,398 +1559,161 @@
         "王永慶集團"
       ],
       "stock_count": 4,
-      "source_count": 2,
-      "sources": [
-        "Manual",
-        "MOPS"
-      ],
-      "confidence": "B",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=group_formosa_plastics",
-      "representative_stocks": [
-        {
-          "code": "1301",
-          "name": "台塑",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "1303",
-          "name": "南亞",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "1326",
-          "name": "台化",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "6505",
-          "name": "台塑化",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "Manual",
-          "status": "matched",
-          "note": "集團關係人工整理"
-        },
-        {
-          "source": "MOPS",
-          "status": "matched",
-          "note": "公司公開資訊交叉確認"
-        }
-      ],
-      "coverage_check": {
-        "status": "partial",
-        "note": "先放台塑四寶，完整集團股待補。"
-      },
-      "all_stocks": [
-        {
-          "code": "1301",
-          "name": "台塑",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化",
-          "market_theme": "台塑集團",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "集團關係",
-            "公司資料"
-          ]
-        },
-        {
-          "code": "1303",
-          "name": "南亞",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化 / 電子材料",
-          "market_theme": "台塑集團",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "集團關係",
-            "公司資料"
-          ]
-        },
-        {
-          "code": "1326",
-          "name": "台化",
-          "market": "上市",
-          "official_industry": "塑膠工業",
-          "supply_chain": "石化",
-          "market_theme": "台塑集團",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "集團關係",
-            "公司資料"
-          ]
-        },
-        {
-          "code": "6505",
-          "name": "台塑化",
-          "market": "上市",
-          "official_industry": "油電燃氣業",
-          "supply_chain": "煉油 / 石化",
-          "market_theme": "台塑集團",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "集團關係",
-            "公司資料"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "index_tw50",
-      "name": "台灣50成分股",
-      "display_group": "indices",
-      "type": "指數成分股",
-      "aliases": [
-        "台灣50",
-        "0050",
-        "TW50",
-        "權值股"
-      ],
-      "stock_count": 5,
-      "source_count": 2,
-      "sources": [
-        "TWSE",
-        "Manual"
-      ],
-      "confidence": "B",
-      "data_quality": "partial",
-      "coverage_status": "partial",
-      "url": "concept-detail.html?id=index_tw50",
-      "representative_stocks": [
-        {
-          "code": "2330",
-          "name": "台積電",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "2317",
-          "name": "鴻海",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        },
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "",
-          "confidence": "B",
-          "source_count": 1,
-          "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
-        {
-          "source": "TWSE",
-          "status": "partial",
-          "note": "指數成分需定期更新"
-        },
-        {
-          "source": "Manual",
-          "status": "partial",
-          "note": "先放代表性權值股"
-        }
-      ],
-      "coverage_check": {
-        "status": "needs_fill",
-        "note": "完整 50 檔成分與權重待官方資料更新流程補齊。"
-      },
-      "all_stocks": [
-        {
-          "code": "2330",
-          "name": "台積電",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "晶圓代工",
-          "market_theme": "權值半導體",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "指數成分",
-            "官方資料待定期更新"
-          ]
-        },
-        {
-          "code": "2317",
-          "name": "鴻海",
-          "market": "上市",
-          "official_industry": "其他電子業",
-          "supply_chain": "EMS / AI 伺服器",
-          "market_theme": "AI 伺服器 / 權值股",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "指數成分",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "2454",
-          "name": "聯發科",
-          "market": "上市",
-          "official_industry": "半導體業",
-          "supply_chain": "IC 設計",
-          "market_theme": "AI 晶片 / 權值股",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "指數成分",
-            "公司本業"
-          ]
-        },
-        {
-          "code": "2308",
-          "name": "台達電",
-          "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "電源 / 散熱",
-          "market_theme": "AI 電力 / 權值股",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "指數成分",
-            "供應鏈邏輯"
-          ]
-        },
-        {
-          "code": "2382",
-          "name": "廣達",
-          "market": "上市",
-          "official_industry": "電腦及週邊設備業",
-          "supply_chain": "AI 伺服器 ODM",
-          "market_theme": "AI 伺服器 / 權值股",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
-          "evidence": [
-            "指數成分",
-            "供應鏈邏輯"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "manual_ai_power",
-      "name": "AI電力",
-      "display_group": "manual",
-      "type": "手動新增題材",
-      "aliases": [
-        "AI電力",
-        "重電",
-        "資料中心電力",
-        "電網"
-      ],
-      "stock_count": 4,
+      "declared_max_source_count": 4,
       "source_count": 1,
       "sources": [
-        "Manual"
+        "PChome",
+        "Yahoo"
       ],
       "confidence": "C",
-      "data_quality": "low",
-      "coverage_status": "needs_fill",
-      "url": "concept-detail.html?id=manual_ai_power",
+      "data_quality": "partial",
+      "coverage_status": "complete",
+      "coverage_rate": 1.0,
+      "url": "concept-detail.html?id=formosa_plastics_group",
       "representative_stocks": [
         {
-          "code": "1504",
-          "name": "東元",
-          "market": "",
-          "confidence": "C",
+          "code": "1301",
+          "name": "台塑",
+          "market": "上市",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "人工整理 收錄"
+          ]
         },
         {
-          "code": "1513",
-          "name": "中興電",
-          "market": "",
-          "confidence": "C",
+          "code": "1303",
+          "name": "南亞",
+          "market": "上市",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
+          "evidence": [
+            "人工整理 收錄"
+          ]
         },
         {
-          "code": "1605",
-          "name": "華新",
-          "market": "",
-          "confidence": "C",
+          "code": "1326",
+          "name": "台化",
+          "market": "上市",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
-          "evidence": []
-        }
-      ],
-      "source_breakdown": [
+          "evidence": [
+            "人工整理 收錄"
+          ]
+        },
         {
-          "source": "Manual",
-          "status": "partial",
-          "note": "依 AI 資料中心電力需求與供應鏈邏輯先列觀察"
+          "code": "6505",
+          "name": "台塑化",
+          "market": "上市",
+          "sources": [
+            "人工整理"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
+          "evidence": [
+            "人工整理 收錄"
+          ]
         }
       ],
-      "coverage_check": {
-        "status": "needs_fill",
-        "note": "手動新增題材，需後續補公司法說、訂單、營收或多來源驗證。"
-      },
       "all_stocks": [
         {
-          "code": "1504",
-          "name": "東元",
+          "code": "1301",
+          "name": "台塑",
           "market": "上市",
-          "official_industry": "電機機械",
-          "supply_chain": "馬達 / 重電",
-          "market_theme": "AI電力 / 資料中心",
-          "confidence": "C",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
           "evidence": [
-            "供應鏈邏輯",
-            "手動新增題材"
+            "人工整理 收錄"
           ]
         },
         {
-          "code": "1513",
-          "name": "中興電",
+          "code": "1303",
+          "name": "南亞",
           "market": "上市",
-          "official_industry": "電機機械",
-          "supply_chain": "重電 / 電網",
-          "market_theme": "AI電力 / 電網",
-          "confidence": "C",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
           "evidence": [
-            "供應鏈邏輯",
-            "手動新增題材"
+            "人工整理 收錄"
           ]
         },
         {
-          "code": "1605",
-          "name": "華新",
+          "code": "1326",
+          "name": "台化",
           "market": "上市",
-          "official_industry": "電器電纜",
-          "supply_chain": "電線電纜",
-          "market_theme": "AI電力 / 銅價",
-          "confidence": "C",
+          "sources": [
+            "人工整理"
+          ],
           "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
           "data_quality": "low",
           "evidence": [
-            "供應鏈邏輯",
-            "手動新增題材"
+            "人工整理 收錄"
           ]
         },
         {
-          "code": "2308",
-          "name": "台達電",
+          "code": "6505",
+          "name": "台塑化",
           "market": "上市",
-          "official_industry": "電子零組件業",
-          "supply_chain": "電源供應器 / 散熱",
-          "market_theme": "AI電力 / 資料中心",
-          "confidence": "B",
-          "source_count": 2,
-          "data_quality": "medium",
+          "sources": [
+            "人工整理"
+          ],
+          "source_count": 1,
+          "relation_type": "source_category",
+          "confidence": "C",
+          "data_quality": "low",
           "evidence": [
-            "公司本業",
-            "供應鏈邏輯"
+            "人工整理 收錄"
           ]
         }
-      ]
+      ],
+      "source_breakdown": {
+        "PChome": {
+          "source_id": "pchome",
+          "source_category_name": "台塑集團",
+          "source_group": "集團股",
+          "url": "https://pchome.megatime.com.tw/group/sto0",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "link_only"
+        },
+        "Yahoo": {
+          "source_id": "yahoo",
+          "source_category_name": "台塑集團",
+          "source_group": "集團股",
+          "url": "https://tw.stock.yahoo.com/class/",
+          "declared_stock_count": null,
+          "collected_stock_count": 0,
+          "collection_status": "needs_mapping"
+        }
+      }
     }
   ]
 }

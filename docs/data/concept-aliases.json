@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-06-25 21:00",
+  "items": {
+    "listed_semiconductor": ["半導體業", "上市半導體", "晶圓代工", "IC設計"],
+    "otc_semiconductor": ["上櫃半導體", "櫃買半導體", "OTC半導體"],
+    "pcb": ["PCB", "PCB電子產業", "PCB類股", "PCB-製造", "印刷電路板", "ABF", "CCL"],
+    "ic_design": ["IC設計", "IC設計服務", "IC-設計", "ASIC", "MCU", "PMIC"],
+    "memory": ["記憶體", "DRAM", "NAND", "NOR", "HBM", "記憶體模組"],
+    "power_semiconductor": ["功率半導體", "二極體", "MOSFET", "SiC", "GaN", "電源管理"],
+    "ai_artificial_intelligence": ["AI", "AI人工智慧", "人工智慧", "AI概念股", "AI伺服器"],
+    "ai_glasses": ["AI眼鏡", "AI智慧眼鏡", "智慧眼鏡", "AR眼鏡", "智慧穿戴"],
+    "formosa_plastics_group": ["台塑集團", "台塑四寶", "王永慶集團"]
+  }
+}
