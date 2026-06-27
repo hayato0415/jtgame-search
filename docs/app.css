@@ -1211,6 +1211,128 @@ tr:nth-child(even) { background: #f8fafc; }
 .theme-card h3 {
   margin: 6px 0 8px;
 }
+.news-radar-intro {
+  display: grid;
+  gap: 16px;
+}
+.news-rule-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.news-rule-grid > div,
+.news-source-panel,
+.news-event-card {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+}
+.news-rule-grid h3 {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+.news-rule-grid p {
+  color: var(--muted);
+  margin: 0;
+}
+.news-source-panel strong {
+  display: block;
+  margin-bottom: 10px;
+}
+.news-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.news-source-link {
+  background: #eef6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  color: #075985;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 7px 10px;
+  text-decoration: none;
+}
+.news-source-link:hover,
+.news-title a:hover,
+.news-meta a:hover {
+  text-decoration: underline;
+}
+.news-section-card {
+  display: grid;
+  gap: 14px;
+}
+.news-grid {
+  display: grid;
+  gap: 14px;
+}
+.news-event-card {
+  box-shadow: none;
+}
+.news-title {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 10px 0;
+}
+.news-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.news-meta {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+}
+.news-meta a {
+  color: var(--accent);
+  font-weight: 900;
+  text-decoration: none;
+}
+.news-evidence-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 10px 0 12px;
+}
+.news-evidence-grid > div {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.news-evidence-grid strong {
+  color: var(--ink);
+  display: block;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.news-evidence-grid p {
+  color: var(--muted);
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .news-rule-grid,
+  .news-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+  .news-title {
+    font-size: 18px;
+  }
+  .news-source-links {
+    flex-direction: column;
+  }
+  .news-source-link {
+    text-align: center;
+  }
+}
 .stock-link {
   color: var(--accent);
   font-weight: 900;

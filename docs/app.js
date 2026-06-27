@@ -2449,6 +2449,157 @@ function renderNews() {
   });
 }
 
+function newsStrengthTone(strength) {
+  if (strength === "高") return "warn";
+  if (strength === "中高") return "good";
+  return "";
+}
+
+function newsImpactTone(impact) {
+  if (impact === "偏多") return "good";
+  if (impact === "偏空") return "bad";
+  return "";
+}
+
+function newsStrengthBasis(event) {
+  const strength = event?.event_strength || "未標示";
+  if (strength === "高") return "高：題材明確、來源有效、相關股票或族群連動較強，可能影響資金方向。";
+  if (strength === "中高") return "中高：事件具明確題材連動，但仍需觀察族群擴散、成交量與後續新聞。";
+  if (strength === "中") return "中：保留為觀察線索，需等待更多來源、量價或公司資訊確認。";
+  return "未標示：資料尚未提供完整強度判斷，僅保留為新聞線索。";
+}
+
+function newsImpactBasis(event) {
+  const impact = event?.impact || "中性";
+  if (impact === "偏多") return "偏多：可能支持需求、報價、訂單、政策、資金流或產業催化。";
+  if (impact === "偏空") return "偏空：可能涉及需求降溫、成本壓力、財報、政策或公司風險。";
+  return "中性：目前僅確認事件存在，尚不足以判定明確多空。";
+}
+
+function sourceHostLabel(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function newsSourceSearchLinks() {
+  const sources = [
+    ["CMoney 美股快訊", "https://www.cmoney.tw/notes/?tag=76325"],
+    ["CMoney 台股即時", "https://www.cmoney.tw/notes/?navId=twstock_news"],
+    ["鉅亨美股新聞", "https://news.cnyes.com/news/cat/wd_stock"],
+    ["鉅亨台股新聞", "https://news.cnyes.com/news/cat/tw_stock_news"],
+    ["MoneyDJ 產業分析", "https://www.moneydj.com/kmdj/common/listnewarticles.aspx?a=X0300000&svc=NW"],
+    ["MoneyDJ 即時新聞", "https://www.moneydj.com/KMDJ/News/NewsRealList.aspx?a=MB010000"],
+  ];
+  return sources.map(([label, href]) => `<a class="news-source-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`).join("");
+}
+
+function newsSectionKey(group, region) {
+  return `${group}-${region}`.replace(/[^\w\u4e00-\u9fa5-]/g, "-");
+}
+
+function eventCard(event) {
+  const holdings = new Set(readStoredCodes(HOLDINGS_KEY));
+  const related = (event.related_stocks || []).map(normalizeCode).filter(Boolean);
+  const radarHits = related.filter((code) => stockByCode(code));
+  const holdingHits = related.filter((code) => holdings.has(code));
+  const impactTone = newsImpactTone(event.impact);
+  const strengthTone = newsStrengthTone(event.event_strength);
+  const url = eventUrl(event);
+  const hasSource = isRealSourceUrl(url);
+  const sourceLabel = event.source_name || sourceHostLabel(url) || "來源未標示";
+  const title = event.title || "未命名事件";
+  return `
+    <article class="card news-card news-event-card" data-region="${escapeHtml(event.region || "")}" data-category="${escapeHtml(event.category || "")}" data-holding-hit="${holdingHits.length ? "1" : "0"}">
+      <div class="chip-row">
+        ${chip(formatDate(event.date))}
+        ${chip(event.region || eventNewsRegion(event) || "地區未標示")}
+        ${chip(`題材：${event.category || "未分類"}`)}
+        ${chip(`事件強度：${event.event_strength || "未標示"}`, strengthTone)}
+        ${chip(`影響方向：${event.impact || "中性"}`, impactTone)}
+      </div>
+      <h3 class="news-title">
+        ${hasSource ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>` : escapeHtml(title)}
+      </h3>
+      <div class="news-meta">
+        <span>來源：${escapeHtml(sourceLabel)}</span>
+        ${hasSource ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">查看原文</a>` : `<span>來源待補</span>`}
+      </div>
+      <div class="news-evidence-grid">
+        <div><strong>事件強度依據</strong><p>${escapeHtml(newsStrengthBasis(event))}</p></div>
+        <div><strong>影響方向說明</strong><p>${escapeHtml(newsImpactBasis(event))}</p></div>
+      </div>
+      <p><span class="label">新聞摘要</span>${escapeHtml(event.summary || event.logic || "尚缺摘要")}</p>
+      <p class="analysis"><span class="label">題材連動分析</span>${escapeHtml(event.asurada_analysis || event.logic || "尚缺連動分析")}</p>
+      <p><span class="label">相關台股</span></p>
+      <div class="chip-row">${stockChips(related, "無相關台股")}</div>
+      <p><span class="label">雷達命中</span></p>
+      <div class="chip-row">${stockChips(radarHits, "未命中今日雷達")}</div>
+      <p><span class="label">持股命中</span></p>
+      <div class="chip-row">${stockChips(holdingHits, "未命中我的持股")}</div>
+    </article>
+  `;
+}
+
+function renderNews() {
+  renderHeader("news");
+  const main = $("#app");
+  const sections = [
+    ["電子股", "國際", "電子股｜國際重大新聞"],
+    ["電子股", "台股", "電子股｜台股重大新聞"],
+    ["非電子類別", "國際", "非電子類別｜國際重大新聞"],
+    ["非電子類別", "台股", "非電子類別｜台股重大新聞"],
+  ];
+  main.innerHTML = `
+    <section class="panel news-radar-intro">
+      <div class="section-title">
+        <h2>重大新聞雷達</h2>
+        <span>每日更新，依國際 / 台股與電子 / 非電子分區整理</span>
+      </div>
+      <div class="news-rule-grid">
+        <div>
+          <h3>事件強度怎麼判斷？</h3>
+          <p>優先看真實來源、事件明確度、題材關聯股票數、供需 / 報價 / 財報 / 政策訊號，以及是否可能帶動族群資金輪動。高與中高事件會優先出現在本頁。</p>
+        </div>
+        <div>
+          <h3>影響方向怎麼判斷？</h3>
+          <p>偏多代表需求、報價、訂單、政策或資金面可能改善；偏空代表需求降溫、成本、財報、政策或公司風險升高；中性代表仍需後續確認。</p>
+        </div>
+      </div>
+      <div class="news-source-panel">
+        <strong>新聞搜尋入口</strong>
+        <div class="news-source-links">${newsSourceSearchLinks()}</div>
+      </div>
+    </section>
+    ${sections.map(([group, region, title]) => {
+      const key = newsSectionKey(group, region);
+      return `
+        <section class="panel news-section-card">
+          <div class="section-title"><h2>${title}</h2><span id="count-${key}"></span></div>
+          <div id="news-${key}" class="news-grid"></div>
+        </section>
+      `;
+    }).join("")}
+  `;
+  sections.forEach(([group, region]) => {
+    const key = newsSectionKey(group, region);
+    const list = state.news
+      .filter((event) => isRealSourceUrl(eventUrl(event)) && eventMarketGroup(event) === group && eventNewsRegion(event) === region)
+      .filter((event) => ["高", "中高"].includes(event.event_strength))
+      .sort((a, b) => {
+        const score = (event) => (event.event_strength === "高" ? 10 : 5) + (isRealSourceUrl(eventUrl(event)) ? 2 : 0);
+        return score(b) - score(a) || String(b.date || "").localeCompare(String(a.date || ""));
+      })
+      .slice(0, 5);
+    const target = $(`#news-${key}`);
+    const count = $(`#count-${key}`);
+    if (count) count.textContent = `${list.length} 則`;
+    if (target) target.innerHTML = list.length ? list.map(eventCard).join("") : `<div class="empty">目前沒有此分區新聞</div>`;
+  });
+}
+
 function themeEntries() {
   return Object.entries(state.themes).map(([key, theme]) => ({
     theme_name: theme.theme_name || theme.name || key,
