@@ -2015,11 +2015,12 @@ function radarTop5ThemeCards(items) {
 
 function rankingDataItems(raw) {
   const data = normalizeDashboardData(raw);
+  const sourceNote = String(raw?.source_note || "").trim();
   return {
     ...data,
     generated_at: String(raw?.generated_at || raw?.updated_at || raw?.date || "").trim(),
     range: String(raw?.range || "").trim(),
-    source_note: String(raw?.source_note || "").trim(),
+    source_note: /\?{4,}/.test(sourceNote) ? "" : sourceNote,
     items: Array.isArray(raw?.items) ? raw.items : [],
   };
 }
