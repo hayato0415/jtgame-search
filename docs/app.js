@@ -2176,6 +2176,27 @@ function lowBaseRevenuePercent(item, type) {
   return Number.isFinite(number) ? dashboardPercent(number) : cleanDisplay(value);
 }
 
+function lowBaseOptionalMetric(item, keys, options = {}) {
+  const stock = lowBaseStockRecord(item);
+  const sources = [item, item?.fundamental, stock];
+  for (const source of sources) {
+    if (!source) continue;
+    for (const key of keys) {
+      const value = source[key];
+      const text = String(value ?? "").trim();
+      if (text && !["missing", "null", "undefined", "-"].includes(text.toLowerCase())) {
+        const number = toNumber(value);
+        if (Number.isFinite(number)) {
+          if (options.percent) return dashboardPercent(number);
+          return dashboardNumber(number, options.digits ?? 2);
+        }
+        return cleanDisplay(value);
+      }
+    }
+  }
+  return "資料待補";
+}
+
 function renderLowBaseRankingCards(items, market = "上市") {
   const filtered = items
     .filter((item) => market === "全部" || (item.market || "") === market)
@@ -2204,6 +2225,10 @@ function renderLowBaseRankingCards(items, market = "上市") {
               <div class="supply-demand-box"><strong>當月營收(百萬)</strong><p>${escapeHtml(lowBaseRevenueAmount(item))}</p></div>
               <div class="supply-demand-box"><strong>月增率(${escapeHtml(lowBaseRevenueMonthLabel(item))})</strong><p>${escapeHtml(lowBaseRevenuePercent(item, "mom"))}</p></div>
               <div class="supply-demand-box"><strong>年增率(${escapeHtml(lowBaseRevenueMonthLabel(item))})</strong><p>${escapeHtml(lowBaseRevenuePercent(item, "yoy"))}</p></div>
+              <div class="supply-demand-box"><strong>毛利率</strong><p>${escapeHtml(lowBaseOptionalMetric(item, ["gross_margin", "gross_margin_value", "gross_margin_pct"], { percent: true }))}</p></div>
+              <div class="supply-demand-box"><strong>EPS</strong><p>${escapeHtml(lowBaseOptionalMetric(item, ["eps", "eps_value", "latest_eps"], { digits: 2 }))}</p></div>
+              <div class="supply-demand-box"><strong>本益比</strong><p>${escapeHtml(lowBaseOptionalMetric(item, ["pe_ratio", "per", "price_earnings_ratio"], { digits: 2 }))}</p></div>
+              <div class="supply-demand-box"><strong>法人預估目標價</strong><p>${escapeHtml(lowBaseOptionalMetric(item, ["institutional_target_price", "target_price", "consensus_target_price"], { digits: 2 }))}</p></div>
               <div class="supply-demand-box"><strong>技術面</strong><p>${escapeHtml(item.technical?.note || "資料待補")}</p></div>
               <div class="supply-demand-box"><strong>供需面</strong><p>${escapeHtml(item.supply_demand?.conclusion || item.supply_demand?.demand || "資料待補")}</p></div>
               <div class="supply-demand-box"><strong>基本面</strong><p>${escapeHtml(item.fundamental?.turnaround_note || "資料待補")}</p></div>
