@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-27 20:18:05 Asia/Taipei",
+  "updated_at": "2026-06-28 00:42:32 Asia/Taipei",
   "success": true,
   "schedule_policy": "daily; no trading-day skip",
   "pages_data_scope": [
@@ -13,7 +13,7 @@
   "股票清單檔": "/home/runner/work/asurada-stock-radar/asurada-stock-radar/data/tw_stock_list.csv",
   "候選股數": 1082,
   "輸出前N名": 30,
-  "新聞事件數": 27,
+  "新聞事件數": 25,
   "首頁戰情資料": [
     "/home/runner/work/asurada-stock-radar/asurada-stock-radar/docs/data/daily_market_snapshot.json",
     "/home/runner/work/asurada-stock-radar/asurada-stock-radar/docs/data/daily_hot_stocks.json",
@@ -30,11 +30,11 @@
   "pre_update_scripts": [
     {
       "script": "update_stock_master.py",
-      "success": true,
+      "success": false,
       "skipped": false,
-      "returncode": 0,
-      "stdout": "listed=1083\notc=891\ntotal=1974\nverified=2330,2337,2376,3673",
-      "stderr": ""
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/home/runner/work/asurada-stock-radar/asurada-stock-radar/scripts/update_stock_master.py\", line 148, in <module>\n    main()\n  File \"/home/runner/work/asurada-stock-radar/asurada-stock-radar/scripts/update_stock_master.py\", line 104, in main\n    master, stats = build_master()\n                    ^^^^^^^^^^^^^^\n  File \"/home/runner/work/asurada-stock-radar/asurada-stock-radar/scripts/update_stock_master.py\", line 59, in build_master\n    otc_rows, otc_encoding = fetch_json(TPEX_URL)\n                             ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/asurada-stock-radar/asurada-stock-radar/scripts/update_stock_master.py\", line 21, in fetch_json\n    raw = response.read()\n          ^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/http/client.py\", line 500, in read\n    s = self._safe_read(self.length)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/http/client.py\", line 652, in _safe_read\n    raise IncompleteRead(data, amt - len(data))\nhttp.client.IncompleteRead: IncompleteRead(474744 bytes read, 597127 more expected)"
     }
   ],
   "post_update_scripts": [

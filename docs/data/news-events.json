@@ -1,6 +1,6 @@
 [
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "基金/ETF/期貨/原物料",
     "region": "國際",
     "category": "原物料",
@@ -28,11 +28,38 @@
     "url": "https://www.cmoney.tw/notes/?navId=twstock_fund_etf_future_material"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "再掀網路泡沫記憶？AOL東山再起、Bending Spoons衝IPO 16億美元撼動「老牌科技」翻身戰",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "【即時新聞】SpaceX掛牌後掀起太空經濟狂潮！這2檔航太巨頭開缺破萬，搶攻6130億美元商機",
+    "region": "國際",
+    "category": "低軌衛星",
+    "impact": "中性",
+    "event_strength": "高",
+    "market_group": "電子股",
+    "news_region": "國際",
+    "related_keywords": [
+      "低軌衛星",
+      "衛星",
+      "SpaceX",
+      "Starlink"
+    ],
+    "related_stocks": [
+      "2313",
+      "3491",
+      "3596",
+      "6285"
+    ],
+    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】SpaceX掛牌後掀起太空經濟狂潮！這2檔航太巨頭開缺破萬，搶攻6130億美元商機。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "source_name": "CMoney 美股新聞快訊",
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225984",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225984"
+  },
+  {
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "【即時新聞】華爾街看好Pinterest(PINS)迎爆發！受惠AI廣告帶動，目標價上看38美元",
     "region": "國際",
     "category": "金融壽險",
-    "impact": "中性",
+    "impact": "偏多",
     "event_strength": "中",
     "market_group": "非電子類別",
     "news_region": "國際",
@@ -55,180 +82,128 @@
       "2886",
       "2889"
     ],
-    "summary": "CMoney 美股新聞快訊 消息指出：再掀網路泡沫記憶？AOL東山再起、Bending Spoons衝IPO 16億美元撼動「老牌科技」翻身戰。此事件被歸類為 金融壽險 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】華爾街看好Pinterest(PINS)迎爆發！受惠AI廣告帶動，目標價上看38美元。此事件被歸類為 金融壽險 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：金融壽險 題材若延續發酵，可觀察 2820、2881、2882、2885、2886、2889 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225960",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225960"
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225983",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225983"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "SpaceX將於2026年7月7日加入Nasdaq-100 指數，創新紀錄引發市場熱議！",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "【即時新聞】AI狂潮抽乾記憶體產能！美光(MU)毛利翻倍狂飆，蘋果(AAPL)與微軟扛不住宣告漲價！",
     "region": "國際",
-    "category": "低軌衛星",
-    "impact": "中性",
+    "category": "記憶體",
+    "impact": "偏多",
     "event_strength": "高",
     "market_group": "電子股",
     "news_region": "國際",
     "related_keywords": [
-      "低軌衛星",
-      "衛星",
-      "SpaceX",
-      "Starlink"
+      "記憶體",
+      "DRAM",
+      "NAND",
+      "HBM",
+      "SSD",
+      "美光",
+      "Micron",
+      "海力士",
+      "SK hynix",
+      "三星"
     ],
     "related_stocks": [
-      "2313",
-      "3491",
-      "3596",
-      "6285"
+      "2337",
+      "2344",
+      "2408",
+      "2451",
+      "3260",
+      "4967",
+      "8299"
     ],
-    "summary": "CMoney 美股新聞快訊 消息指出：SpaceX將於2026年7月7日加入Nasdaq-100 指數，創新紀錄引發市場熱議！。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】AI狂潮抽乾記憶體產能！美光(MU)毛利翻倍狂飆，蘋果(AAPL)與微軟扛不住宣告漲價！。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225959",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225959"
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225982",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225982"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "2 兆宇宙級新寵！SpaceX 閃電納入多大指數，被動資金暴風式湧入",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "【即時新聞】澳洲重罰科技巨頭！Meta(META)與Google(GOOGL)恐面臨近億澳元罰款，社交媒體監管再升級",
     "region": "國際",
-    "category": "低軌衛星",
-    "impact": "中性",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "低軌衛星",
-      "衛星",
-      "SpaceX",
-      "Starlink"
-    ],
-    "related_stocks": [
-      "2313",
-      "3491",
-      "3596",
-      "6285"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：2 兆宇宙級新寵！SpaceX 閃電納入多大指數，被動資金暴風式湧入。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225956",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225956"
-  },
-  {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "【即時新聞】歐洲高溫破40度！特靈科技(TT)等空調與電網概念股迎爆發，外資點名這幾檔",
-    "region": "國際",
-    "category": "重電",
+    "category": "AI伺服器",
     "impact": "中性",
     "event_strength": "中",
     "market_group": "電子股",
     "news_region": "國際",
     "related_keywords": [
-      "重電",
-      "電網",
-      "變壓器",
-      "電力設備",
-      "綠電"
+      "AI伺服器",
+      "AI 伺服器",
+      "NVIDIA",
+      "輝達",
+      "GB200",
+      "GB300",
+      "B200",
+      "Blackwell",
+      "Rubin",
+      "H100",
+      "H200",
+      "ASIC",
+      "TPU",
+      "AWS",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "CSP",
+      "AI機櫃",
+      "液冷",
+      "散熱",
+      "高功耗",
+      "高速傳輸",
+      "800G",
+      "1.6T",
+      "AI資料中心"
     ],
     "related_stocks": [
-      "1504",
-      "1513",
-      "1514",
-      "1605",
-      "1618"
+      "2305",
+      "2356",
+      "2359",
+      "2360",
+      "2368",
+      "2376",
+      "2382",
+      "2404",
+      "2425",
+      "2432",
+      "2465",
+      "2495",
+      "3002",
+      "3017",
+      "3022",
+      "3231",
+      "3305",
+      "3706",
+      "4588",
+      "4916",
+      "6139",
+      "6166",
+      "6196",
+      "6579",
+      "6669",
+      "6691",
+      "6933",
+      "7631",
+      "7711",
+      "8021",
+      "8210",
+      "8499"
     ],
-    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】歐洲高溫破40度！特靈科技(TT)等空調與電網概念股迎爆發，外資點名這幾檔。此事件被歸類為 重電 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：重電 題材若延續發酵，可觀察 1504、1513、1514、1605、1618 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】澳洲重罰科技巨頭！Meta(META)與Google(GOOGL)恐面臨近億澳元罰款，社交媒體監管再升級。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：AI伺服器 題材若延續發酵，可觀察 2305、2356、2359、2360、2368、2376、2382、2404 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225951",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225951"
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225981",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225981"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "極端熱浪變黃金商機？歐洲高溫灼出「氣候韌性投資」新戰場",
-    "region": "國際",
-    "category": "原物料",
-    "impact": "中性",
-    "event_strength": "中",
-    "market_group": "非電子類別",
-    "news_region": "國際",
-    "related_keywords": [
-      "油價",
-      "銅價",
-      "黃金",
-      "原物料",
-      "能源"
-    ],
-    "related_stocks": [
-      "2025",
-      "2028",
-      "2030",
-      "3004"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：極端熱浪變黃金商機？歐洲高溫灼出「氣候韌性投資」新戰場。此事件被歸類為 原物料 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：原物料 題材若延續發酵，可觀察 2025、2028、2030、3004 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225940",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225940"
-  },
-  {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "【即時新聞】SpaceX掛牌火速納入那斯達克，Invesco QQQ Trust(QQQ)迎被動買盤爆發",
-    "region": "國際",
-    "category": "低軌衛星",
-    "impact": "中性",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "低軌衛星",
-      "衛星",
-      "SpaceX",
-      "Starlink"
-    ],
-    "related_stocks": [
-      "2313",
-      "3491",
-      "3596",
-      "6285"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：【即時新聞】SpaceX掛牌火速納入那斯達克，Invesco QQQ Trust(QQQ)迎被動買盤爆發。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225938",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225938"
-  },
-  {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "SpaceX閃電攻佔Nasdaq-100！被動基金被迫追價，AI多頭新火種點燃",
-    "region": "國際",
-    "category": "低軌衛星",
-    "impact": "中性",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "低軌衛星",
-      "衛星",
-      "SpaceX",
-      "Starlink"
-    ],
-    "related_stocks": [
-      "2313",
-      "3491",
-      "3596",
-      "6285"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：SpaceX閃電攻佔Nasdaq-100！被動基金被迫追價，AI多頭新火種點燃。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225935",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225935"
-  },
-  {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "輝達 Halos 點名台廠五虎，機器人兆元商機誰受惠最深？ 2026/6/25 上午 10:08:05 8052",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "內幕交易熱潮：Nvidia、JPMorgan及Occidental Petroleum等知名企業動作頻頻！",
     "region": "國際",
     "category": "AI伺服器",
     "impact": "中性",
@@ -297,14 +272,68 @@
       "8210",
       "8499"
     ],
-    "summary": "CMoney 美股新聞快訊 消息指出：輝達 Halos 點名台廠五虎，機器人兆元商機誰受惠最深？ 2026/6/25 上午 10:08:05 8052。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "CMoney 美股新聞快訊 消息指出：內幕交易熱潮：Nvidia、JPMorgan及Occidental Petroleum等知名企業動作頻頻！。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：AI伺服器 題材若延續發酵，可觀察 2305、2356、2359、2360、2368、2376、2382、2404 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1224424",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1224424"
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225976",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225976"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "南亞、台玻、富喬再度大漲——玻纖布憑什麼搶走AI最大紅利？ 2026/6/22 下午 01:56:08 15935",
+    "region": "國際",
+    "category": "PCB",
+    "impact": "偏多",
+    "event_strength": "中",
+    "market_group": "電子股",
+    "news_region": "國際",
+    "related_keywords": [
+      "PCB",
+      "印刷電路板",
+      "伺服器板",
+      "高階多層板",
+      "HDI",
+      "HLC",
+      "ABF",
+      "IC載板",
+      "CCL",
+      "銅箔基板",
+      "玻纖布",
+      "Low Dk",
+      "HVLP",
+      "T-Glass",
+      "M9",
+      "Q布",
+      "鑽針",
+      "MSAP",
+      "高頻高速材料",
+      "交換器板",
+      "800G交換器",
+      "1.6T交換器"
+    ],
+    "related_stocks": [
+      "2059",
+      "2368",
+      "2383",
+      "2460",
+      "2467",
+      "3003",
+      "3037",
+      "3321",
+      "3432",
+      "3715",
+      "4943",
+      "4958",
+      "8046"
+    ],
+    "summary": "CMoney 美股新聞快訊 消息指出：南亞、台玻、富喬再度大漲——玻纖布憑什麼搶走AI最大紅利？ 2026/6/22 下午 01:56:08 15935。此事件被歸類為 PCB 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：PCB 題材若延續發酵，可觀察 2059、2368、2383、2460、2467、3003、3037、3321 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "source_name": "CMoney 美股新聞快訊",
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221703",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221703"
+  },
+  {
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "不敗教主APP 金融股 46",
     "region": "國際",
     "category": "金融壽險",
@@ -338,7 +367,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=72051"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "稅額扣抵比率與殖利率選股 2",
     "region": "國際",
     "category": "金融壽險",
@@ -372,7 +401,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=5383"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "思達的金融筆記本 29",
     "region": "國際",
     "category": "金融壽險",
@@ -406,7 +435,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=66870"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "原物料即時消息 729",
     "region": "國際",
     "category": "原物料",
@@ -434,7 +463,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=79383"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "【13:11 即時新聞】全科(3209)股價小升至60.9元，受電子通路族群輪動與AI伺服器需求支撐＋主力與法人偏空調節下的高檔壓力測試",
     "region": "台股",
     "category": "AI伺服器",
@@ -511,34 +540,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225371"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "精選 「馬斯克總有些花招可以扭轉局面」！SpaceX熱潮降溫 散戶信念不減、仍瘋狂加碼",
-    "region": "國際",
-    "category": "低軌衛星",
-    "impact": "偏空",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "低軌衛星",
-      "衛星",
-      "SpaceX",
-      "Starlink"
-    ],
-    "related_stocks": [
-      "2313",
-      "3491",
-      "3596",
-      "6285"
-    ],
-    "summary": "鉅亨網美股新聞 消息指出：精選 「馬斯克總有些花招可以扭轉局面」！SpaceX熱潮降溫 散戶信念不減、仍瘋狂加碼。此事件被歸類為 低軌衛星 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：低軌衛星 題材若延續發酵，可觀察 2313、3491、3596、6285 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "鉅亨網美股新聞",
-    "source_url": "https://news.cnyes.com/news/id/6514760",
-    "url": "https://news.cnyes.com/news/id/6514760"
-  },
-  {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "傳統資產，數位跨界：佈局2026 鏈上美股 RWA財富變革",
     "region": "國際",
     "category": "營建資產",
@@ -571,8 +573,8 @@
     "url": "https://events.cnyes.com/bingxxanue2026-39621"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "3. 馬斯克出聲認同蘋果庫克警告：記憶體短缺「前所未見」",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "1. 馬斯克出聲認同蘋果庫克警告：記憶體短缺「前所未見」",
     "region": "國際",
     "category": "記憶體",
     "impact": "中性",
@@ -600,15 +602,15 @@
       "4967",
       "8299"
     ],
-    "summary": "鉅亨網美股新聞 消息指出：3. 馬斯克出聲認同蘋果庫克警告：記憶體短缺「前所未見」。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "鉅亨網美股新聞 消息指出：1. 馬斯克出聲認同蘋果庫克警告：記憶體短缺「前所未見」。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "鉅亨網美股新聞",
     "source_url": "https://news.cnyes.com/news/id/6514758",
     "url": "https://news.cnyes.com/news/id/6514758"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
-    "title": "5. 美光遭「喊賣」、聯邦快遞被降評！「這兩股」獲調升 華爾街最新評等一次看",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "4. 美光股價有望再「翻倍」？《巴隆》：記憶體史上最嚴重缺貨潮引爆估值重估",
     "region": "國際",
     "category": "記憶體",
     "impact": "中性",
@@ -636,14 +638,48 @@
       "4967",
       "8299"
     ],
-    "summary": "鉅亨網美股新聞 消息指出：5. 美光遭「喊賣」、聯邦快遞被降評！「這兩股」獲調升 華爾街最新評等一次看。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "鉅亨網美股新聞 消息指出：4. 美光股價有望再「翻倍」？《巴隆》：記憶體史上最嚴重缺貨潮引爆估值重估。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "鉅亨網美股新聞",
-    "source_url": "https://news.cnyes.com/news/id/6514752",
-    "url": "https://news.cnyes.com/news/id/6514752"
+    "source_url": "https://news.cnyes.com/news/id/6514756",
+    "url": "https://news.cnyes.com/news/id/6514756"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
+    "title": "5. 通膨未降、殖利率先跌？Fed主席華許強硬抗通膨安撫債市",
+    "region": "國際",
+    "category": "金融壽險",
+    "impact": "偏空",
+    "event_strength": "高",
+    "market_group": "非電子類別",
+    "news_region": "國際",
+    "related_keywords": [
+      "金融",
+      "壽險",
+      "銀行",
+      "Fed",
+      "美債",
+      "利率",
+      "匯率",
+      "美元",
+      "台幣"
+    ],
+    "related_stocks": [
+      "2820",
+      "2881",
+      "2882",
+      "2885",
+      "2886",
+      "2889"
+    ],
+    "summary": "鉅亨網美股新聞 消息指出：5. 通膨未降、殖利率先跌？Fed主席華許強硬抗通膨安撫債市。此事件被歸類為 金融壽險 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：金融壽險 題材若延續發酵，可觀察 2820、2881、2882、2885、2886、2889 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "source_name": "鉅亨網美股新聞",
+    "source_url": "https://news.cnyes.com/news/id/6514648",
+    "url": "https://news.cnyes.com/news/id/6514648"
+  },
+  {
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "6/26新台幣兌美元匯率以31.860元作收、貶值2.5分...",
     "region": "台股",
     "category": "金融壽險",
@@ -677,7 +713,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=e9524465-598e-4103-ba3f-c6490bb7251f&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "Fed有望只放話不升息？華許樹威信、通膨預期降",
     "region": "台股",
     "category": "金融壽險",
@@ -711,7 +747,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=682a608c-c553-40b8-a8ea-2a3168527ac6&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "SpaceX IPO熱退燒 多檔太空股腰斬、向現實妥協...",
     "region": "台股",
     "category": "低軌衛星",
@@ -738,7 +774,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=ae84ab85-1731-47ff-ad65-097a7a49c05d&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "新台幣兌美元匯價中午暫收31.887元，貶值5.2分...",
     "region": "台股",
     "category": "金融壽險",
@@ -772,7 +808,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=860bd5c6-6858-4c9c-9d39-b75c72f3216f&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "OPEC影響力恐大減？傳伊拉克揚言退團 油價軟",
     "region": "台股",
     "category": "原物料",
@@ -800,7 +836,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=433321c4-3432-46e1-9a1b-4ef095cc45f1&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "記憶體大缺 美光不背鍋、控特定客戶狂砍價肇禍",
     "region": "台股",
     "category": "記憶體",
@@ -836,7 +872,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=61aff2a8-3bc0-4968-858d-133ffc057657&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "三星LG包辦iPhone 18 Pro面板訂單 京東方出局...",
     "region": "台股",
     "category": "記憶體",
@@ -872,7 +908,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=0138af61-1855-4f5c-8499-eef8b3cacbdd&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "花旗唱多、Sandisk飆20% 美光市值一度超越Met...",
     "region": "台股",
     "category": "記憶體",
@@ -908,7 +944,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=d171a07f-7abc-4bec-a186-2565f150daf3&c=MB010000"
   },
   {
-    "date": "2026-06-27T12:17:59+00:00",
+    "date": "2026-06-27T16:42:27+00:00",
     "title": "美5月核心PCE年增3.4% 市場預期Fed將轉鷹...",
     "region": "台股",
     "category": "金融壽險",
