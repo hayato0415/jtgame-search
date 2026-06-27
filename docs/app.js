@@ -2152,6 +2152,30 @@ function lowBaseVolume(item) {
   return Number.isFinite(number) ? dashboardNumber(number) : cleanDisplay(value);
 }
 
+function lowBaseRevenueMonthLabel(item) {
+  const stock = lowBaseStockRecord(item);
+  const value = item?.revenue_month ?? stock?.revenue_month ?? stock?.data_version;
+  const match = String(value || "").match(/(\d{4})-(\d{1,2})/);
+  return match ? `${Number(match[2])}月` : "最新月份";
+}
+
+function lowBaseRevenueAmount(item) {
+  const stock = lowBaseStockRecord(item);
+  const value = item?.current_revenue_million ?? item?.revenue ?? stock?.current_revenue_million ?? stock?.current_revenue;
+  const number = toNumber(value);
+  return Number.isFinite(number) ? dashboardNumber(number, 2) : cleanDisplay(value);
+}
+
+function lowBaseRevenuePercent(item, type) {
+  const stock = lowBaseStockRecord(item);
+  const fundamental = item?.fundamental || {};
+  const value = type === "mom"
+    ? (fundamental.revenue_mom ?? item?.revenue_mom ?? stock?.revenue_mom_value ?? stock?.revenue_mom)
+    : (fundamental.revenue_yoy ?? item?.revenue_yoy ?? stock?.revenue_yoy_value ?? stock?.revenue_yoy);
+  const number = toNumber(value);
+  return Number.isFinite(number) ? dashboardPercent(number) : cleanDisplay(value);
+}
+
 function renderLowBaseRankingCards(items, market = "上市") {
   const filtered = items
     .filter((item) => market === "全部" || (item.market || "") === market)
@@ -2177,9 +2201,9 @@ function renderLowBaseRankingCards(items, market = "上市") {
           ${rankingAccordionButton()}
           <div class="ranking-detail">
             <div class="evidence-grid">
-              <div class="supply-demand-box"><strong>收盤價</strong><p>${escapeHtml(lowBasePrice(item))}</p></div>
-              <div class="supply-demand-box"><strong>漲幅%</strong><p>${escapeHtml(lowBaseChangePct(item))}</p></div>
-              <div class="supply-demand-box"><strong>成交量</strong><p>${escapeHtml(lowBaseVolume(item))}</p></div>
+              <div class="supply-demand-box"><strong>當月營收(百萬)</strong><p>${escapeHtml(lowBaseRevenueAmount(item))}</p></div>
+              <div class="supply-demand-box"><strong>月增率(${escapeHtml(lowBaseRevenueMonthLabel(item))})</strong><p>${escapeHtml(lowBaseRevenuePercent(item, "mom"))}</p></div>
+              <div class="supply-demand-box"><strong>年增率(${escapeHtml(lowBaseRevenueMonthLabel(item))})</strong><p>${escapeHtml(lowBaseRevenuePercent(item, "yoy"))}</p></div>
               <div class="supply-demand-box"><strong>技術面</strong><p>${escapeHtml(item.technical?.note || "資料待補")}</p></div>
               <div class="supply-demand-box"><strong>供需面</strong><p>${escapeHtml(item.supply_demand?.conclusion || item.supply_demand?.demand || "資料待補")}</p></div>
               <div class="supply-demand-box"><strong>基本面</strong><p>${escapeHtml(item.fundamental?.turnaround_note || "資料待補")}</p></div>
