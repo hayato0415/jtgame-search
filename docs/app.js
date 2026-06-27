@@ -193,7 +193,7 @@ async function loadRevenueHistory() {
 }
 
 async function loadAllData() {
-  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5] = await Promise.all([
+  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5, updateReport, stockDataMeta] = await Promise.all([
     loadJson("data/stocks-latest.json", []),
     loadJson("data/news-events.json", []),
     loadJson("data/themes-map.json", {}),
@@ -204,6 +204,8 @@ async function loadAllData() {
     loadJson("data/stock-master.json", {}),
     loadJson("data/daily_hot_themes.json", null),
     loadJson("data/theme-top5.json", null),
+    loadJson("data/update_report.json", null),
+    loadJson("data/stock-data-meta.json", null),
   ]);
   state.stocks = Array.isArray(stocks) ? stocks : [];
   state.news = Array.isArray(news) ? news : [];
@@ -217,6 +219,12 @@ async function loadAllData() {
   state.master = master && typeof master === "object" ? master : {};
   state.hotThemes = normalizeDashboardData(dailyHotThemes);
   state.themeTop5 = normalizeDashboardData(themeTop5);
+  if (!state.themeTop5.updated_at) {
+    state.themeTop5.updated_at = updateReport?.updated_at || stockDataMeta?.updated_at || "";
+  }
+  if (!state.themeTop5.date) {
+    state.themeTop5.date = updateReport?.date || stockDataMeta?.date || "";
+  }
 }
 
 function stockByCode(code) {
