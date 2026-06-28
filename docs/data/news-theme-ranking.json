@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-06-28 10:36",
+  "generated_at": "2026-06-28 11:18",
   "range": "近五個交易日",
   "source_note": "依公開新聞、題材關鍵字、個股提及次數、供需訊號與盤面表現統計",
   "items": [
     {
       "rank": 1,
       "theme": "記憶體／DRAM／NAND",
-      "theme_score": 68,
-      "news_count": 6,
-      "weighted_news_score": 86,
-      "unique_sources": 2,
+      "theme_score": 67,
+      "news_count": 5,
+      "weighted_news_score": 81,
+      "unique_sources": 3,
       "mentioned_stock_count": 8,
       "representative_stocks": [
         {
@@ -45,7 +45,7 @@
         "conclusion": "目前供需證據不足，僅列為觀察"
       },
       "evidence": {
-        "news": "近五日命中 6 則新聞，來源 2 個。",
+        "news": "近五日命中 5 則新聞，來源 3 個。",
         "price": "以現有日資料與營收動能輔助判斷，完整五日漲跌待資料源補齊。",
         "technical": "完整 MA5 / MA10 / MA20 與新高資料待資料源補齊。",
         "volume": "以現有成交量欄位輔助判斷，20 日均量倍率待資料源補齊。",
@@ -59,15 +59,15 @@
           "published_at": "2026-06-28"
         },
         {
-          "title": "美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9126",
-          "source": "CMoney 美股新聞快訊",
+          "title": "美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9127",
+          "source": "CMoney 台股即時消息",
           "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221775",
           "published_at": "2026-06-28"
         },
         {
-          "title": "美光救全市！財報7大亮點一次看，記憶體族群再出發！ 2026/6/25 下午 02:55:34 2299",
-          "source": "CMoney 美股新聞快訊",
-          "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1224535",
+          "title": "記憶體大缺 美光不背鍋、控特定客戶狂砍價肇禍",
+          "source": "MoneyDJ 即時新聞總表",
+          "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=61aff2a8-3bc0-4968-858d-133ffc057657&c=MB010000",
           "published_at": "2026-06-28"
         }
       ],
@@ -134,13 +134,13 @@
         },
         {
           "title": "4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一",
-          "source": "鉅亨網台股新聞",
+          "source": "鉅亨網美股新聞",
           "url": "https://news.cnyes.com/news/id/6514842",
           "published_at": "2026-06-28"
         },
         {
           "title": "5. ABF迎史上最大缺貨潮！AI代理、HPC需求暴增 供應鏈迎最強賣方市場",
-          "source": "鉅亨網台股新聞",
+          "source": "鉅亨網美股新聞",
           "url": "https://news.cnyes.com/news/id/6515005",
           "published_at": "2026-06-28"
         }
@@ -151,78 +151,6 @@
     },
     {
       "rank": 3,
-      "theme": "面板／光電／低價轉型",
-      "theme_score": 57,
-      "news_count": 3,
-      "weighted_news_score": 57,
-      "unique_sources": 3,
-      "mentioned_stock_count": 15,
-      "representative_stocks": [
-        {
-          "code": "3481",
-          "name": "群創"
-        },
-        {
-          "code": "2409",
-          "name": "友達"
-        },
-        {
-          "code": "6116",
-          "name": "彩晶"
-        },
-        {
-          "code": "3149",
-          "name": "正達"
-        },
-        {
-          "code": "6456",
-          "name": "GIS-KY"
-        }
-      ],
-      "supply_demand": {
-        "demand": [
-          "訂單"
-        ],
-        "supply": [
-          "供給訊號待補"
-        ],
-        "price_power": "報價 / 利差訊號待補",
-        "inventory": "庫存下降或補庫存訊號待確認",
-        "conclusion": "目前供需證據不足，僅列為觀察"
-      },
-      "evidence": {
-        "news": "近五日命中 3 則新聞，來源 3 個。",
-        "price": "以現有日資料與營收動能輔助判斷，完整五日漲跌待資料源補齊。",
-        "technical": "完整 MA5 / MA10 / MA20 與新高資料待資料源補齊。",
-        "volume": "以現有成交量欄位輔助判斷，20 日均量倍率待資料源補齊。",
-        "fundamental": "以營收、報價、訂單、供需關鍵字輔助判斷。"
-      },
-      "top_news": [
-        {
-          "title": "3. 〈觀察〉AI封裝關鍵材料玻璃基板怎麼量產？供應鏈流程一文看懂",
-          "source": "鉅亨網美股新聞",
-          "url": "https://news.cnyes.com/news/id/6514504",
-          "published_at": "2026-06-28"
-        },
-        {
-          "title": "2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代",
-          "source": "鉅亨網台股新聞",
-          "url": "https://news.cnyes.com/news/id/6515003",
-          "published_at": "2026-06-28"
-        },
-        {
-          "title": "三星LG包辦iPhone 18 Pro面板訂單 京東方出局...",
-          "source": "MoneyDJ 即時新聞總表",
-          "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=0138af61-1855-4f5c-8499-eef8b3cacbdd&c=MB010000",
-          "published_at": "2026-06-28"
-        }
-      ],
-      "asurada_comment": "此題材依新聞熱度、來源數、個股擴散與供需關鍵字綜合排序。",
-      "data_quality": "medium",
-      "data_quality_note": "已具多來源或多個股擴散訊號，但仍待完整量價資料補強"
-    },
-    {
-      "rank": 4,
       "theme": "功率半導體",
       "theme_score": 56,
       "news_count": 3,
@@ -286,7 +214,7 @@
         },
         {
           "title": "4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一",
-          "source": "鉅亨網台股新聞",
+          "source": "鉅亨網美股新聞",
           "url": "https://news.cnyes.com/news/id/6514842",
           "published_at": "2026-06-28"
         }
@@ -296,11 +224,11 @@
       "data_quality_note": "已具多來源或多個股擴散訊號，但仍待完整量價資料補強"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "theme": "航空／油價回落",
-      "theme_score": 52,
-      "news_count": 5,
-      "weighted_news_score": 74,
+      "theme_score": 55,
+      "news_count": 6,
+      "weighted_news_score": 86,
       "unique_sources": 2,
       "mentioned_stock_count": 7,
       "representative_stocks": [
@@ -329,7 +257,7 @@
         "conclusion": "目前供需證據不足，僅列為觀察"
       },
       "evidence": {
-        "news": "近五日命中 5 則新聞，來源 2 個。",
+        "news": "近五日命中 6 則新聞，來源 2 個。",
         "price": "以現有日資料與營收動能輔助判斷，完整五日漲跌待資料源補齊。",
         "technical": "完整 MA5 / MA10 / MA20 與新高資料待資料源補齊。",
         "volume": "以現有成交量欄位輔助判斷，20 日均量倍率待資料源補齊。",
@@ -343,15 +271,81 @@
           "published_at": "2026-06-28"
         },
         {
+          "title": "荷莫茲海峽再陷火線！油運復常賭盤急崩 全球能源供應風險飆升",
+          "source": "CMoney 美股新聞快訊",
+          "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226036",
+          "published_at": "2026-06-28"
+        },
+        {
           "title": "油價跌了為何油錢還不降？美國民眾怒吼、能源巨頭一句話惹爭議",
           "source": "CMoney 美股新聞快訊",
           "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226013",
           "published_at": "2026-06-28"
+        }
+      ],
+      "asurada_comment": "此題材依新聞熱度、來源數、個股擴散與供需關鍵字綜合排序。",
+      "data_quality": "medium",
+      "data_quality_note": "已具多來源或多個股擴散訊號，但仍待完整量價資料補強"
+    },
+    {
+      "rank": 5,
+      "theme": "面板／光電／低價轉型",
+      "theme_score": 51,
+      "news_count": 2,
+      "weighted_news_score": 38,
+      "unique_sources": 2,
+      "mentioned_stock_count": 15,
+      "representative_stocks": [
+        {
+          "code": "3481",
+          "name": "群創"
         },
         {
-          "title": "美國油價無法迅速回降！Chevron高層回應特朗普指控「大石油」剝削消費者",
-          "source": "CMoney 美股新聞快訊",
-          "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226012",
+          "code": "2409",
+          "name": "友達"
+        },
+        {
+          "code": "6116",
+          "name": "彩晶"
+        },
+        {
+          "code": "3149",
+          "name": "正達"
+        },
+        {
+          "code": "6456",
+          "name": "GIS-KY"
+        }
+      ],
+      "supply_demand": {
+        "demand": [
+          "訂單"
+        ],
+        "supply": [
+          "供給訊號待補"
+        ],
+        "price_power": "報價 / 利差訊號待補",
+        "inventory": "庫存下降或補庫存訊號待確認",
+        "conclusion": "目前供需證據不足，僅列為觀察"
+      },
+      "evidence": {
+        "news": "近五日命中 2 則新聞，來源 2 個。",
+        "price": "以現有日資料與營收動能輔助判斷，完整五日漲跌待資料源補齊。",
+        "technical": "完整 MA5 / MA10 / MA20 與新高資料待資料源補齊。",
+        "volume": "以現有成交量欄位輔助判斷，20 日均量倍率待資料源補齊。",
+        "fundamental": "以營收、報價、訂單、供需關鍵字輔助判斷。"
+      },
+      "top_news": [
+        {
+          "title": "2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代",
+          "source": "鉅亨網美股新聞",
+          "url": "https://news.cnyes.com/news/id/6515003",
+          "published_at": "2026-06-28"
+        },
+        {
+          "title": "三星LG包辦iPhone 18 Pro面板訂單 京東方出局...",
+          "source": "MoneyDJ 即時新聞總表",
+          "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=0138af61-1855-4f5c-8499-eef8b3cacbdd&c=MB010000",
           "published_at": "2026-06-28"
         }
       ],
@@ -418,7 +412,7 @@
         },
         {
           "title": "4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一",
-          "source": "鉅亨網台股新聞",
+          "source": "鉅亨網美股新聞",
           "url": "https://news.cnyes.com/news/id/6514842",
           "published_at": "2026-06-28"
         }
@@ -486,7 +480,7 @@
         },
         {
           "title": "4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一",
-          "source": "鉅亨網台股新聞",
+          "source": "鉅亨網美股新聞",
           "url": "https://news.cnyes.com/news/id/6514842",
           "published_at": "2026-06-28"
         }

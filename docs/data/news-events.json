@@ -1,6 +1,6 @@
 [
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "基金/ETF/期貨/原物料",
     "region": "國際",
     "category": "原物料",
@@ -28,7 +28,35 @@
     "url": "https://www.cmoney.tw/notes/?navId=twstock_fund_etf_future_material"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
+    "title": "荷莫茲海峽再陷火線！油運復常賭盤急崩 全球能源供應風險飆升",
+    "region": "國際",
+    "category": "原物料",
+    "impact": "偏空",
+    "event_strength": "中",
+    "market_group": "非電子類別",
+    "news_region": "國際",
+    "related_keywords": [
+      "油價",
+      "銅價",
+      "黃金",
+      "原物料",
+      "能源"
+    ],
+    "related_stocks": [
+      "2025",
+      "2028",
+      "2030",
+      "3004"
+    ],
+    "summary": "CMoney 美股新聞快訊 消息指出：荷莫茲海峽再陷火線！油運復常賭盤急崩 全球能源供應風險飆升。此事件被歸類為 原物料 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：原物料 題材若延續發酵，可觀察 2025、2028、2030、3004 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "source_name": "CMoney 美股新聞快訊",
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226036",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226036"
+  },
+  {
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "【即時新聞】星巴克(SBUX)搭上1600億美元健康風潮！這2大巨頭砸重金狂飆卡位",
     "region": "國際",
     "category": "金融壽險",
@@ -62,7 +90,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226029"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "年輕人瘋「功能飲」：從咖啡到汽水都要有功效 全球1600億美元市場掀新戰局",
     "region": "國際",
     "category": "金融壽險",
@@ -96,7 +124,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226016"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "【即時新聞】最新！SpaceX光速納入那斯達克100指數，引爆景順QQQ信託基金(QQQ)買盤",
     "region": "國際",
     "category": "低軌衛星",
@@ -123,7 +151,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226014"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "油價跌了為何油錢還不降？美國民眾怒吼、能源巨頭一句話惹爭議",
     "region": "國際",
     "category": "原物料",
@@ -151,7 +179,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226013"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "美國油價無法迅速回降！Chevron高層回應特朗普指控「大石油」剝削消費者",
     "region": "國際",
     "category": "原物料",
@@ -179,7 +207,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1226012"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "投資者必看！當前最佳銀行股大揭密，JPMorgan與Citigroup成焦點！",
     "region": "國際",
     "category": "金融壽險",
@@ -213,7 +241,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225996"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "AI 晶片股瘋狂洗牌：被低估的霸主、記憶體泡沫疑雲與「賣鏟工具商」大戰",
     "region": "國際",
     "category": "記憶體",
@@ -249,79 +277,7 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225995"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
-    "title": "美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9126",
-    "region": "國際",
-    "category": "記憶體",
-    "impact": "中性",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "記憶體",
-      "DRAM",
-      "NAND",
-      "HBM",
-      "SSD",
-      "美光",
-      "Micron",
-      "海力士",
-      "SK hynix",
-      "三星"
-    ],
-    "related_stocks": [
-      "2337",
-      "2344",
-      "2408",
-      "2451",
-      "3260",
-      "4967",
-      "8299"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9126。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221775",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221775"
-  },
-  {
-    "date": "2026-06-28T10:36:34+00:00",
-    "title": "美光救全市！財報7大亮點一次看，記憶體族群再出發！ 2026/6/25 下午 02:55:34 2299",
-    "region": "國際",
-    "category": "記憶體",
-    "impact": "中性",
-    "event_strength": "高",
-    "market_group": "電子股",
-    "news_region": "國際",
-    "related_keywords": [
-      "記憶體",
-      "DRAM",
-      "NAND",
-      "HBM",
-      "SSD",
-      "美光",
-      "Micron",
-      "海力士",
-      "SK hynix",
-      "三星"
-    ],
-    "related_stocks": [
-      "2337",
-      "2344",
-      "2408",
-      "2451",
-      "3260",
-      "4967",
-      "8299"
-    ],
-    "summary": "CMoney 美股新聞快訊 消息指出：美光救全市！財報7大亮點一次看，記憶體族群再出發！ 2026/6/25 下午 02:55:34 2299。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "CMoney 美股新聞快訊",
-    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1224535",
-    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1224535"
-  },
-  {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "不敗教主APP 金融股 46",
     "region": "國際",
     "category": "金融壽險",
@@ -355,7 +311,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=72051"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "稅額扣抵比率與殖利率選股 2",
     "region": "國際",
     "category": "金融壽險",
@@ -389,7 +345,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=5383"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "思達的金融筆記本 29",
     "region": "國際",
     "category": "金融壽險",
@@ -423,7 +379,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=66870"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "原物料即時消息 729",
     "region": "國際",
     "category": "原物料",
@@ -451,7 +407,7 @@
     "url": "https://www.cmoney.tw/notes/?tag=79383"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "【13:11 即時新聞】全科(3209)股價小升至60.9元，受電子通路族群輪動與AI伺服器需求支撐＋主力與法人偏空調節下的高檔壓力測試",
     "region": "台股",
     "category": "AI伺服器",
@@ -528,7 +484,43 @@
     "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1225371"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
+    "title": "美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9127",
+    "region": "台股",
+    "category": "記憶體",
+    "impact": "中性",
+    "event_strength": "高",
+    "market_group": "電子股",
+    "news_region": "台股",
+    "related_keywords": [
+      "記憶體",
+      "DRAM",
+      "NAND",
+      "HBM",
+      "SSD",
+      "美光",
+      "Micron",
+      "海力士",
+      "SK hynix",
+      "三星"
+    ],
+    "related_stocks": [
+      "2337",
+      "2344",
+      "2408",
+      "2451",
+      "3260",
+      "4967",
+      "8299"
+    ],
+    "summary": "CMoney 台股即時消息 消息指出：美光財報前瞻：記憶體產業風向球，台股記憶體族群提前表態 2026/6/22 下午 05:38:34 9127。此事件被歸類為 記憶體 題材，需觀察是否帶動相關族群資金輪動。",
+    "asurada_analysis": "阿斯拉連動分析：記憶體 題材若延續發酵，可觀察 2337、2344、2408、2451、3260、4967、8299 是否同步出現量價轉強、營收確認或法人重新評價。",
+    "source_name": "CMoney 台股即時消息",
+    "source_url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221775",
+    "url": "https://www.cmoney.tw/notes/note-detail.aspx?nid=1221775"
+  },
+  {
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "傳統資產，數位跨界：佈局2026 鏈上美股 RWA財富變革",
     "region": "國際",
     "category": "營建資產",
@@ -561,8 +553,8 @@
     "url": "https://events.cnyes.com/bingxxanue2026-39621"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
-    "title": "3. 〈觀察〉AI封裝關鍵材料玻璃基板怎麼量產？供應鏈流程一文看懂",
+    "date": "2026-06-28T11:18:33+00:00",
+    "title": "2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代",
     "region": "國際",
     "category": "玻璃基板",
     "impact": "中性",
@@ -579,46 +571,21 @@
       "1810",
       "3044"
     ],
-    "summary": "鉅亨網美股新聞 消息指出：3. 〈觀察〉AI封裝關鍵材料玻璃基板怎麼量產？供應鏈流程一文看懂。此事件被歸類為 玻璃基板 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "鉅亨網美股新聞 消息指出：2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代。此事件被歸類為 玻璃基板 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：玻璃基板 題材若延續發酵，可觀察 1802、1810、3044 是否同步出現量價轉強、營收確認或法人重新評價。",
     "source_name": "鉅亨網美股新聞",
-    "source_url": "https://news.cnyes.com/news/id/6514504",
-    "url": "https://news.cnyes.com/news/id/6514504"
-  },
-  {
-    "date": "2026-06-28T10:36:34+00:00",
-    "title": "2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代",
-    "region": "台股",
-    "category": "玻璃基板",
-    "impact": "中性",
-    "event_strength": "中",
-    "market_group": "電子股",
-    "news_region": "台股",
-    "related_keywords": [
-      "玻璃基板",
-      "TGV",
-      "Glass substrate"
-    ],
-    "related_stocks": [
-      "1802",
-      "1810",
-      "3044"
-    ],
-    "summary": "鉅亨網台股新聞 消息指出：2. 群創搶進台積電CoPoS供應鏈！玻璃基板、Chip-Last技術布局曝光 AI封裝迎新時代。此事件被歸類為 玻璃基板 題材，需觀察是否帶動相關族群資金輪動。",
-    "asurada_analysis": "阿斯拉連動分析：玻璃基板 題材若延續發酵，可觀察 1802、1810、3044 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "鉅亨網台股新聞",
     "source_url": "https://news.cnyes.com/news/id/6515003",
     "url": "https://news.cnyes.com/news/id/6515003"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一",
-    "region": "台股",
+    "region": "國際",
     "category": "AI伺服器",
     "impact": "偏多",
     "event_strength": "高",
     "market_group": "電子股",
-    "news_region": "台股",
+    "news_region": "國際",
     "related_keywords": [
       "AI伺服器",
       "AI 伺服器",
@@ -681,21 +648,21 @@
       "8210",
       "8499"
     ],
-    "summary": "鉅亨網台股新聞 消息指出：4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "鉅亨網美股新聞 消息指出：4. 輝達再擴張AI版圖！資料中心乙太網路交換器收入暴增193%、悄悄登頂全球第一。此事件被歸類為 AI伺服器 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：AI伺服器 題材若延續發酵，可觀察 2305、2356、2359、2360、2368、2376、2382、2404 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "鉅亨網台股新聞",
+    "source_name": "鉅亨網美股新聞",
     "source_url": "https://news.cnyes.com/news/id/6514842",
     "url": "https://news.cnyes.com/news/id/6514842"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "5. ABF迎史上最大缺貨潮！AI代理、HPC需求暴增 供應鏈迎最強賣方市場",
-    "region": "台股",
+    "region": "國際",
     "category": "PCB",
     "impact": "偏多",
     "event_strength": "中",
     "market_group": "電子股",
-    "news_region": "台股",
+    "news_region": "國際",
     "related_keywords": [
       "PCB",
       "印刷電路板",
@@ -735,14 +702,14 @@
       "4958",
       "8046"
     ],
-    "summary": "鉅亨網台股新聞 消息指出：5. ABF迎史上最大缺貨潮！AI代理、HPC需求暴增 供應鏈迎最強賣方市場。此事件被歸類為 PCB 題材，需觀察是否帶動相關族群資金輪動。",
+    "summary": "鉅亨網美股新聞 消息指出：5. ABF迎史上最大缺貨潮！AI代理、HPC需求暴增 供應鏈迎最強賣方市場。此事件被歸類為 PCB 題材，需觀察是否帶動相關族群資金輪動。",
     "asurada_analysis": "阿斯拉連動分析：PCB 題材若延續發酵，可觀察 2059、2368、2383、2460、2467、3003、3037、3321 是否同步出現量價轉強、營收確認或法人重新評價。",
-    "source_name": "鉅亨網台股新聞",
+    "source_name": "鉅亨網美股新聞",
     "source_url": "https://news.cnyes.com/news/id/6515005",
     "url": "https://news.cnyes.com/news/id/6515005"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "6/26新台幣兌美元匯率以31.860元作收、貶值2.5分...",
     "region": "台股",
     "category": "金融壽險",
@@ -776,7 +743,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=e9524465-598e-4103-ba3f-c6490bb7251f&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "Fed有望只放話不升息？華許樹威信、通膨預期降",
     "region": "台股",
     "category": "金融壽險",
@@ -810,7 +777,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=682a608c-c553-40b8-a8ea-2a3168527ac6&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "SpaceX IPO熱退燒 多檔太空股腰斬、向現實妥協...",
     "region": "台股",
     "category": "低軌衛星",
@@ -837,7 +804,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=ae84ab85-1731-47ff-ad65-097a7a49c05d&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "新台幣兌美元匯價中午暫收31.887元，貶值5.2分...",
     "region": "台股",
     "category": "金融壽險",
@@ -871,7 +838,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=860bd5c6-6858-4c9c-9d39-b75c72f3216f&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "OPEC影響力恐大減？傳伊拉克揚言退團 油價軟",
     "region": "台股",
     "category": "原物料",
@@ -899,7 +866,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=433321c4-3432-46e1-9a1b-4ef095cc45f1&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "記憶體大缺 美光不背鍋、控特定客戶狂砍價肇禍",
     "region": "台股",
     "category": "記憶體",
@@ -935,7 +902,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=61aff2a8-3bc0-4968-858d-133ffc057657&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "三星LG包辦iPhone 18 Pro面板訂單 京東方出局...",
     "region": "台股",
     "category": "記憶體",
@@ -971,7 +938,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=0138af61-1855-4f5c-8499-eef8b3cacbdd&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "花旗唱多、Sandisk飆20% 美光市值一度超越Met...",
     "region": "台股",
     "category": "記憶體",
@@ -1007,7 +974,7 @@
     "url": "https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=d171a07f-7abc-4bec-a186-2565f150daf3&c=MB010000"
   },
   {
-    "date": "2026-06-28T10:36:34+00:00",
+    "date": "2026-06-28T11:18:33+00:00",
     "title": "美5月核心PCE年增3.4% 市場預期Fed將轉鷹...",
     "region": "台股",
     "category": "金融壽險",
