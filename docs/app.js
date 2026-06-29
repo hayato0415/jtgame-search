@@ -3714,6 +3714,19 @@ function portfolioStockLink(holding) {
   return code ? `<a class="stock-link" href="stock.html?code=${encodeURIComponent(code)}">${escapeHtml(code)}</a>` : "-";
 }
 
+function portfolioActionButtons(holding) {
+  const code = normalizeCode(holding.symbol || holding.code);
+  const name = holding.name || displayStockName(code);
+  const price = safeNumber(holding.current_price);
+  const label = `${code} ${name}`.trim();
+  return `
+    <div class="portfolio-row-actions">
+      <button type="button" class="portfolio-row-action" data-portfolio-action="buy" data-symbol="${escapeHtml(code)}" data-label="${escapeHtml(label)}" data-price="${escapeHtml(price)}">加碼</button>
+      <button type="button" class="portfolio-row-action is-sell" data-portfolio-action="sell" data-symbol="${escapeHtml(code)}" data-label="${escapeHtml(label)}" data-price="${escapeHtml(price)}">減碼</button>
+    </div>
+  `;
+}
+
 function portfolioAllocationBar(label, percent, tone = "") {
   const safePercent = Math.max(0, Math.min(100, Number.isFinite(percent) ? percent : 0));
   return `
@@ -3764,6 +3777,7 @@ function portfolioTable(holdings, totalValue) {
         <td class="cell-number ${metrics.pnl >= 0 ? "is-profit" : "is-loss"}">${escapeHtml(signedPercentText(metrics.pnlPct))}</td>
         <td class="cell-number">${escapeHtml(`${metrics.weight.toFixed(2)}%`)}</td>
         <td>${chip(status.text, status.tone)}</td>
+        <td>${portfolioActionButtons(holding)}</td>
       </tr>
     `;
   }).join("");
@@ -3771,7 +3785,7 @@ function portfolioTable(holdings, totalValue) {
     <div class="table-wrap portfolio-table-wrap">
       <table class="portfolio-table">
         <thead>
-          <tr><th>代號</th><th>名稱</th><th>題材</th><th>持有股數</th><th>平均成本</th><th>現價</th><th>投資成本</th><th>目前市值</th><th>損益金額</th><th>損益率</th><th>持股占比</th><th>狀態</th></tr>
+          <tr><th>代號</th><th>名稱</th><th>題材</th><th>持有股數</th><th>平均成本</th><th>現價</th><th>投資成本</th><th>目前市值</th><th>損益金額</th><th>損益率</th><th>持股占比</th><th>狀態</th><th>操作</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
@@ -3860,6 +3874,22 @@ function upsertPortfolioHolding(portfolio, symbol, action, shares, price) {
 function bindPortfolioCalculator(portfolio) {
   const button = $("#portfolioCalcButton");
   if (!button) return;
+  $all(".portfolio-row-action").forEach((actionButton) => {
+    actionButton.addEventListener("click", () => {
+      const symbolInput = $("#portfolioCalcSymbol");
+      const actionSelect = $("#portfolioCalcAction");
+      const priceInput = $("#portfolioCalcPrice");
+      const sharesInput = $("#portfolioCalcShares");
+      if (symbolInput) symbolInput.value = actionButton.dataset.label || actionButton.dataset.symbol || "";
+      if (actionSelect) actionSelect.value = actionButton.dataset.portfolioAction || "buy";
+      if (priceInput && actionButton.dataset.price) priceInput.value = actionButton.dataset.price;
+      if (sharesInput) {
+        sharesInput.focus();
+        sharesInput.select();
+      }
+      $("#portfolioCalcButton")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
   button.addEventListener("click", () => {
     const symbol = resolveStockQuery($("#portfolioCalcSymbol")?.value);
     const action = $("#portfolioCalcAction")?.value || "buy";

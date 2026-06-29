@@ -3096,6 +3096,33 @@ tr:nth-child(even) { background: #f8fafc; }
   white-space: nowrap;
 }
 
+.portfolio-row-actions {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.portfolio-row-action {
+  background: #eaf2ff;
+  border: 1px solid #b9d4ff;
+  border-radius: 999px;
+  color: #1450a3;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 7px 12px;
+}
+
+.portfolio-row-action.is-sell {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #9a3412;
+}
+
+.portfolio-row-action:hover {
+  filter: brightness(.97);
+}
+
 .portfolio-allocation {
   display: grid;
   gap: 12px;
