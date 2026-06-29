@@ -2792,9 +2792,48 @@ function renderNews() {
   });
 }
 
+function isoDateOnly(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const normalized = text.replace(" Asia/Taipei", "").replace(/\//g, "-");
+  const match = normalized.match(/(20\d{2})-(\d{1,2})-(\d{1,2})/);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+  const parsed = new Date(text);
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+  return "";
+}
+
+function explicitNewsDates(event) {
+  const text = [event.title, event.summary, event.asurada_analysis].filter(Boolean).join(" ");
+  const dates = [];
+  const baseYear = isoDateOnly(event.date || state.newsLatestMeta?.updated_at).slice(0, 4) || String(new Date().getFullYear());
+  const fullDatePattern = /(20\d{2})[/-](\d{1,2})[/-](\d{1,2})/g;
+  const shortDatePattern = /(^|[^\d])(\d{1,2})\/(\d{1,2})(?!\d)/g;
+  let match;
+  while ((match = fullDatePattern.exec(text)) !== null) {
+    dates.push(`${match[1]}-${match[2].padStart(2, "0")}-${match[3].padStart(2, "0")}`);
+  }
+  while ((match = shortDatePattern.exec(text)) !== null) {
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      dates.push(`${baseYear}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
+    }
+  }
+  return [...new Set(dates)].sort((a, b) => b.localeCompare(a));
+}
+
+function effectiveNewsDateValue(event) {
+  const explicit = explicitNewsDates(event || {});
+  return explicit[0] || isoDateOnly(event?.date || event?.updated_at);
+}
+
 function newsLatestDateValue() {
   const dates = (state.news || [])
-    .map((event) => String(event.date || event.updated_at || "").trim())
+    .map((event) => effectiveNewsDateValue(event))
     .filter(Boolean)
     .sort((a, b) => b.localeCompare(a));
   return dates[0] || "";
@@ -2802,11 +2841,23 @@ function newsLatestDateValue() {
 
 function newsLatestUpdateText() {
   const meta = state.newsLatestMeta || {};
-  const latest = meta.updated_at || newsLatestDateValue();
+  const latest = meta.updated_at || "";
   const stage = meta.stage_label || meta.stage || "";
   const schedule = meta.schedule_time ? `｜排程 ${meta.schedule_time}` : "";
-  if (!latest) return "每日更新時間：資料尚未更新";
-  return `每日更新時間：${formatDashboardTime(latest)}${stage ? `｜${stage}` : ""}${schedule}`;
+  if (!latest) return "每日整理時間：資料尚未更新";
+  return `每日整理時間：${formatDashboardTime(latest)}${stage ? `｜${stage}` : ""}${schedule}`;
+}
+
+function newsContentLatestText() {
+  const latest = newsLatestDateValue();
+  return latest ? `新聞內容最新日期：${formatDashboardTime(latest)}` : "新聞內容最新日期：資料尚未更新";
+}
+
+function newsFreshnessWarningText() {
+  const packageDate = isoDateOnly(state.newsLatestMeta?.updated_at);
+  const contentDate = newsLatestDateValue();
+  if (!packageDate || !contentDate || contentDate >= packageDate) return "";
+  return `提醒：目前新聞來源內容最新日期為 ${formatDashboardTime(contentDate)}，但資料檔整理時間為 ${formatDashboardTime(state.newsLatestMeta.updated_at)}；代表排程已執行，但來源尚未抓到同日新聞。`;
 }
 
 function newsImportanceScore(event) {
@@ -2835,7 +2886,7 @@ function newsAccordionItem(event, index) {
             ${hasSource ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>` : escapeHtml(title)}
           </span>
           <span class="news-summary-meta">
-            ${escapeHtml(formatDate(event.date))} · ${escapeHtml(sourceLabel)} · ${escapeHtml(event.category || "未分類")}
+            ${escapeHtml(formatDate(effectiveNewsDateValue(event) || event.date))} · ${escapeHtml(sourceLabel)} · ${escapeHtml(event.category || "未分類")}
           </span>
         </span>
         <span class="news-summary-tags">
@@ -2873,6 +2924,8 @@ function renderNews() {
         <h2>重大新聞雷達</h2>
         <span>${newsLatestUpdateText()}</span>
       </div>
+      <p class="muted">${newsContentLatestText()}</p>
+      ${newsFreshnessWarningText() ? `<div class="empty">${escapeHtml(newsFreshnessWarningText())}</div>` : ""}
       <div class="news-rule-grid">
         <div>
           <h3>事件強度依據</h3>
@@ -2903,7 +2956,7 @@ function renderNews() {
     const list = state.news
       .filter((event) => isRealSourceUrl(eventUrl(event)) && eventNewsRegion(event) === region)
       .filter((event) => ["高", "中高"].includes(event.event_strength))
-      .sort((a, b) => newsImportanceScore(b) - newsImportanceScore(a) || String(b.date || "").localeCompare(String(a.date || "")))
+      .sort((a, b) => newsImportanceScore(b) - newsImportanceScore(a) || String(effectiveNewsDateValue(b) || b.date || "").localeCompare(String(effectiveNewsDateValue(a) || a.date || "")))
       .slice(0, 5);
     const target = $(`#news-${key}`);
     const count = $(`#count-${key}`);
