@@ -138,9 +138,43 @@ def run_optional_script(script: str, args: list[str]) -> dict[str, Any]:
         "script": script,
         "success": result.returncode == 0,
         "status": "ok" if result.returncode == 0 else "failed",
-        "stdout_tail": (result.stdout or "")[-1200:],
-        "stderr_tail": (result.stderr or "")[-1200:],
+        "message": "completed" if result.returncode == 0 else "failed; see GitHub Actions log for details",
     }
+
+
+def public_source_runs(source_runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "script": run.get("script", ""),
+            "success": bool(run.get("success")),
+            "status": run.get("status", ""),
+            "message": run.get("message") or run.get("error") or "",
+        }
+        for run in source_runs
+    ]
+
+
+def sanitize_log_entries(entries: list[Any]) -> list[dict[str, Any]]:
+    clean_entries: list[dict[str, Any]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        clean = dict(entry)
+        if isinstance(clean.get("source_runs"), list):
+            clean["source_runs"] = public_source_runs(clean["source_runs"])
+        if isinstance(clean.get("news_fetch_status"), dict):
+            clean["news_fetch_status"] = {
+                "success": bool(clean["news_fetch_status"].get("success")),
+                "status": clean["news_fetch_status"].get("status", ""),
+            }
+        if isinstance(clean.get("quote_refresh_status"), dict):
+            clean["quote_refresh_status"] = {
+                "success": bool(clean["quote_refresh_status"].get("success")),
+                "status": clean["quote_refresh_status"].get("status", ""),
+                "market_date": clean["quote_refresh_status"].get("market_date", ""),
+            }
+        clean_entries.append(clean)
+    return clean_entries
 
 
 def normalize_dataset(filename: str, build_id: str, updated_at: str, now_dt: datetime) -> dict[str, Any]:
@@ -187,6 +221,7 @@ def build_update_log(build_id: str, updated_at: str, datasets: dict[str, dict[st
     entries = old.get("entries") if isinstance(old, dict) else []
     if not isinstance(entries, list):
         entries = []
+    entries = sanitize_log_entries(entries)
     entry = {
         "build_id": build_id,
         "updated_at": updated_at,
@@ -194,7 +229,7 @@ def build_update_log(build_id: str, updated_at: str, datasets: dict[str, dict[st
         "status": "ok",
         "datasets": {name: {"items_count": data.get("items_count", 0), "stale": data.get("stale", False)} for name, data in datasets.items()},
         "warnings": warnings,
-        "source_runs": source_runs,
+        "source_runs": public_source_runs(source_runs),
     }
     return {
         "build_id": build_id,
@@ -205,7 +240,7 @@ def build_update_log(build_id: str, updated_at: str, datasets: dict[str, dict[st
         "stale": any(data.get("stale") for data in datasets.values()),
         "stale_reason": "部分資料集保留上一版內容" if any(data.get("stale") for data in datasets.values()) else "",
         "warnings": warnings,
-        "source_runs": source_runs,
+        "source_runs": public_source_runs(source_runs),
         "entries": [entry, *entries][:100],
     }
 
@@ -229,7 +264,7 @@ def build_site_version(build_id: str, updated_at: str, datasets: dict[str, dict[
             for name, data in datasets.items()
         },
         "warnings": warnings,
-        "source_runs": source_runs,
+        "source_runs": public_source_runs(source_runs),
     }
 
 

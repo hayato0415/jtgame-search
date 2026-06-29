@@ -1,6 +1,6 @@
 {
-  "build_id": "20260629-2035-full",
-  "updated_at": "2026-06-29T20:35:34+08:00",
+  "build_id": "20260629-2040-full",
+  "updated_at": "2026-06-29T20:40:15+08:00",
   "timezone": "Asia/Taipei",
   "mode": "full",
   "slot_label": "整站全量更新",
@@ -57,7 +57,7 @@
     "update-log.json": {
       "status": "stale",
       "items_count": 7,
-      "content_latest_at": "2026-06-29T20:35:34+08:00",
+      "content_latest_at": "2026-06-29T20:40:15+08:00",
       "stale_reason": "部分資料集保留上一版內容"
     }
   },
@@ -69,8 +69,7 @@
       "script": "fetch_news_sources.py",
       "success": false,
       "status": "failed",
-      "stdout_tail": "",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"C:\\Users\\Jasper\\Documents\\asurada-stock-lab\\��˹��̨�����������_\\scripts\\fetch_news_sources.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'\n"
+      "message": "failed; see GitHub Actions log for details"
     }
   ]
 }
