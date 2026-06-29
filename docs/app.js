@@ -3708,6 +3708,9 @@ function portfolioSummaryCards(summary) {
 }
 
 function portfolioTable(holdings, totalValue) {
+  if (!holdings.length) {
+    return `<div class="empty">尚未新增持股。請編輯 <code>docs/data/portfolio.json</code> 加入 holdings 後，這裡才會顯示持股明細。</div>`;
+  }
   const rows = holdings.map((holding) => {
     const code = normalizeCode(holding.symbol || holding.code);
     const metrics = portfolioHoldingMetrics(holding, totalValue);
@@ -3742,6 +3745,9 @@ function portfolioTable(holdings, totalValue) {
 }
 
 function portfolioAllocation(holdings, summary) {
+  if (!holdings.length && summary.cash <= 0) {
+    return `<div class="empty">目前持股與現金皆為 0。新增持股或現金後，資金分配才會顯示。</div>`;
+  }
   const stockBars = holdings.map((holding) => {
     const code = normalizeCode(holding.symbol || holding.code);
     const metrics = portfolioHoldingMetrics(holding, summary.totalValue);
@@ -3817,7 +3823,7 @@ function bindPortfolioCalculator(portfolio, summary) {
       const newCost = metrics.cost + buyAmount;
       const newAvgCost = newShares > 0 ? newCost / newShares : 0;
       const newMarketValue = newShares * price;
-      const newTotalValue = summary.totalValue;
+      const newTotalValue = summary.totalValue + buyAmount;
       const newWeight = newTotalValue > 0 ? (newMarketValue / newTotalValue) * 100 : 0;
       result.innerHTML = `
         <div class="portfolio-calc-grid">
@@ -3852,7 +3858,7 @@ async function renderPortfolio() {
   const main = $("#app");
   const portfolio = await loadJson("data/portfolio.json", null);
   const holdings = Array.isArray(portfolio?.holdings) ? portfolio.holdings : [];
-  if (!portfolio || !holdings.length) {
+  if (!portfolio) {
     main.innerHTML = `<section class="panel"><div class="empty">投資組合資料尚未建立或讀取失敗</div></section>`;
     return;
   }
