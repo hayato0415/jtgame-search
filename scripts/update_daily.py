@@ -15,17 +15,17 @@ STAGES = {
     "premarket": {
         "label": "盤前更新",
         "schedule_time": "08:07",
-        "targets": ["market"],
+        "targets": ["market", "news"],
     },
     "intraday": {
         "label": "盤中更新",
         "schedule_time": "10:07",
-        "targets": ["market", "themes", "radar"],
+        "targets": ["market", "themes", "news", "radar"],
     },
     "close": {
         "label": "收盤快照",
         "schedule_time": "13:37",
-        "targets": ["market", "radar"],
+        "targets": ["market", "news", "radar"],
     },
     "afterhours": {
         "label": "盤後更新",
