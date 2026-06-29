@@ -321,6 +321,8 @@ function resolveStockQuery(value) {
   if (!raw) return "";
   const codeCandidate = normalizeCode(raw);
   if (/^\d{4}$/.test(codeCandidate)) return codeCandidate;
+  const embeddedCode = raw.match(/(\d{4})/);
+  if (embeddedCode) return embeddedCode[1];
   const normalizedName = raw.toLowerCase();
   const masterEntries = Object.keys(state.master || {}).map((code) => {
     const record = masterRecord(code);
@@ -3749,14 +3751,25 @@ function portfolioAllocation(holdings, summary) {
   return `${stockBars}${portfolioAllocationBar("現金", summary.cashWeight, "cash")}`;
 }
 
+function portfolioStockOptions(holdings = []) {
+  const seen = new Set();
+  const options = [];
+  const addOption = (code, name) => {
+    const normalized = normalizeCode(code);
+    if (!/^\d{4}$/.test(normalized) || seen.has(normalized)) return;
+    seen.add(normalized);
+    const label = `${normalized} ${name || displayStockName(normalized)}`.trim();
+    options.push(`<option value="${escapeHtml(label)}"></option>`);
+  };
+  holdings.forEach((holding) => addOption(holding.symbol || holding.code, holding.name || masterName(holding.symbol || holding.code)));
+  Object.keys(state.master || {}).sort().forEach((code) => addOption(code, masterName(code)));
+  return options.join("");
+}
+
 function portfolioCalculator(holdings) {
-  const options = holdings.map((holding) => {
-    const code = normalizeCode(holding.symbol || holding.code);
-    return `<option value="${escapeHtml(code)}">${escapeHtml(`${code} ${holding.name || displayStockName(code)}`.trim())}</option>`;
-  }).join("");
   return `
     <div class="portfolio-calculator">
-      <label>選擇股票<select id="portfolioCalcSymbol">${options}</select></label>
+      <label>選擇股票<input id="portfolioCalcSymbol" list="portfolioStockOptions" placeholder="輸入代號或中文名稱，例如 2337 或 旺宏"><datalist id="portfolioStockOptions">${portfolioStockOptions(holdings)}</datalist></label>
       <label>操作類型<select id="portfolioCalcAction"><option value="buy">買進</option><option value="sell">賣出</option></select></label>
       <label>股數<input id="portfolioCalcShares" type="number" min="0" step="1" placeholder="例如 100"></label>
       <label>價格<input id="portfolioCalcPrice" type="number" min="0" step="0.01" placeholder="例如 145.5"></label>
@@ -3770,16 +3783,33 @@ function bindPortfolioCalculator(portfolio, summary) {
   const button = $("#portfolioCalcButton");
   if (!button) return;
   button.addEventListener("click", () => {
-    const symbol = normalizeCode($("#portfolioCalcSymbol")?.value);
+    const symbol = resolveStockQuery($("#portfolioCalcSymbol")?.value);
     const action = $("#portfolioCalcAction")?.value || "buy";
     const shares = Math.max(0, safeNumber($("#portfolioCalcShares")?.value));
     const price = Math.max(0, safeNumber($("#portfolioCalcPrice")?.value));
-    const holding = (portfolio.holdings || []).find((item) => normalizeCode(item.symbol || item.code) === symbol);
+    const existingHolding = (portfolio.holdings || []).find((item) => normalizeCode(item.symbol || item.code) === symbol);
     const result = $("#portfolioCalcResult");
-    if (!holding || !shares || !price || !result) {
-      if (result) result.innerHTML = "請選擇股票，並輸入有效股數與價格。";
+    if (!result) return;
+    if (!symbol || (!knownStock(symbol) && !existingHolding && !stockByCode(symbol))) {
+      result.innerHTML = "找不到此股票代號或名稱，請確認是否輸入正確。";
       return;
     }
+    if (!shares || !price) {
+      result.innerHTML = "請輸入有效股數與價格。";
+      return;
+    }
+    if (action === "sell" && !existingHolding) {
+      result.innerHTML = "此股票目前不在持股內，無法做賣出試算。";
+      return;
+    }
+    const holding = existingHolding || {
+      symbol,
+      name: displayStockName(symbol),
+      shares: 0,
+      avg_cost: 0,
+      current_price: price,
+      theme: "",
+    };
     const metrics = portfolioHoldingMetrics(holding, summary.totalValue);
     if (action === "buy") {
       const buyAmount = shares * price;
