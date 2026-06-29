@@ -17,6 +17,7 @@ const state = {
   newsThemeRanking: { generated_at: "", items: [], available: false },
   lowBaseRanking: { generated_at: "", items: [], available: false },
   latestUpdate: { updated_at: "", stage: "", stage_label: "", schedule_time: "", data_version: "" },
+  newsLatestMeta: { updated_at: "", stage: "", stage_label: "", schedule_time: "", data_version: "" },
   updateLog: { entries: [], available: false },
   universeCount: 0,
   monthlyRevenue: [],
@@ -196,7 +197,7 @@ async function loadRevenueHistory() {
 }
 
 async function loadAllData() {
-  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5, updateReport, stockDataMeta] = await Promise.all([
+  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5, updateReport, stockDataMeta, newsLatest] = await Promise.all([
     loadJson("data/stocks-latest.json", []),
     loadJson("data/news-events.json", []),
     loadJson("data/themes-map.json", {}),
@@ -209,9 +210,12 @@ async function loadAllData() {
     loadJson("data/theme-top5.json", null),
     loadJson("data/update_report.json", null),
     loadJson("data/stock-data-meta.json", null),
+    loadJson("data/news-latest.json", null),
   ]);
   state.stocks = Array.isArray(stocks) ? stocks : [];
-  state.news = Array.isArray(news) ? news : [];
+  const latestNewsItems = latestItems(newsLatest);
+  state.news = latestNewsItems.length ? latestNewsItems : (Array.isArray(news) ? news : []);
+  state.newsLatestMeta = latestMeta(newsLatest);
   state.themes = Array.isArray(themes)
     ? Object.fromEntries(themes.map((theme) => [theme.name || theme.theme_name, theme]))
     : (themes && typeof themes === "object" ? themes : {});
@@ -245,6 +249,7 @@ async function loadRadarData() {
   }
   state.stocks = radarItems;
   state.news = latestItems(newsLatest);
+  state.newsLatestMeta = latestMeta(newsLatest);
   state.hotThemes = normalizeDashboardData(themesLatest);
   if (themesLatest?.items?.length) {
     state.themeTop5 = normalizeDashboardData(themesLatest);
@@ -2796,8 +2801,12 @@ function newsLatestDateValue() {
 }
 
 function newsLatestUpdateText() {
-  const latest = newsLatestDateValue();
-  return latest ? `每日更新時間：${formatDashboardTime(latest)}` : "每日更新時間：資料尚未更新";
+  const meta = state.newsLatestMeta || {};
+  const latest = meta.updated_at || newsLatestDateValue();
+  const stage = meta.stage_label || meta.stage || "";
+  const schedule = meta.schedule_time ? `｜排程 ${meta.schedule_time}` : "";
+  if (!latest) return "每日更新時間：資料尚未更新";
+  return `每日更新時間：${formatDashboardTime(latest)}${stage ? `｜${stage}` : ""}${schedule}`;
 }
 
 function newsImportanceScore(event) {
