@@ -89,6 +89,26 @@ def parse_source_datetime(text: str, now: datetime) -> tuple[str, str]:
     return "", "missing"
 
 
+def parse_event_datetime(value: str) -> datetime | None:
+    if not value:
+        return None
+    text = str(value).strip()
+    for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        try:
+            parsed = datetime.strptime(text[:len(datetime.now().strftime(fmt))], fmt)
+            return parsed.replace(tzinfo=TAIPEI_TZ)
+        except ValueError:
+            continue
+    return None
+
+
+def is_within_recent_days(value: str, current: datetime, days: int = 5) -> bool:
+    parsed = parse_event_datetime(value)
+    if not parsed:
+        return False
+    return timedelta(0) <= current - parsed <= timedelta(days=days)
+
+
 def anchor_context(anchor) -> str:
     chunks = [anchor.get_text(" ", strip=True)]
     node = anchor
@@ -152,6 +172,7 @@ def build_events(limit: int, output: Path) -> tuple[list[dict[str, object]], dic
     warnings: list[str] = []
     source_success = 0
 
+    previous_items: list[dict[str, object]] = []
     previous_urls: set[str] = set()
     if output.exists():
         try:
@@ -159,6 +180,8 @@ def build_events(limit: int, output: Path) -> tuple[list[dict[str, object]], dic
             previous_items = previous.get("items", previous) if isinstance(previous, dict) else previous
             if isinstance(previous_items, list):
                 previous_urls = {str(item.get("source_url") or item.get("url") or "") for item in previous_items if isinstance(item, dict)}
+            else:
+                previous_items = []
         except Exception as exc:
             warnings.append(f"舊新聞檔讀取失敗：{exc}")
 
@@ -175,6 +198,8 @@ def build_events(limit: int, output: Path) -> tuple[list[dict[str, object]], dic
             title = item["title"]
             url = item["url"]
             if url in seen_urls or is_similar_title(title, seen_titles):
+                continue
+            if not is_within_recent_days(item["published_at"], current):
                 continue
             category = legacy.infer_category(title)
             if not category:
@@ -206,6 +231,26 @@ def build_events(limit: int, output: Path) -> tuple[list[dict[str, object]], dic
                 break
         if len(events) >= limit:
             break
+
+    if previous_items:
+        for old in previous_items:
+            if len(events) >= limit:
+                break
+            if not isinstance(old, dict):
+                continue
+            url = str(old.get("source_url") or old.get("url") or "")
+            title = str(old.get("title") or "")
+            if not url or url in seen_urls or is_similar_title(title, seen_titles):
+                continue
+            if not is_within_recent_days(str(old.get("date") or ""), current):
+                continue
+            if not legacy.is_real_url(url):
+                continue
+            seen_urls.add(url)
+            seen_titles.append(title_key(title))
+            merged = dict(old)
+            merged["carried_forward"] = True
+            events.append(merged)
 
     new_urls = {str(item.get("source_url") or item.get("url") or "") for item in events}
     new_items_count = len([url for url in new_urls if url and url not in previous_urls])

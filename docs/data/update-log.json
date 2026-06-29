@@ -1,20 +1,22 @@
 {
-  "updated_at": "2026-06-29 16:10:24 Asia/Taipei",
+  "updated_at": "2026-06-29 16:32:15 Asia/Taipei",
   "stage": "intraday",
   "stage_label": "盤中更新",
   "timezone": "Asia/Taipei",
   "source_count": 4,
-  "data_version": "20260629-1610-intraday",
+  "data_version": "20260629-1632-intraday",
   "warnings": [],
   "news_fetch_status": {
     "success": true,
-    "generated_at": "2026-06-29 16:10:26 Asia/Taipei",
-    "events_count": 21,
-    "new_items_count": 1,
-    "content_latest_at": "2026-06-29 14:05",
+    "generated_at": "2026-06-29 16:32:17 Asia/Taipei",
+    "events_count": 17,
+    "new_items_count": 5,
+    "content_latest_at": "2026-06-29 16:19",
     "sources_attempted": 6,
-    "sources_success": 6,
-    "errors": [],
+    "sources_success": 5,
+    "errors": [
+      "CMoney 台股即時消息: 500 Server Error: Internal Server Error for url: https://www.cmoney.tw/notes/?navId=twstock_news"
+    ],
     "warnings": [
       "CMoney 美股新聞快訊: SSL 驗證失敗，已使用 verify=False 重試",
       "CMoney 台股即時消息: SSL 驗證失敗，已使用 verify=False 重試",
@@ -26,6 +28,21 @@
     "stderr": ""
   },
   "entries": [
+    {
+      "updated_at": "2026-06-29 16:32:15 Asia/Taipei",
+      "stage": "intraday",
+      "stage_label": "盤中更新",
+      "schedule_time": "10:07",
+      "timezone": "Asia/Taipei",
+      "source_count": 4,
+      "data_version": "20260629-1632-intraday",
+      "updated_files": [
+        "docs/data/market-latest.json",
+        "docs/data/themes-latest.json",
+        "docs/data/news-latest.json",
+        "docs/data/radar-latest.json"
+      ]
+    },
     {
       "updated_at": "2026-06-29 16:10:24 Asia/Taipei",
       "stage": "intraday",

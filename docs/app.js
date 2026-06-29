@@ -2943,8 +2943,19 @@ function newsPassesFilter(event, filter) {
   return true;
 }
 
+function newsWithinRecentDays(event, days = 5) {
+  const date = effectiveNewsDateValue(event);
+  const baseDate = isoDateOnly(state.newsLatestMeta?.updated_at || state.newsLatestMeta?.content_latest_at || new Date().toISOString());
+  if (!date || !baseDate) return false;
+  const eventTime = Date.parse(`${date}T00:00:00+08:00`);
+  const baseTime = Date.parse(`${baseDate}T00:00:00+08:00`);
+  if (Number.isNaN(eventTime) || Number.isNaN(baseTime)) return false;
+  const diffDays = (baseTime - eventTime) / 86400000;
+  return diffDays >= 0 && diffDays <= days;
+}
+
 function majorNewsForRegion(region) {
-  const base = state.news.filter((event) => isRealSourceUrl(eventUrl(event)) && eventNewsRegion(event) === region);
+  const base = state.news.filter((event) => isRealSourceUrl(eventUrl(event)) && eventNewsRegion(event) === region && newsWithinRecentDays(event, 5));
   const primary = sortedNewsItems(base.filter((event) => ["高", "中高"].includes(event.event_strength)));
   const fallback = sortedNewsItems(base.filter((event) => event.event_strength === "中"));
   const selected = primary.slice();
@@ -2956,7 +2967,7 @@ function majorNewsForRegion(region) {
       seen.add(key);
     }
   });
-  return selected.slice(0, 5);
+  return sortedNewsItems(selected).slice(0, 5);
 }
 
 function renderNewsLists(filter = "major") {
