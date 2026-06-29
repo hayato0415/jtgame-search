@@ -197,8 +197,9 @@ async function loadRevenueHistory() {
 }
 
 async function loadAllData() {
-  const [stocks, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5, updateReport, stockDataMeta, newsLatest] = await Promise.all([
+  const [stocks, radarLatest, news, themes, concepts, themeCandidates, technical, profiles, master, dailyHotThemes, themeTop5, updateReport, stockDataMeta, newsLatest] = await Promise.all([
     loadJson("data/stocks-latest.json", []),
+    loadJson("data/radar-latest.json", null),
     loadJson("data/news-events.json", []),
     loadJson("data/themes-map.json", {}),
     loadJson("data/concepts-map.json", {}),
@@ -212,7 +213,8 @@ async function loadAllData() {
     loadJson("data/stock-data-meta.json", null),
     loadJson("data/news-latest.json", null),
   ]);
-  state.stocks = Array.isArray(stocks) ? stocks : [];
+  const radarItems = latestItems(radarLatest);
+  state.stocks = radarItems.length ? radarItems : (Array.isArray(stocks) ? stocks : latestItems(stocks));
   const latestNewsItems = latestItems(newsLatest);
   state.news = latestNewsItems.length ? latestNewsItems : (Array.isArray(news) ? news : []);
   state.newsLatestMeta = latestMeta(newsLatest);
@@ -692,6 +694,38 @@ function displayVolume(stock) {
   return officialRankEligible(stock) ? cleanDisplay(stock?.volume) : "價格資料缺漏";
 }
 
+function displayVolumeLots(stock) {
+  if (!officialRankEligible(stock)) return "價格資料缺漏";
+  const volume = toNumber(stock?.volume_value ?? stock?.volume);
+  if (Number.isFinite(volume)) return `${dashboardNumber(volume, 0)} 張`;
+  const fallback = cleanDisplay(stock?.volume);
+  return fallback === "—" ? "資料待補" : `${fallback} 張`;
+}
+
+function displayChangePercent(stock) {
+  if (!officialRankEligible(stock)) return "價格資料缺漏";
+  const candidates = [
+    stock?.change_percent,
+    stock?.change_pct,
+    stock?.daily_change,
+    stock?.daily_change_pct,
+    stock?.price_change_pct,
+  ];
+  for (const value of candidates) {
+    const text = String(value ?? "").trim();
+    if (!text || text === "-" || text === "—") continue;
+    const number = toNumber(value);
+    if (Number.isFinite(number)) return dashboardPercent(number);
+    return cleanDisplay(value);
+  }
+  return "資料待補";
+}
+
+function latestRevenueAmountLabel(stock) {
+  const month = revenueMonthText(stock);
+  return month && month !== "當月份" ? `最新月份(${month})營收(百萬)` : "最新月份營收(百萬)";
+}
+
 function trustInfo(stock) {
   const signals = [
     {
@@ -956,8 +990,9 @@ function stockRadarDetail(stock) {
     ["AI選股排名", stock.rank],
     ["AI觀察分數", radarScore(stock, "market")],
     ["收盤價", displayClose(stock)],
-    ["成交量", displayVolume(stock)],
-    [labels.current, revenueAmount(stock)],
+    ["漲幅%", displayChangePercent(stock)],
+    ["成交量", displayVolumeLots(stock)],
+    [latestRevenueAmountLabel(stock), revenueAmount(stock)],
     [labels.mom, stock.revenue_mom],
     [labels.yoy, stock.revenue_yoy],
   ];
