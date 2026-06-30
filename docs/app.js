@@ -3349,6 +3349,8 @@ const NEWS_UPDATE_SCHEDULE = [
   ["21:00", "新聞更新"],
 ];
 
+NEWS_UPDATE_SCHEDULE.splice(0, NEWS_UPDATE_SCHEDULE.length, ["每小時", "新聞更新"]);
+
 function newsUpdateScheduleHtml() {
   const meta = state.newsLatestMeta || {};
   const currentTime = String(meta.schedule_time || "");
