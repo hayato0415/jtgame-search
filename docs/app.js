@@ -3338,36 +3338,15 @@ function effectiveNewsDateValue(event) {
   return explicit[0] || isoDateOnly(event?.date || event?.updated_at);
 }
 
-function newsLatestDateValue() {
-  const metaDate = state.newsLatestMeta?.content_latest_at || "";
-  if (metaDate) return metaDate;
-  const dates = (state.news || [])
-    .map((event) => effectiveNewsDateValue(event))
-    .filter(Boolean)
-    .sort((a, b) => b.localeCompare(a));
-  return dates[0] || "";
-}
-
-function newsLatestUpdateText() {
-  const meta = state.newsLatestMeta || {};
-  const latest = meta.updated_at || "";
-  const stage = meta.stage_label || meta.stage || "";
-  if (!latest) return "每日整理時間：資料尚未更新";
-  return `每日整理時間：${formatDashboardTime(latest)}${stage ? `｜本次資料階段：${stage}` : ""}`;
-}
-
-function newsContentLatestText() {
-  const latest = newsLatestDateValue();
-  return latest ? `新聞內容最新日期：${formatDashboardTime(latest)}` : "新聞內容最新日期：資料尚未更新";
-}
-
 const NEWS_UPDATE_SCHEDULE = [
-  ["00:00", "夜間更新"],
-  ["08:07", "盤前更新"],
-  ["11:07", "盤中更新"],
-  ["13:37", "收盤更新"],
-  ["17:07", "盤後籌碼"],
-  ["19:07", "晚間總結"],
+  ["00:00", "新聞更新"],
+  ["03:00", "新聞更新"],
+  ["06:00", "新聞更新"],
+  ["09:00", "新聞更新"],
+  ["12:00", "新聞更新"],
+  ["15:00", "新聞更新"],
+  ["18:00", "新聞更新"],
+  ["21:00", "新聞更新"],
 ];
 
 function newsUpdateScheduleHtml() {
@@ -3378,7 +3357,6 @@ function newsUpdateScheduleHtml() {
     <div class="news-schedule-box" aria-label="重大新聞定時更新表">
       <div class="news-schedule-heading">
         <strong>定時更新</strong>
-        <span>Asia/Taipei，實際內容以新聞來源成功抓取時間為準</span>
       </div>
       <div class="news-schedule-list">
         ${NEWS_UPDATE_SCHEDULE.map(([time, label]) => {
@@ -3388,17 +3366,6 @@ function newsUpdateScheduleHtml() {
       </div>
     </div>
   `;
-}
-
-function newsFreshnessWarningText() {
-  const meta = state.newsLatestMeta || {};
-  if (meta.stale) {
-    return meta.stale_reason || "新聞來源目前未取得新資料，以下為上次成功取得的新聞。";
-  }
-  const packageDate = isoDateOnly(meta.updated_at);
-  const contentDate = newsLatestDateValue();
-  if (!packageDate || !contentDate || contentDate >= packageDate) return "";
-  return `提醒：目前新聞來源內容最新日期為 ${formatDashboardTime(contentDate)}，但資料檔整理時間為 ${formatDashboardTime(meta.updated_at)}；代表排程已執行，但來源尚未抓到同日新聞。`;
 }
 
 function newsImportanceScore(event) {
@@ -3461,6 +3428,20 @@ function sortedNewsItems(items) {
     });
 }
 
+function sortedKeyNewsItems(items) {
+  return items
+    .slice()
+    .sort((a, b) => {
+      const scoreOrder = newsImportanceScore(b) - newsImportanceScore(a);
+      const dateOrder = String(effectiveNewsDateValue(b) || b.date || "").localeCompare(String(effectiveNewsDateValue(a) || a.date || ""));
+      return scoreOrder || dateOrder;
+    });
+}
+
+function newsItemIdentity(event) {
+  return eventUrl(event) || `${event.title || ""}|${effectiveNewsDateValue(event) || event.date || ""}`;
+}
+
 function newsPassesFilter(event, filter) {
   if (!isRealSourceUrl(eventUrl(event))) return false;
   const region = eventNewsRegion(event);
@@ -3474,7 +3455,7 @@ function newsPassesFilter(event, filter) {
 
 function newsWithinRecentDays(event, days = 5) {
   const date = effectiveNewsDateValue(event);
-  const baseDate = isoDateOnly(state.newsLatestMeta?.updated_at || state.newsLatestMeta?.content_latest_at || new Date().toISOString());
+  const baseDate = isoDateOnly(state.newsLatestMeta?.content_latest_at || state.newsLatestMeta?.updated_at || new Date().toISOString());
   if (!date || !baseDate) return false;
   const eventTime = Date.parse(`${date}T00:00:00+08:00`);
   const baseTime = Date.parse(`${baseDate}T00:00:00+08:00`);
@@ -3483,20 +3464,47 @@ function newsWithinRecentDays(event, days = 5) {
   return diffDays >= 0 && diffDays <= days;
 }
 
+function newsCandidatesForRegion(region) {
+  return state.news.filter((event) => (
+    isRealSourceUrl(eventUrl(event)) &&
+    eventNewsRegion(event) === region &&
+    newsWithinRecentDays(event, 5)
+  ));
+}
+
 function majorNewsForRegion(region) {
-  const base = state.news.filter((event) => isRealSourceUrl(eventUrl(event)) && eventNewsRegion(event) === region && newsWithinRecentDays(event, 5));
-  const primary = sortedNewsItems(base.filter((event) => ["高", "中高"].includes(event.event_strength)));
-  const fallback = sortedNewsItems(base.filter((event) => event.event_strength === "中"));
+  const base = newsCandidatesForRegion(region);
+  const primary = sortedKeyNewsItems(base.filter((event) => ["高", "中高"].includes(event.event_strength)));
+  const fallback = sortedKeyNewsItems(base.filter((event) => event.event_strength === "中"));
   const selected = primary.slice();
-  const seen = new Set(selected.map((event) => eventUrl(event) || event.title || ""));
+  const seen = new Set(selected.map(newsItemIdentity));
   fallback.forEach((event) => {
-    const key = eventUrl(event) || event.title || "";
+    const key = newsItemIdentity(event);
     if (selected.length < 5 && !seen.has(key)) {
       selected.push(event);
       seen.add(key);
     }
   });
-  return sortedNewsItems(selected).slice(0, 5);
+  return sortedKeyNewsItems(selected).slice(0, 5);
+}
+
+function secondaryNewsForRegion(region, primaryList, limit = 20) {
+  const seen = new Set(primaryList.map(newsItemIdentity));
+  return sortedKeyNewsItems(newsCandidatesForRegion(region))
+    .filter((event) => !seen.has(newsItemIdentity(event)))
+    .slice(0, limit);
+}
+
+function collapsedNewsGroupHtml(items, startIndex = 5) {
+  if (!items.length) return "";
+  return `
+    <details class="news-more-group">
+      <summary>其餘新聞 ${items.length} 則</summary>
+      <div class="news-more-list">
+        ${items.map((event, index) => newsAccordionItem(event, startIndex + index)).join("")}
+      </div>
+    </details>
+  `;
 }
 
 function renderNewsLists(filter = "major") {
@@ -3512,12 +3520,13 @@ function renderNewsLists(filter = "major") {
     const list = filter === "major"
       ? majorNewsForRegion(region)
       : globalList.filter((event) => eventNewsRegion(event) === region);
+    const secondary = filter === "major" ? secondaryNewsForRegion(region, list, 20) : [];
     const target = $(`#news-${key}`);
     const count = $(`#count-${key}`);
     if (count) count.textContent = `${list.length} 則`;
     if (target) {
       target.innerHTML = list.length
-        ? list.map(newsAccordionItem).join("")
+        ? `${list.map(newsAccordionItem).join("")}${collapsedNewsGroupHtml(secondary, list.length)}`
         : `<div class="empty">${filter === "major" ? "目前沒有高 / 中高新聞，且沒有可補位的中強度新聞" : "目前沒有符合此篩選的新聞"}</div>`;
     }
   });
@@ -3542,10 +3551,7 @@ function renderNews() {
     <section class="panel news-radar-intro compact">
       <div class="section-title">
         <h2>重大新聞雷達</h2>
-        <span>${newsLatestUpdateText()}</span>
       </div>
-      <p class="muted">${newsContentLatestText()}</p>
-      ${newsFreshnessWarningText() ? `<div class="empty">${escapeHtml(newsFreshnessWarningText())}</div>` : ""}
       ${newsUpdateScheduleHtml()}
       <div class="news-filter-tabs" role="tablist" aria-label="新聞篩選">
         ${filters.map(([key, label], index) => `<button class="news-filter-btn ${index === 0 ? "is-active" : ""}" type="button" data-news-filter="${key}">${label}</button>`).join("")}

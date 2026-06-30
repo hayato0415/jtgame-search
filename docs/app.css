@@ -1441,6 +1441,35 @@ tr:nth-child(even) { background: #f8fafc; }
   display: grid;
   gap: 10px;
 }
+.news-more-group {
+  background: #f8fafc;
+  border: 1px dashed #bfdbfe;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.news-more-group > summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 900;
+  list-style: none;
+  padding: 12px 16px;
+}
+.news-more-group > summary::-webkit-details-marker {
+  display: none;
+}
+.news-more-group > summary::after {
+  content: " 展開";
+  font-size: 13px;
+}
+.news-more-group[open] > summary::after {
+  content: " 收合";
+}
+.news-more-list {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
 .news-accordion-item {
   background: #f8fafc;
   border: 1px solid var(--line);
