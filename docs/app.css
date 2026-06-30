@@ -3190,6 +3190,78 @@ tr:nth-child(even) { background: #f8fafc; }
 .home-war-room .home-news-group-bearish {
   border-left: 4px solid #16a34a;
 }
+.home-war-room .home-news-accordion {
+  display: grid;
+  gap: 10px;
+}
+.home-war-room .home-news-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+.home-war-room .home-news-item summary {
+  align-items: center;
+  cursor: pointer;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  list-style: none;
+  padding: 12px;
+}
+.home-war-room .home-news-item summary::-webkit-details-marker {
+  display: none;
+}
+.home-war-room .home-news-rank {
+  color: #64748b;
+  font-weight: 900;
+}
+.home-war-room .home-news-summary-main {
+  min-width: 0;
+}
+.home-war-room .home-news-title-link {
+  color: #0369a1;
+  display: -webkit-box;
+  font-weight: 900;
+  line-height: 1.45;
+  overflow: hidden;
+  text-decoration: none;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.home-war-room .home-news-meta {
+  color: #64748b;
+  display: block;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.home-war-room .home-news-summary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.home-war-room .home-news-detail {
+  border-top: 1px solid #e2e8f0;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+.home-war-room .home-news-detail div {
+  display: grid;
+  gap: 4px;
+}
+.home-war-room .home-news-detail strong {
+  color: #475569;
+  font-size: 13px;
+}
+.home-war-room .home-news-detail span,
+.home-war-room .home-news-detail a {
+  color: #0f172a;
+  font-weight: 700;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
 .home-war-room .home-section-note {
   color: #475569;
   font-size: 13px;
@@ -3975,6 +4047,14 @@ tr:nth-child(even) { background: #f8fafc; }
   }
   .home-war-room .home-news-table {
     min-width: 780px;
+  }
+  .home-war-room .home-news-item summary {
+    align-items: flex-start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .home-war-room .home-news-summary-tags {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
   }
 }
 

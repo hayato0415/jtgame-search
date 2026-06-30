@@ -2267,7 +2267,16 @@ function homeNewsStockText(item) {
 }
 
 function homeNewsImpactType(item) {
-  const text = String(item.impact || item.direction || item.sentiment || item.asurada_analysis || item.summary || "").trim();
+  const text = String([
+    item.impact,
+    item.direction,
+    item.sentiment,
+    item.asurada_analysis,
+    item.summary,
+    item.title,
+    item.category,
+    item.related_keywords,
+  ].filter(Boolean).join(" ")).trim();
   if (/偏空|利空|風險|下修|衰退|跌|降溫|制裁|禁令|虧損|違約|裁員/.test(text)) return "bearish";
   if (/偏多|利多|受惠|改善|成長|上修|漲價|需求|訂單|財報優|買盤|突破/.test(text)) return "bullish";
   return "neutral";
@@ -2292,6 +2301,14 @@ function homeSortedNewsItems(data) {
     }) : [];
 }
 
+function homeNewsStrengthText(item) {
+  return item.event_strength || item.strength || "未標示";
+}
+
+function homeNewsDirectionText(item) {
+  return item.impact || item.direction || item.sentiment || "中性";
+}
+
 function homeNewsGroupTable(title, items, tone) {
   const topItems = items.slice(0, 5);
   if (!topItems.length) return `<section class="home-news-group"><h3>${escapeHtml(title)}</h3>${dashboardEmpty(`目前沒有${title}`)}</section>`;
@@ -2301,27 +2318,35 @@ function homeNewsGroupTable(title, items, tone) {
         <h3>${escapeHtml(title)}</h3>
         <span>${topItems.length} 則</span>
       </div>
-      <div class="table-wrap home-table-wrap">
-        <table class="home-dashboard-table home-news-table">
-          <thead><tr><th>時間</th><th>地區</th><th>標題</th><th>影響題材</th><th>影響個股</th><th>來源</th></tr></thead>
-          <tbody>${topItems.map((item) => {
-            const url = eventUrl(item);
-            const titleText = escapeHtml(item.title || "未命名新聞");
-            const headline = isRealSourceUrl(url)
-              ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${titleText}</a>`
-              : `<span>${titleText}</span>`;
-            return `
-              <tr>
-                <td>${escapeHtml(formatDashboardTime(homeNewsTimeValue(item)) || "-")}</td>
-                <td><span class="home-news-badge">${escapeHtml(homeNewsRegionLabel(item))}</span></td>
-                <td>${headline}</td>
-                <td>${escapeHtml(homeNewsThemeText(item))}</td>
-                <td>${escapeHtml(homeNewsStockText(item))}</td>
-                <td>${escapeHtml(item.source || item.source_name || "-")}</td>
-              </tr>
-            `;
-          }).join("")}</tbody>
-        </table>
+      <div class="home-news-accordion">
+        ${topItems.map((item, index) => {
+          const url = eventUrl(item);
+          const titleText = escapeHtml(item.title || "未命名新聞");
+          const headline = isRealSourceUrl(url)
+            ? `<a class="home-news-title-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${titleText}</a>`
+            : `<span class="home-news-title-link">${titleText}</span>`;
+          return `
+            <details class="home-news-item">
+              <summary>
+                <span class="home-news-rank">#${index + 1}</span>
+                <span class="home-news-summary-main">
+                  ${headline}
+                  <span class="home-news-meta">${escapeHtml(formatDashboardTime(homeNewsTimeValue(item)) || "-")} · ${escapeHtml(item.source || item.source_name || "-")}</span>
+                </span>
+                <span class="home-news-summary-tags">
+                  <span class="home-news-badge">${escapeHtml(homeNewsRegionLabel(item))}</span>
+                  <span class="home-news-badge">強度：${escapeHtml(homeNewsStrengthText(item))}</span>
+                  <span class="home-news-badge">方向：${escapeHtml(homeNewsDirectionText(item))}</span>
+                </span>
+              </summary>
+              <div class="home-news-detail">
+                <div><strong>影響題材</strong><span>${escapeHtml(homeNewsThemeText(item))}</span></div>
+                <div><strong>影響個股</strong><span>${escapeHtml(homeNewsStockText(item))}</span></div>
+                <div><strong>來源</strong><span>${isRealSourceUrl(url) ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source || item.source_name || "查看來源")}</a>` : escapeHtml(item.source || item.source_name || "-")}</span></div>
+              </div>
+            </details>
+          `;
+        }).join("")}
       </div>
     </section>
   `;
@@ -2330,8 +2355,13 @@ function homeNewsGroupTable(title, items, tone) {
 function homeMajorNewsTable(data) {
   const items = homeSortedNewsItems(data).filter((item) => isRealSourceUrl(eventUrl(item)));
   if (!items.length) return dashboardEmpty("重大新聞資料尚未更新");
-  const bullish = items.filter((item) => homeNewsImpactType(item) === "bullish");
-  const bearish = items.filter((item) => homeNewsImpactType(item) === "bearish");
+  const bullish = items.filter((item) => homeNewsImpactType(item) === "bullish").slice(0, 5);
+  const bullishUrls = new Set(bullish.map((item) => eventUrl(item)));
+  const bearishStrict = items.filter((item) => homeNewsImpactType(item) === "bearish");
+  const bearishSupplement = items.filter((item) => !bullishUrls.has(eventUrl(item)) && homeNewsImpactType(item) !== "bullish");
+  const bearish = [...bearishStrict, ...bearishSupplement]
+    .filter((item, index, array) => array.findIndex((candidate) => eventUrl(candidate) === eventUrl(item)) === index)
+    .slice(0, 5);
   return `
     <div class="home-news-split-grid">
       ${homeNewsGroupTable("偏多重大新聞 Top 5", bullish, "bullish")}
