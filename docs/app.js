@@ -3020,14 +3020,41 @@ function newsLatestUpdateText() {
   const meta = state.newsLatestMeta || {};
   const latest = meta.updated_at || "";
   const stage = meta.stage_label || meta.stage || "";
-  const schedule = meta.schedule_time ? `｜排程 ${meta.schedule_time}` : "";
   if (!latest) return "每日整理時間：資料尚未更新";
-  return `每日整理時間：${formatDashboardTime(latest)}${stage ? `｜${stage}` : ""}${schedule}`;
+  return `每日整理時間：${formatDashboardTime(latest)}${stage ? `｜本次資料階段：${stage}` : ""}`;
 }
 
 function newsContentLatestText() {
   const latest = newsLatestDateValue();
   return latest ? `新聞內容最新日期：${formatDashboardTime(latest)}` : "新聞內容最新日期：資料尚未更新";
+}
+
+const NEWS_UPDATE_SCHEDULE = [
+  ["08:07", "盤前更新"],
+  ["10:07", "盤中更新"],
+  ["13:37", "收盤快照"],
+  ["17:07", "盤後籌碼/新聞補齊"],
+  ["19:07", "晚間總結"],
+];
+
+function newsUpdateScheduleHtml() {
+  const meta = state.newsLatestMeta || {};
+  const currentTime = String(meta.schedule_time || "");
+  const currentStage = String(meta.stage_label || meta.stage || "");
+  return `
+    <div class="news-schedule-box" aria-label="重大新聞定時更新表">
+      <div class="news-schedule-heading">
+        <strong>定時更新</strong>
+        <span>Asia/Taipei，實際內容以新聞來源成功抓取時間為準</span>
+      </div>
+      <div class="news-schedule-list">
+        ${NEWS_UPDATE_SCHEDULE.map(([time, label]) => {
+          const isCurrent = currentTime === time || currentStage === label;
+          return `<span class="news-schedule-item ${isCurrent ? "is-current" : ""}"><b>${time}</b>${label}</span>`;
+        }).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function newsFreshnessWarningText() {
@@ -3186,6 +3213,7 @@ function renderNews() {
       </div>
       <p class="muted">${newsContentLatestText()}</p>
       ${newsFreshnessWarningText() ? `<div class="empty">${escapeHtml(newsFreshnessWarningText())}</div>` : ""}
+      ${newsUpdateScheduleHtml()}
       <div class="news-filter-tabs" role="tablist" aria-label="新聞篩選">
         ${filters.map(([key, label], index) => `<button class="news-filter-btn ${index === 0 ? "is-active" : ""}" type="button" data-news-filter="${key}">${label}</button>`).join("")}
       </div>
