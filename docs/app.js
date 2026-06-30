@@ -2025,6 +2025,22 @@ function bindHomeThemeTopToggles() {
   });
 }
 
+function bindThreeDayThemeToggles() {
+  document.querySelectorAll(".three-day-theme-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.target;
+      const detail = targetId ? document.getElementById(targetId) : null;
+      const row = button.closest(".theme-row");
+      if (!detail) return;
+      const isOpen = detail.classList.toggle("is-open");
+      row?.classList.toggle("is-expanded", isOpen);
+      detail.setAttribute("aria-hidden", String(!isOpen));
+      button.setAttribute("aria-expanded", String(isOpen));
+      button.textContent = isOpen ? HOME_THEME_LABELS.collapse : HOME_THEME_LABELS.expand;
+    });
+  });
+}
+
 function homeAiStockTable(data) {
   const items = homeStockFlowGroups(data);
   if (!items.length) return dashboardEmpty("AI選股觀察資料尚未更新");
@@ -2153,10 +2169,11 @@ function renderThreeDayThemes(data) {
       </div>
       ${data.summary ? `<p class="home-section-note">${escapeHtml(data.summary)}</p>` : ""}
       <div id="threeDayThemesList" class="three-day-themes-list">
-        ${rows.map((item) => {
+        ${rows.map((item, index) => {
           const score = computeThreeDayScore(item);
           const strengthClass = getThemeStrengthClass(score);
           const continuityClass = getContinuityClass(item.continuity);
+          const detailId = `three-day-theme-detail-${index}`;
           const trace = Array.isArray(item.dailyTrace)
             ? item.dailyTrace.map((day) => `<span class="theme-trace-chip">${escapeHtml(day.date || "-")} ${escapeHtml(day.status || "")}</span>`).join("")
             : "";
@@ -2174,15 +2191,22 @@ function renderThreeDayThemes(data) {
                 </div>
                 <p>${escapeHtml(item.mainReason || "-")}</p>
               </div>
-              <div class="theme-stocks">
-                <p><b>\u9f8d\u982d</b>${homeThemeStockChips(item.leaderStocks || item.leader_stocks || [], 4)}</p>
-                <p><b>\u76f8\u95dc\u80a1</b>${homeThemeStockChips(item.relatedStocks || item.related_stocks || [], 8)}</p>
-                <p><b>\u4f4e\u4f4d\u968e\u89c0\u5bdf</b>${homeThemeStockChips(item.lowBaseWatch || item.low_base_watch || [], 5)}</p>
-                ${trace ? `<p class="theme-trace"><b>\u4e09\u65e5\u8ecc\u8de1</b>${trace}</p>` : ""}
+              <div class="theme-row-action">
+                <button class="three-day-theme-toggle" type="button" aria-expanded="false" aria-controls="${detailId}" data-target="${detailId}">${HOME_THEME_LABELS.expand}</button>
               </div>
-              <div class="theme-risk">
-                <b>\u98a8\u96aa</b>
-                <p>${escapeHtml(item.risk || "-")}</p>
+              <div id="${detailId}" class="theme-row-detail" aria-hidden="true">
+                <div class="theme-row-detail-grid">
+                  <div class="theme-stocks">
+                    <p><b>\u9f8d\u982d</b>${homeThemeStockChips(item.leaderStocks || item.leader_stocks || [], 4)}</p>
+                    <p><b>\u76f8\u95dc\u80a1</b>${homeThemeStockChips(item.relatedStocks || item.related_stocks || [], 8)}</p>
+                    <p><b>\u4f4e\u4f4d\u968e\u89c0\u5bdf</b>${homeThemeStockChips(item.lowBaseWatch || item.low_base_watch || [], 5)}</p>
+                    ${trace ? `<p class="theme-trace"><b>\u4e09\u65e5\u8ecc\u8de1</b>${trace}</p>` : ""}
+                  </div>
+                  <div class="theme-risk">
+                    <b>\u98a8\u96aa</b>
+                    <p>${escapeHtml(item.risk || "-")}</p>
+                  </div>
+                </div>
               </div>
             </article>
           `;
@@ -4460,6 +4484,7 @@ async function renderHomeDashboard() {
     </section>
   `;
   bindHomeThemeTopToggles();
+  bindThreeDayThemeToggles();
 }
 
 async function boot(page) {
