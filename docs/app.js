@@ -3146,21 +3146,7 @@ function datasetTimeChip(label, filename) {
 }
 
 function radarDataStatusHtml() {
-  const siteTime = compactTimeText(siteVersionState.updated_at);
-  const slot = [siteVersionState.slot_label, siteVersionState.schedule_time].filter(Boolean).join(" ");
-  return `
-    <section class="radar-data-status" aria-label="AI選股資料時間">
-      <div class="radar-data-status-title">
-        <strong>資料時間</strong>
-        <span>全站更新 ${siteTime}${slot ? `｜${escapeHtml(slot)}` : ""}</span>
-      </div>
-      <div class="radar-data-chip-row">
-        ${datasetTimeChip("雷達", "radar-latest.json")}
-        ${datasetTimeChip("盤勢", "market-latest.json")}
-        ${datasetTimeChip("新聞", "news-latest.json")}
-      </div>
-    </section>
-  `;
+  return "";
 }
 
 function renderRadar() {
