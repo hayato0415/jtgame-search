@@ -1,6 +1,6 @@
 import { loadProcessedData, getItems } from "./api.js";
 import { $, escapeHtml, renderEmpty } from "./utils.js";
-import { formatDateTime, formatNumber, formatPercent, formatSignedPercent } from "./formatters.js";
+import { formatDateTime, formatNumber, formatPercent, formatSignedPercent, valueClass } from "./formatters.js";
 import { riskBadge, scoreBadge, statusBadge } from "./scoring-ui.js";
 
 let stocks = [];
@@ -9,6 +9,7 @@ let news = [];
 let metrics = [];
 let stockDataUpdatedAt = "";
 let metricsUpdatedAt = "";
+let metricsRevenueMonth = "";
 
 function getSymbolFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -71,6 +72,11 @@ function formatMetricSignedPercent(value, digits = 2) {
   return hasNumericValue(value) ? formatSignedPercent(value, digits) : "--";
 }
 
+function formatVolumeLots(value) {
+  if (!hasNumericValue(value)) return "--";
+  return `${formatNumber(Math.round(Number(value) / 1000), 0)} 張`;
+}
+
 function getTurnoverRate(metric) {
   if (hasNumericValue(metric.turnover_rate_pct)) {
     return formatPercent(metric.turnover_rate_pct, 2);
@@ -87,7 +93,12 @@ function getTurnoverRate(metric) {
 }
 
 function getRevenueMonthLabel(metric) {
-  if (metric.revenue_month) return `${escapeHtml(metric.revenue_month)}月`;
+  const revenueMonth = metric.revenue_month || metricsRevenueMonth;
+  if (revenueMonth) {
+    const match = String(revenueMonth).match(/(?:\d{4}-)?(\d{1,2})$/);
+    if (match) return `${Number(match[1])}月`;
+    return escapeHtml(String(revenueMonth));
+  }
   if (metric.revenue_period) {
     const match = String(metric.revenue_period).match(/-(\d{1,2})$/);
     if (match) return `${Number(match[1])}月`;
@@ -105,8 +116,8 @@ function renderTradingRevenueSnapshot(metric) {
       </div>
       <div class="metric-grid">
         <article class="metric-card"><span>成交價</span><strong>${formatMetricNumber(metric.trade_price, 2)}</strong></article>
-        <article class="metric-card"><span>漲幅%</span><strong>${formatMetricSignedPercent(metric.change_pct, 2)}</strong></article>
-        <article class="metric-card"><span>成交量</span><strong>${hasNumericValue(metric.volume) ? formatNumber(metric.volume, 0) : "--"}</strong></article>
+        <article class="metric-card"><span>漲幅%</span><strong class="${valueClass(metric.change_pct)}">${formatMetricSignedPercent(metric.change_pct, 2)}</strong></article>
+        <article class="metric-card"><span>成交量</span><strong>${formatVolumeLots(metric.volume)}</strong></article>
         <article class="metric-card"><span>週轉率</span><strong>${getTurnoverRate(metric)}</strong></article>
         <article class="metric-card"><span>當月營收(百萬)</span><strong>${formatMetricNumber(metric.revenue_million, 2)}</strong></article>
         <article class="metric-card"><span>月增率(${monthLabel})</span><strong>${formatMetricSignedPercent(metric.revenue_mom_pct, 2)}</strong></article>
@@ -217,6 +228,7 @@ async function initStockPage() {
   news = getItems(loaded["news_events.json"].data);
   metrics = getItems(loaded["stock_metrics_daily.json"].data);
   metricsUpdatedAt = loaded["stock_metrics_daily.json"].data?.updated_at || "";
+  metricsRevenueMonth = loaded["stock_metrics_daily.json"].data?.revenue_month || "";
 
   renderStockOptions();
   bindSearch();

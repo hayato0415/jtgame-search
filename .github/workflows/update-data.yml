@@ -3,7 +3,9 @@ name: Update Processed Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "7 11 * * 1-5"
+    # Asia/Taipei 14:45, 19:10
+    - cron: "45 6 * * 1-5"
+    - cron: "10 11 * * 1-5"
 
 permissions:
   contents: write
@@ -20,10 +22,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Placeholder data update
+      - name: Install dependencies
         run: |
-          echo "First phase uses sample JSON in data/processed."
-          echo "Future update scripts should write processed files only."
+          python -m pip install --upgrade pip
+          python -m pip install requests
 
-      - name: Show processed data files
-        run: find data/processed -maxdepth 1 -type f -print
+      - name: Update stock metrics
+        run: python scripts/update_stock_metrics.py
+
+      - name: Commit processed data
+        run: |
+          if git diff --quiet -- data/processed/stock_metrics_daily.json data/processed/update_log.json; then
+            echo "No stock metrics changes."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/processed/stock_metrics_daily.json data/processed/update_log.json
+            git commit -m "Update stock metrics data"
+            git push
+          fi
