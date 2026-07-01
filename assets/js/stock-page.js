@@ -1,12 +1,14 @@
 import { loadProcessedData, getItems } from "./api.js";
 import { $, escapeHtml, renderEmpty } from "./utils.js";
-import { formatDateTime } from "./formatters.js";
+import { formatDateTime, formatNumber, formatPercent, formatSignedPercent } from "./formatters.js";
 import { riskBadge, scoreBadge, statusBadge } from "./scoring-ui.js";
 
 let stocks = [];
 let scores = [];
 let news = [];
+let metrics = [];
 let stockDataUpdatedAt = "";
+let metricsUpdatedAt = "";
 
 function getSymbolFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -48,6 +50,72 @@ function scoreLine(label, value) {
   `;
 }
 
+function findMetric(symbol) {
+  return metrics.find((item) => String(item.symbol) === String(symbol)) || {};
+}
+
+function hasNumericValue(value) {
+  if (value === null || value === undefined || value === "") return false;
+  return Number.isFinite(Number(value));
+}
+
+function formatMetricNumber(value, digits = 2) {
+  return hasNumericValue(value) ? formatNumber(value, digits) : "--";
+}
+
+function formatMetricPercent(value, digits = 2) {
+  return hasNumericValue(value) ? formatPercent(value, digits) : "--";
+}
+
+function formatMetricSignedPercent(value, digits = 2) {
+  return hasNumericValue(value) ? formatSignedPercent(value, digits) : "--";
+}
+
+function getTurnoverRate(metric) {
+  if (hasNumericValue(metric.turnover_rate_pct)) {
+    return formatPercent(metric.turnover_rate_pct, 2);
+  }
+
+  if (hasNumericValue(metric.volume) && hasNumericValue(metric.listed_shares)) {
+    const listedShares = Number(metric.listed_shares);
+    if (listedShares > 0) {
+      return formatPercent((Number(metric.volume) / listedShares) * 100, 2);
+    }
+  }
+
+  return "--";
+}
+
+function getRevenueMonthLabel(metric) {
+  if (metric.revenue_month) return `${escapeHtml(metric.revenue_month)}月`;
+  if (metric.revenue_period) {
+    const match = String(metric.revenue_period).match(/-(\d{1,2})$/);
+    if (match) return `${Number(match[1])}月`;
+  }
+  return "最新月份";
+}
+
+function renderTradingRevenueSnapshot(metric) {
+  const monthLabel = getRevenueMonthLabel(metric);
+  return `
+    <section class="panel">
+      <div class="section-head">
+        <h2>交易與營收快照</h2>
+        <span class="muted">資料更新：${formatDateTime(metric.updated_at || metricsUpdatedAt)}</span>
+      </div>
+      <div class="metric-grid">
+        <article class="metric-card"><span>成交價</span><strong>${formatMetricNumber(metric.trade_price, 2)}</strong></article>
+        <article class="metric-card"><span>漲幅%</span><strong>${formatMetricSignedPercent(metric.change_pct, 2)}</strong></article>
+        <article class="metric-card"><span>成交量</span><strong>${hasNumericValue(metric.volume) ? formatNumber(metric.volume, 0) : "--"}</strong></article>
+        <article class="metric-card"><span>週轉率</span><strong>${getTurnoverRate(metric)}</strong></article>
+        <article class="metric-card"><span>當月營收(百萬)</span><strong>${formatMetricNumber(metric.revenue_million, 2)}</strong></article>
+        <article class="metric-card"><span>月增率(${monthLabel})</span><strong>${formatMetricSignedPercent(metric.revenue_mom_pct, 2)}</strong></article>
+        <article class="metric-card"><span>年增率(${monthLabel})</span><strong>${formatMetricSignedPercent(metric.revenue_yoy_pct, 2)}</strong></article>
+      </div>
+    </section>
+  `;
+}
+
 function renderStock(stock) {
   const root = $("#stockDetail");
   if (!stock) {
@@ -56,10 +124,11 @@ function renderStock(stock) {
   }
 
   const score = scores.find((item) => String(item.symbol) === String(stock.symbol)) || {};
+  const metric = findMetric(stock.symbol);
   const relatedNews = news.filter((item) => item.stocks?.some((newsStock) => String(newsStock.code ?? newsStock.symbol) === String(stock.symbol)));
   const theme = score.theme || stock.theme || "--";
   const supplyChain = stock.supply_chain || "--";
-  const updatedAt = score.updated_at || score.market_date || stock.updated_at || stockDataUpdatedAt;
+  const updatedAt = score.updated_at || score.market_date || metric.updated_at || stock.updated_at || metricsUpdatedAt || stockDataUpdatedAt;
 
   $("#stockUpdatedAt").textContent = `資料更新：${formatDateTime(updatedAt)}`;
   root.innerHTML = `
@@ -81,6 +150,8 @@ function renderStock(stock) {
         <article class="metric-card"><span>風險</span><strong>${riskBadge(score.risk_level)}</strong></article>
       </div>
     </section>
+
+    ${renderTradingRevenueSnapshot(metric)}
 
     <section class="panel">
       <div class="section-head"><h2>分數拆解</h2></div>
@@ -139,11 +210,13 @@ function bindSearch() {
 }
 
 async function initStockPage() {
-  const loaded = await loadProcessedData(["stocks_master.json", "ai_scores_daily.json", "news_events.json"]);
+  const loaded = await loadProcessedData(["stocks_master.json", "ai_scores_daily.json", "news_events.json", "stock_metrics_daily.json"]);
   stocks = getItems(loaded["stocks_master.json"].data);
   stockDataUpdatedAt = loaded["stocks_master.json"].data?.updated_at || "";
   scores = getItems(loaded["ai_scores_daily.json"].data);
   news = getItems(loaded["news_events.json"].data);
+  metrics = getItems(loaded["stock_metrics_daily.json"].data);
+  metricsUpdatedAt = loaded["stock_metrics_daily.json"].data?.updated_at || "";
 
   renderStockOptions();
   bindSearch();

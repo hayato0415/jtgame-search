@@ -42,6 +42,13 @@
       "count": 3,
       "status": "ok",
       "error": ""
+    },
+    {
+      "file": "stock_metrics_daily.json",
+      "updated_at": "2026-07-01 21:44",
+      "count": 1970,
+      "status": "ok",
+      "error": ""
     }
   ]
 }
